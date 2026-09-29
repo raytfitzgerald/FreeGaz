@@ -2,8 +2,18 @@
 // round-trip losslessly, while allowing absolute-watt targets and FTP-test
 // metadata that .zwo cannot express.
 
-/** A power target: a fraction of FTP (0.88 = 88 %) or absolute watts. */
-export type PowerTarget = { unit: 'ftp'; value: number } | { unit: 'watts'; value: number }
+/**
+ * A power target: a fraction of FTP (0.88 = 88 %) or absolute watts.
+ *
+ * `low`/`high` (same unit as `value`, both set, low < high) optionally mark a
+ * target range, as in .zwo SteadyState PowerLow/PowerHigh or intervals.icu
+ * "95-105%". ERG holds `value` (the midpoint when imported); the player may
+ * show the range. Ranges only apply to steady and interval targets: ramp
+ * endpoints ignore them.
+ */
+export type PowerTarget =
+  | { unit: 'ftp'; value: number; low?: number; high?: number }
+  | { unit: 'watts'; value: number; low?: number; high?: number }
 
 export interface CadenceTarget {
   /** Single target rpm, or a range when low/high are both set. */
@@ -47,6 +57,8 @@ export interface IntervalPart {
   durationS: number
   power: PowerTarget
   cadence?: CadenceTarget
+  /** Label for this half of each rep ("Over", "Under"); falls back to the segment label. */
+  label?: string
 }
 
 export interface IntervalsSegment extends SegmentBase {
