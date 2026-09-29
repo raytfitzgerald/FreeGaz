@@ -21,7 +21,7 @@ export default defineConfig(
   {
     ignores: [
       'out/**', 'release/**', 'node_modules/**', 'coverage/**', 'test-results/**',
-      'playwright-report/**', 'resources/**', '**/*.d.ts',
+      'playwright-report/**', 'resources/**', '**/*.d.ts', '.claude/**',
     ],
   },
   js.configs.recommended,

@@ -9,7 +9,7 @@ describe('IPC contract', () => {
 
   it('preload event allowlist matches EventMap', () => {
     // EventMap is a type; keep this list in sync by construction.
-    const events: Record<keyof EventMap, true> = { 'app.log': true }
+    const events: Record<keyof EventMap, true> = { 'app.log': true, 'settings.changed': true, 'ble.chooser': true, 'ble.chosen': true }
     expect([...EVENT_CHANNELS].sort()).toEqual(Object.keys(events).sort())
   })
 

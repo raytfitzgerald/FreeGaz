@@ -4,6 +4,10 @@ import { configureUserData, env } from './env'
 import { handleAppScheme, registerAppScheme } from './app-protocol'
 import { createMainWindow } from './windows/main-window'
 import { registerAppHandlers } from './ipc/app-handlers'
+import { registerDeviceHandlers } from './ipc/device-handlers'
+import { emit } from './ipc/register'
+import { BluetoothChooser } from './ble/chooser'
+import { SettingsStore } from './store/settings-store'
 import { runSelfTestIfRequested } from './selftest'
 
 // ---- pre-ready setup -------------------------------------------------------
@@ -34,8 +38,15 @@ app.on('second-instance', () => {
 // ---- ready -------------------------------------------------------------------
 void app.whenReady().then(() => {
   handleAppScheme(join(__dirname, '../renderer'))
+  const settings = SettingsStore.inDir(app.getPath('userData'))
+  const chooser = new BluetoothChooser(
+    (state) => mainWindow && emit(mainWindow.webContents, 'ble.chooser', state),
+    (info) => mainWindow && emit(mainWindow.webContents, 'ble.chosen', info),
+  )
   registerAppHandlers()
+  registerDeviceHandlers({ settings, chooser })
   mainWindow = createMainWindow()
+  chooser.attach(mainWindow.webContents)
   runSelfTestIfRequested(mainWindow)
   mainWindow.on('closed', () => {
     mainWindow = null

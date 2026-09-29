@@ -4,7 +4,7 @@
   "compilerOptions": {
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "jsx": "react-jsx",
-    "types": ["vite/client"]
+    "types": ["vite/client", "web-bluetooth"]
   },
   "include": ["src/renderer/**/*.ts", "src/renderer/**/*.tsx", "src/renderer/src/env.d.ts"],
   "exclude": ["src/core/host.d.ts"]
