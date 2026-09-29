@@ -6,7 +6,7 @@ import { computeAchievements, computeStreaks, type AchievementIcon, type Achieve
 import type { InvokeRes } from '@shared/ipc/contract'
 import { currentProfile, DEFAULT_WEIGHT_KG, ftpHistory } from '../../db/athlete-repo'
 import { db } from '../../db/db'
-import { pmcSeries, weeklyLoad } from '../../db/fitness'
+import { pmcSeries, powerCurve, weeklyLoad } from '../../db/fitness'
 import { PageHeader } from '../../ui/PageHeader'
 import { cn } from '../../ui/cn'
 import { formatDate, formatDurationShort } from '../../ui/format'
@@ -37,8 +37,9 @@ export function HomePage() {
   }, [])
 
   const data = useLiveQuery(async () => {
-    const [rides, ftp, profile, pmc, week] = await Promise.all([db().rides.toArray(), ftpHistory(), currentProfile(), pmcSeries(1), weeklyLoad(1)])
-    return { rides, ftp, weightKg: profile?.weightKg ?? DEFAULT_WEIGHT_KG, today: pmc.at(-1) ?? null, week: week.at(-1) ?? null }
+    const [rides, ftp, profile, pmc, week, curve] = await Promise.all([db().rides.toArray(), ftpHistory(), currentProfile(), pmcSeries(1), weeklyLoad(1), powerCurve()])
+    const eftpW = curve.eftp.method === 'cp' ? Math.round(curve.eftp.ftpW) : null
+    return { rides, ftp, weightKg: profile?.weightKg ?? DEFAULT_WEIGHT_KG, today: pmc.at(-1) ?? null, week: week.at(-1) ?? null, eftpW }
   }, [])
 
   const derived = useMemo(() => {
@@ -74,7 +75,15 @@ export function HomePage() {
           label="FTP"
           value={ftpNow ? `${ftpNow.ftpW} W` : '—'}
           sub={ftpNow ? `${(ftpNow.ftpW / (ftpNow.weightKg ?? data!.weightKg)).toFixed(2)} W/kg` : 'Not set yet'}
-          note={testAge === null ? 'No test yet: try the ramp test' : testAge > RETEST_DAYS ? `Tested ${testAge} days ago: time to retest` : `Tested ${testAge === 0 ? 'today' : `${testAge} day${testAge === 1 ? '' : 's'} ago`}`}
+          note={
+            ftpNow && data?.eftpW && data.eftpW > ftpNow.ftpW * 1.05
+              ? `Your rides suggest about ${data.eftpW} W: time to retest?`
+              : testAge === null
+                ? 'No test yet: try the ramp test'
+                : testAge > RETEST_DAYS
+                  ? `Tested ${testAge} days ago: time to retest`
+                  : `Tested ${testAge === 0 ? 'today' : `${testAge} day${testAge === 1 ? '' : 's'} ago`}`
+          }
           to="/workouts"
           search={{ filter: 'tests' }}
         />

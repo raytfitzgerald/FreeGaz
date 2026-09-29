@@ -19,7 +19,11 @@ export interface FtpUpdateDecision {
 export const MAX_AUTO_DROP = 0.03
 /** A jump bigger than this is confirmed too (usually a pacing or sensor problem). */
 export const MAX_AUTO_RISE = 0.15
-/** A result further than this from the estimate from recent rides is confirmed. */
+/**
+ * A result this far *below* the estimate from recent rides is confirmed: it
+ * suggests a bad test day. (A result above it is plausible: recent rides are
+ * usually sub-maximal, which drags the estimate down.)
+ */
 export const EFTP_TOLERANCE = 0.08
 
 export function decideFtpUpdate(input: { result: FtpTestResult; currentFtpW: number | null; simulated: boolean; eftpW?: number | null }): FtpUpdateDecision {
@@ -31,7 +35,7 @@ export function decideFtpUpdate(input: { result: FtpTestResult; currentFtpW: num
   if (changePct !== null && changePct < -MAX_AUTO_DROP) reasons.push(`That is ${Math.round(-changePct * 100)} % below your current FTP of ${cur} W.`)
   if (changePct !== null && changePct > MAX_AUTO_RISE) reasons.push(`That is ${Math.round(changePct * 100)} % above your current FTP of ${cur} W.`)
   const e = input.eftpW
-  if (e && e > 0 && Math.abs(newFtpW - e) / e > EFTP_TOLERANCE) reasons.push(`Your recent rides point to about ${Math.round(e)} W.`)
+  if (e && e > 0 && newFtpW < e * (1 - EFTP_TOLERANCE)) reasons.push(`Your recent rides point to about ${Math.round(e)} W.`)
   return { action: reasons.length > 0 ? 'ask' : 'auto', newFtpW, changePct, reasons }
 }
 

@@ -24,7 +24,9 @@ describe('decideFtpUpdate', () => {
   it('asks when the test had problems or disagrees with recent rides', () => {
     const bad = decideFtpUpdate({ result: result(255, ['The effort is missing 12 s of power.']), currentFtpW: 250, simulated: false })
     expect(bad).toMatchObject({ action: 'ask', reasons: ['The effort is missing 12 s of power.'] })
-    expect(decideFtpUpdate({ result: result(255), currentFtpW: 250, simulated: false, eftpW: 230 }).reasons[0]).toMatch(/about 230 W/)
+    expect(decideFtpUpdate({ result: result(248), currentFtpW: 250, simulated: false, eftpW: 275 }).reasons[0]).toMatch(/about 275 W/)
+    // Above the estimate is plausible (recent rides are rarely all-out).
+    expect(decideFtpUpdate({ result: result(262), currentFtpW: 250, simulated: false, eftpW: 230 }).action).toBe('auto')
     expect(decideFtpUpdate({ result: result(255), currentFtpW: 250, simulated: false, eftpW: 250 }).action).toBe('auto')
   })
 

@@ -59,6 +59,7 @@ export function RideDetailPage() {
           </>
         }
       />
+      {ride.ftpTest && <FtpTestNote t={ride.ftpTest} />}
       <SummaryGrid r={ride} />
       {streams ? <Streams streams={streams} ride={ride} /> : <div className="py-10 text-center text-ink-faint">No stream data for this ride.</div>}
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
@@ -90,6 +91,16 @@ export function RideDetailPage() {
       >
         <div />
       </Dialog>
+    </div>
+  )
+}
+
+function FtpTestNote({ t }: { t: NonNullable<RideSummary['ftpTest']> }) {
+  return (
+    <div className="mb-4 rounded-2xl border border-accent/40 bg-accent/5 px-5 py-3 text-sm" data-testid="ride-ftp-test">
+      <span className="font-semibold">FTP test: {t.ftpW} W</span>
+      <span className="text-ink-dim"> from a {t.basisW} W basis · {t.applied ? 'saved as your FTP' : 'not applied'}</span>
+      {!t.valid && t.problems.length > 0 && <div className="mt-1 text-xs text-ink-dim">{t.problems.join(' ')}</div>}
     </div>
   )
 }

@@ -14,6 +14,8 @@ import type { Clock } from '@core/time/clock'
 import type { LiveFrame, RideCommand } from '@shared/live'
 import { athleteSnapshot, currentFtp, deleteFtp, recordFtp } from '../db/athlete-repo'
 import { bestPowers } from '../db/bests'
+import { db } from '../db/db'
+import { powerCurve } from '../db/fitness'
 import { discardRecovery, pendingRecoveries, recoverRide, saveFinishedRide } from '../db/rides-repo'
 import { bridge } from '../platform/bridge'
 import { pushToast, rideStore } from '../stores/ride'
@@ -187,6 +189,7 @@ export class RideRunner {
         workoutName: plan?.kind === 'workout' || plan?.kind === 'ftp-test' ? plan.name : undefined,
         workoutJson: plan?.workoutJson,
       })
+      await recordTestOnRide(session.rideId)
       rideStore.setState({ active: false, rideId: null, snapshot: null, metrics: null, saving: false, lastSaved: saved, ...ENDED })
     } catch (e) {
       rideStore.setState({ saving: false, error: `Could not save the ride: ${e instanceof Error ? e.message : String(e)}. It is safe in the journal and will be offered for recovery.` })
@@ -212,8 +215,10 @@ export class RideRunner {
   private async applyFtpTest(session: RideSession, plan: WorkoutPlan, records: RideRecord[]): Promise<void> {
     const result = plan.ftpResult(records)
     if (!result) return
-    const current = await currentFtp()
-    const decision = decideFtpUpdate({ result, currentFtpW: current?.ftpW ?? null, simulated: session.options.simulated })
+    const [current, curve] = await Promise.all([currentFtp(), powerCurve().catch(() => null)])
+    // Only a proper critical-power fit is trusted as a sanity check.
+    const eftpW = curve?.eftp.method === 'cp' ? curve.eftp.ftpW : null
+    const decision = decideFtpUpdate({ result, currentFtpW: current?.ftpW ?? null, simulated: session.options.simulated, eftpW })
     let savedEntryId: number | null = null
     if (decision.action === 'auto') savedEntryId = await saveTestFtp(session, plan, decision.newFtpW, result.basisW)
     rideStore.setState({
@@ -236,6 +241,7 @@ export class RideRunner {
     if (!t || t.savedEntryId !== null || t.decision.action === 'none') return
     const id = await recordFtp({ date: Date.now(), ftpW: t.decision.newFtpW, source: FTP_SOURCE[t.protocol], rideId: t.rideId, basisW: Math.round(t.result.basisW) })
     rideStore.setState({ ftpTest: { ...t, savedEntryId: id } })
+    await recordTestOnRide(t.rideId)
   }
 
   /** Undo an auto-saved (or accepted) test result. */
@@ -244,6 +250,7 @@ export class RideRunner {
     if (!t || t.savedEntryId === null) return
     await deleteFtp(t.savedEntryId)
     rideStore.setState({ ftpTest: { ...t, savedEntryId: null } })
+    await recordTestOnRide(t.rideId)
   }
 
   /** Called ~4 Hz from the engine frame to feed the mini-HUD and phone. */
@@ -277,6 +284,22 @@ export class RideRunner {
 
 function prLabel(s: number): string {
   return s < 60 ? `${s}-second` : `${Math.round(s / 60)}-minute`
+}
+
+/** Keeps the ride's own record of its FTP test (result and whether it was applied) in step. */
+async function recordTestOnRide(rideId: string): Promise<void> {
+  const t = rideStore.getState().ftpTest
+  if (!t || t.rideId !== rideId) return
+  await db().rides.update(rideId, {
+    ftpTest: {
+      protocol: t.protocol,
+      ftpW: t.decision.newFtpW,
+      basisW: Math.round(t.result.basisW),
+      valid: t.result.valid,
+      problems: t.result.problems,
+      applied: t.savedEntryId !== null,
+    },
+  })
 }
 
 const ENDED = { plan: null, workout: null, actual: null, rescue: null, planFinished: false } as const
