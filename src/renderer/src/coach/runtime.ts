@@ -16,6 +16,7 @@ import type { SensorHub } from '@core/sensors/hub'
 import type { Clock } from '@core/time/clock'
 import type { AppSettings, CoachPrefs } from '@shared/settings'
 import { speak, stopSpeaking } from '../audio/tts'
+import { bridge } from '../platform/bridge'
 import { rideStore } from '../stores/ride'
 import { settingsStore } from '../stores/settings'
 import { fetchQuipLines, type QuipSource } from './quips'
@@ -49,6 +50,8 @@ export interface CoachRuntimeDeps {
   onFtpResult?(listener: (r: FtpOutcome) => void): () => void
   /** AI quip packs; omitted, or any failure, means canned lines only. */
   quips?: QuipSource | null
+  /** The coach started or stopped talking (music ducking). */
+  onSpeaking?: (busy: boolean) => void
   rng?: () => number
 }
 
@@ -83,7 +86,7 @@ export class CoachRuntime {
   private offResult: (() => void) | null = null
 
   constructor(private readonly deps: CoachRuntimeDeps) {
-    this.queue = deps.voice ? new SpeechQueue(deps.voice, () => deps.clock.now()) : null
+    this.queue = deps.voice ? new SpeechQueue(deps.voice, () => deps.clock.now(), undefined, deps.onSpeaking) : null
   }
 
   start(): void {
@@ -256,8 +259,30 @@ export function createCoachRuntime(
     speak: (u, onEnd) => speak(u.text, { prefs: settings.get().coach, hint: packById(u.personaId)?.meta.voiceHint, onEnd }),
     cancel: stopSpeaking,
   }
+  // Lower Spotify / Music while the coach talks; restore after a short silence
+  // so back-to-back lines don't make the volume pump.
+  let ducked = false
+  let unduck: ReturnType<typeof setTimeout> | null = null
+  const music = (action: 'duck' | 'unduck') => void bridge().invoke('music.command', { action }).catch(() => undefined)
+  const onSpeaking = (busy: boolean) => {
+    if (busy) {
+      if (unduck) clearTimeout(unduck)
+      unduck = null
+      if (!ducked) {
+        ducked = true
+        music('duck')
+      }
+    } else if (ducked && !unduck) {
+      unduck = setTimeout(() => {
+        unduck = null
+        ducked = false
+        music('unduck')
+      }, 700)
+    }
+  }
   return new CoachRuntime({
     ...rt,
+    onSpeaking,
     settings,
     voice: opts.speak && typeof speechSynthesis !== 'undefined' ? voice : null,
     show: (session, text) => {

@@ -50,11 +50,14 @@ export class SpeechQueue {
   private waiting: Utterance[] = []
   private token = 0
   private watchdog: unknown = null
+  private busy = false
 
   constructor(
     private readonly voice: Voice,
     private readonly now: () => number,
     private readonly timers: Timers = browserTimers,
+    /** Told when the coach starts talking and when it falls silent (for music ducking). */
+    private readonly onBusy?: (busy: boolean) => void,
   ) {}
 
   /** The line being spoken, if any. */
@@ -87,11 +90,19 @@ export class SpeechQueue {
   clear(): void {
     this.waiting = []
     this.stopCurrent()
+    this.setBusy(false)
+  }
+
+  private setBusy(busy: boolean): void {
+    if (busy === this.busy) return
+    this.busy = busy
+    this.onBusy?.(busy)
   }
 
   private start(u: Utterance): void {
     const token = ++this.token
     this.speaking = { u, token }
+    this.setBusy(true)
     if (!this.voice.speak(u, () => this.finished(token))) {
       this.finished(token)
       return
@@ -104,6 +115,7 @@ export class SpeechQueue {
     this.speaking = null
     this.disarm()
     this.next()
+    if (!this.speaking) this.setBusy(false)
   }
 
   private next(): void {

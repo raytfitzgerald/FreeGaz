@@ -16,7 +16,7 @@ export const COACH_TRIGGERS = [
   'ride_start',
   /** A segment begins. Send `segmentKind` (and `hard` to override the kind's default). */
   'segment_start',
-  /** The last 10 s before a hard segment. `targetW`/`segmentKind`/`remainingS` describe the upcoming segment. */
+  /** The last 10 s before a hard segment. `targetW`/`segmentKind`/`durationS` describe the upcoming segment; `remainingS` is the seconds until it starts. */
   'countdown_10s',
   /** Halfway through a hard segment of at least 60 s. */
   'halfway',
@@ -205,7 +205,7 @@ export const DATA_KEYS = {
   segmentLabel: 'Segment label from the workout, e.g. "VO2 #3".',
   rep: 'Repetition number within an interval set, 1-based.',
   reps: 'Number of repetitions in the set.',
-  remainingS: 'Seconds left in the segment. For segment_start and countdown_10s, its full length.',
+  remainingS: 'Seconds left in the segment. For segment_start, its full length; for countdown_10s, the seconds until it starts (its length is durationS).',
   durationS: 'Length of the segment, s.',
   elapsedS: 'Moving time so far, s.',
   elapsedMin: 'Moving time so far, min. Derived from elapsedS.',

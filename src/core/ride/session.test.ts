@@ -135,6 +135,17 @@ describe('RideSession', () => {
     const prs = events.filter((e) => e.type === 'pr')
     expect(prs.some((p) => p.type === 'pr' && p.durationS === 60 && p.watts >= 300)).toBe(true)
     expect(prs.some((p) => p.type === 'pr' && p.durationS === 5)).toBe(false)
+    // Once per duration per ride, however long the effort keeps improving.
+    expect(prs.filter((p) => p.type === 'pr' && p.durationS === 60)).toHaveLength(1)
+  })
+
+  it('announces no PRs without history (every effort would be one)', async () => {
+    const { session, ride, events } = setup({ bests: {} })
+    session.start()
+    await ride(60, 150)
+    await ride(120, 320)
+    await session.finish()
+    expect(events.filter((e) => e.type === 'pr')).toEqual([])
   })
 
   it('retries failed journal appends with the same sequence number', async () => {

@@ -136,3 +136,25 @@ describe('SpeechQueue', () => {
     expect(q.current).toBeNull()
   })
 })
+
+describe('SpeechQueue busy signal (music ducking)', () => {
+  it('reports busy once per talking spell, across back-to-back and pre-empting lines', () => {
+    const ends: (() => void)[] = []
+    const voice = { speak: (_u: unknown, onEnd: () => void) => (ends.push(onEnd), true), cancel: () => undefined }
+    const timers = { set: () => 0, clear: () => undefined }
+    const busy: boolean[] = []
+    const q = new SpeechQueue(voice, () => 0, timers, (b) => busy.push(b))
+    const line = (text: string, priority: number) => ({ text, priority, at: 0, personaId: 'zen' }) as Parameters<typeof q.say>[0]
+    q.say(line('one', 1))
+    q.say(line('two', 1)) // waits
+    q.say(line('urgent', 3)) // cuts in
+    expect(busy).toEqual([true])
+    ends.at(-1)!() // "urgent" ends → "two" starts
+    expect(busy).toEqual([true])
+    ends.at(-1)!() // "two" ends, nothing waiting
+    expect(busy).toEqual([true, false])
+    q.say(line('three', 1))
+    q.clear()
+    expect(busy).toEqual([true, false, true, false])
+  })
+})

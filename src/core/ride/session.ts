@@ -86,7 +86,9 @@ export class RideSession {
   private readonly zones: TimeInZones
   private readonly drift = new HrDriftAccumulator()
   private readonly prWindows = PR_DURATIONS.map((d) => ({ d, mean: new RollingMean(d) }))
-  private bests: Partial<Record<number, number>>
+  /** Bests from history (before this ride); PRs are only ever measured against these. */
+  private readonly bests: Readonly<Partial<Record<number, number>>>
+  private readonly announcedPrs = new Set<number>()
   private kjSum = 0
   private ride = { maxPower: null as number | null, hrSum: 0, hrN: 0, maxHr: null as number | null, cadSum: 0, cadN: 0 }
   private lapAcc = { index: -1, powerSum: 0, powerN: 0, hrSum: 0, hrN: 0, cadSum: 0, cadN: 0, seconds: 0 }
@@ -402,14 +404,15 @@ export class RideSession {
       lap.cadSum += r.cadence
       lap.cadN++
     }
+    // A PR beats a best from history, and is announced once per duration per
+    // ride. (With no history, every effort would be a "PR".)
     for (const w of this.prWindows) {
       const m = w.mean.push(r.power)
-      if (m !== null && w.mean.count >= w.d) {
-        const prev = this.bests[w.d] ?? null
-        if (prev === null || m > prev + 1) {
-          if (prev !== null) this.emit({ type: 'pr', durationS: w.d, watts: Math.round(m), previous: prev })
-          this.bests[w.d] = m
-        }
+      const prev = this.bests[w.d]
+      if (m === null || w.mean.count < w.d || prev === undefined || this.announcedPrs.has(w.d)) continue
+      if (m > prev + 1) {
+        this.announcedPrs.add(w.d)
+        this.emit({ type: 'pr', durationS: w.d, watts: Math.round(m), previous: prev })
       }
     }
   }
