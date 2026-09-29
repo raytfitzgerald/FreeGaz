@@ -39,6 +39,22 @@ export function createMainWindow(): BrowserWindow {
     if (!isAllowedNavigation(url)) event.preventDefault()
   })
 
+  // The ride engine and Bluetooth live in the renderer: if it dies, bring it
+  // straight back so the journal can be recovered and devices reconnect.
+  // At most three reloads a minute, so a crash loop can't spin forever.
+  const reloads: number[] = []
+  win.webContents.on('render-process-gone', (_event, details) => {
+    if (details.reason === 'clean-exit' || win.isDestroyed()) return
+    const now = Date.now()
+    while (reloads.length > 0 && now - reloads[0]! > 60_000) reloads.shift()
+    if (reloads.length >= 3) return
+    reloads.push(now)
+    console.error(`[freegaz] renderer gone (${details.reason}); reloading`)
+    setTimeout(() => {
+      if (!win.isDestroyed()) win.webContents.reload()
+    }, 300)
+  })
+
   if (env.devServerUrl) {
     void win.loadURL(env.devServerUrl)
   } else {

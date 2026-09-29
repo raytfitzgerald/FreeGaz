@@ -51,7 +51,8 @@ void app.whenReady().then(() => {
   )
   registerAppHandlers()
   registerDeviceHandlers({ settings, chooser })
-  registerRideHandlers({ journal: new JournalStore(app.getPath('userData')), settings })
+  const journal = new JournalStore(app.getPath('userData'))
+  registerRideHandlers({ journal, settings })
   // Keychain-backed encryption; E2E runs use a plain cipher so tests never touch the Keychain.
   const cipher: Cipher = env.isTest
     ? { isAvailable: () => true, encrypt: (s) => Buffer.from(s, 'utf8'), decrypt: (b) => b.toString('utf8') }
@@ -62,6 +63,10 @@ void app.whenReady().then(() => {
   registerHudHandlers(() => mainWindow)
   mainWindow = createMainWindow()
   chooser.attach(mainWindow.webContents)
+  // A renderer that crashed or reloaded left its ride's journal open; close it
+  // so the new page offers the ride for recovery.
+  mainWindow.webContents.on('render-process-gone', () => journal.closeAll())
+  mainWindow.webContents.on('did-navigate', () => journal.closeAll())
   runSelfTestIfRequested(mainWindow)
   mainWindow.on('closed', () => {
     mainWindow = null
