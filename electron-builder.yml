@@ -1,0 +1,55 @@
+# Packaging for macOS (Apple Silicon). Builds an ad-hoc signed, un-notarized DMG.
+# For stable macOS permission grants across rebuilds, sign with a self-signed
+# identity instead:  CSC_NAME="FreeGaz Local" npm run dist   (see README).
+appId: io.github.raytfitzgerald.freegaz
+productName: FreeGaz
+copyright: Copyright © 2026 Ray Fitzgerald
+
+directories:
+  buildResources: build
+  output: release/${version}
+
+files:
+  - out/**
+  - package.json
+  - "!out/web/**"
+  - "!**/*.map"
+  # Main and renderer are fully bundled by electron-vite; ship no node_modules.
+  - "!node_modules/**/*"
+
+extraResources:
+  - from: resources
+    to: resources
+    filter:
+      - "**/*"
+
+asar: true
+
+mac:
+  target:
+    - target: dmg
+      arch: [arm64]
+  category: public.app-category.healthcare-fitness
+  identity: "-"
+  hardenedRuntime: false
+  gatekeeperAssess: false
+  extendInfo:
+    NSBluetoothAlwaysUsageDescription: FreeGaz connects to your smart trainer, heart-rate monitor and other sensors over Bluetooth.
+    NSBluetoothPeripheralUsageDescription: FreeGaz connects to your smart trainer, heart-rate monitor and other sensors over Bluetooth.
+    NSAppleEventsUsageDescription: FreeGaz can control Spotify or Music playback from its keyboard shortcuts.
+    NSLocalNetworkUsageDescription: FreeGaz serves the optional phone remote on your local network.
+    NSDocumentsFolderUsageDescription: FreeGaz saves your ride files (FIT) to Documents/FreeGaz.
+
+dmg:
+  title: FreeGaz ${version}
+  artifactName: FreeGaz-${version}-${arch}.dmg
+
+electronFuses:
+  runAsNode: false
+  enableCookieEncryption: true
+  enableNodeOptionsEnvironmentVariable: false
+  enableNodeCliInspectArguments: false
+  enableEmbeddedAsarIntegrityValidation: true
+  onlyLoadAppFromAsar: true
+
+publish: null

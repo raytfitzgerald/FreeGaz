@@ -1,0 +1,22 @@
+{
+  // Main process, preload, shared code, configs and all Node-run tests.
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "DOM"],
+    "types": ["node"]
+  },
+  "include": [
+    "src/main/**/*.ts",
+    "src/preload/**/*.ts",
+    "src/shared/**/*.ts",
+    "src/core/**/*.ts",
+    "tests/**/*.ts",
+    "tests/**/*.d.ts",
+    "scripts/**/*.ts",
+    "electron.vite.config.ts",
+    "vite.web.config.ts",
+    "vitest.config.mts",
+    "playwright.config.ts"
+  ],
+  "exclude": ["src/core/host.d.ts"]
+}

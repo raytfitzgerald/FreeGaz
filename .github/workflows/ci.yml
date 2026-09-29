@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Typecheck · lint · unit · licenses · secrets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - run: npm run licenses
+      - name: Scan for committed secrets
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  e2e-linux:
+    name: E2E (Linux, xvfb)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      # Ubuntu 24.04 restricts unprivileged user namespaces, which Chromium's
+      # sandbox needs; relax it for the runner.
+      - run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+      - run: npm run build
+      - run: xvfb-run --auto-servernum npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report-linux
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+
+  mac:
+    name: E2E + DMG (macOS)
+    runs-on: macos-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright test
+      - run: npx electron-builder --mac --publish never
+      - name: Self-test the packaged app
+        run: npm run selftest:packaged
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FreeGaz-dmg
+          path: release/*/*.dmg
+          retention-days: 14
+      - name: Publish release (tags only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" release/*/*.dmg \
+            --title "FreeGaz ${GITHUB_REF_NAME}" \
+            --notes "Unsigned, ad-hoc signed build for Apple Silicon. See README → Installing for the Gatekeeper step." \
+            --verify-tag

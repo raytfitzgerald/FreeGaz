@@ -1,0 +1,12 @@
+{
+  // Pure domain code. No DOM, no Node, no Electron: only ES2023 plus the tiny
+  // host surface declared in src/core/host.d.ts (timers, console, TextEncoder...).
+  // Any accidental use of window/navigator/fs/process fails this typecheck.
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023"],
+    "types": []
+  },
+  "include": ["src/core/**/*.ts", "src/core/host.d.ts", "src/shared/**/*.ts"],
+  "exclude": ["src/core/**/*.test.ts", "src/shared/**/*.test.ts"]
+}

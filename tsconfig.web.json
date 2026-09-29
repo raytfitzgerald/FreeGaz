@@ -1,0 +1,11 @@
+{
+  // Renderer (React). May import @core and @shared, never Node or Electron.
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "types": ["vite/client"]
+  },
+  "include": ["src/renderer/**/*.ts", "src/renderer/**/*.tsx", "src/renderer/src/env.d.ts"],
+  "exclude": ["src/core/host.d.ts"]
+}

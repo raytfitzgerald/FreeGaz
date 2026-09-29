@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+/* FreeGaz design tokens. Dark "pain cave" theme first; numbers use tabular
+   figures everywhere so HUD digits never jitter. Zone colours follow the usual
+   Coggan convention (grey/blue/green/yellow/orange/red/purple) and are always
+   paired with a zone label, so colour is never the only signal. */
+@theme {
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, sans-serif;
+  --font-mono: "SF Mono", ui-monospace, Menlo, monospace;
+
+  --color-bg: #090b0f;
+  --color-panel: #10131a;
+  --color-panel-2: #161a23;
+  --color-panel-3: #1d2230;
+  --color-line: #252b3a;
+  --color-line-strong: #343c50;
+  --color-ink: #e9edf4;
+  --color-ink-dim: #a3acbb;
+  --color-ink-faint: #667085;
+
+  --color-accent: #ff3d81;
+  --color-accent-dim: #b02a5b;
+  --color-good: #22c55e;
+  --color-warn: #f59e0b;
+  --color-bad: #ef4444;
+
+  --color-z1: #8b93a1;
+  --color-z2: #3b8bff;
+  --color-z3: #22c55e;
+  --color-z4: #facc15;
+  --color-z5: #fb923c;
+  --color-z6: #ef4444;
+  --color-z7: #c084fc;
+
+  --color-hr: #ff4d6d;
+  --color-cadence: #38bdf8;
+  --color-power: #fbbf24;
+  --color-speed: #34d399;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    user-select: none;
+    overflow: hidden;
+  }
+  input,
+  textarea,
+  [contenteditable] {
+    user-select: text;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--color-accent) 40%, transparent);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+@utility drag-region {
+  -webkit-app-region: drag;
+}
+
+@utility no-drag {
+  -webkit-app-region: no-drag;
+}
+
+/* Thin, dark scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line-strong) transparent;
+}

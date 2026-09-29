@@ -1,0 +1,36 @@
+# deps & build output
+node_modules/
+out/
+release/
+dist/
+coverage/
+*.tsbuildinfo
+
+# test artifacts
+test-results/
+playwright-report/
+tests/e2e/.tmp/
+
+# local config & secrets — never commit keys, tokens or personal data
+.env
+.env.*
+!.env.example
+*.pem
+*.p12
+secrets.json
+userData/
+
+# personal ride data (rides live in ~/Documents/FreeGaz, but just in case)
+*.fit
+!tests/fixtures/**/*.fit
+captures/
+
+# OS / editor
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.log
+
+# local Claude Code tooling
+.claude/
