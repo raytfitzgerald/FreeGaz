@@ -32,6 +32,9 @@ export class WahooTrainerDriver implements TrainerDriver {
     this.session = session
     this.ctx = ctx
     this.simInitialized = false
+    // Every KICKR from 2018 on speaks FTMS with current firmware; landing here
+    // usually means old firmware (and its ERG/SIM quirks).
+    ctx.warn('This trainer is using Wahoo’s older control protocol. Update its firmware in the Wahoo app for FTMS control and the latest ERG fixes.')
     await this.data.attach(session, ctx)
     this.unsub = await session.subscribe(SERVICE.cyclingPower, CHAR.wahooTrainerControl, (dv) => {
       ctx.capture({ dir: 'rx', service: SERVICE.cyclingPower, characteristic: CHAR.wahooTrainerControl, hex: toHex(dv) })

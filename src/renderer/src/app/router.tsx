@@ -26,7 +26,10 @@ const rideRoute = createRoute({ getParentRoute: () => rootRoute, path: '/ride', 
 const workoutsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/workouts',
-  validateSearch: (s: Record<string, unknown>): { filter?: string } => (typeof s.filter === 'string' ? { filter: s.filter } : {}),
+  validateSearch: (s: Record<string, unknown>): { filter?: string; open?: string } => ({
+    ...(typeof s.filter === 'string' ? { filter: s.filter } : {}),
+    ...(typeof s.open === 'string' ? { open: s.open } : {}),
+  }),
   component: WorkoutsPage,
 })
 const devicesRoute = createRoute({ getParentRoute: () => rootRoute, path: '/devices', component: DevicesPage })

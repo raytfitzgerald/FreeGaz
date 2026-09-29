@@ -3,6 +3,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { Battery, BatteryLow, BatteryMedium, Bike, Calendar, Flame, Gauge, ListChecks, Moon, Mountain, Sunrise, Trophy, Zap, type LucideIcon } from 'lucide-react'
 import { computeAchievements, computeStreaks, type AchievementIcon, type AchievementRide } from '@core/metrics/achievements'
+import { suggestNextWorkout } from '@core/workout/suggest'
+import { BUILTINS } from '../../workouts/library'
 import type { InvokeRes } from '@shared/ipc/contract'
 import { currentProfile, DEFAULT_WEIGHT_KG, ftpHistory } from '../../db/athlete-repo'
 import { db } from '../../db/db'
@@ -47,7 +49,17 @@ export function HomePage() {
     const rides: AchievementRide[] = data.rides.map((r) => ({ startedAt: r.startedAt, movingS: r.movingS, kj: r.kj, tss: r.tss, kind: r.kind, simulated: r.simulated, mmp: r.mmp }))
     const achievements = computeAchievements({ rides, ftp: data.ftp, weightKg: data.weightKg })
     const lastRide = [...data.rides].filter((r) => !r.simulated).sort((a, b) => b.startedAt - a.startedAt)[0] ?? null
-    return { achievements, streaks: computeStreaks(rides, now), lastRide }
+    const real = data.rides.filter((r) => !r.simulated)
+    const lastTestRow = [...data.ftp].reverse().find((f) => f.source.startsWith('test'))
+    const suggestion = suggestNextWorkout({
+      hasFtp: data.ftp.length > 0,
+      daysSinceTest: lastTestRow ? (now - lastTestRow.date) / DAY : null,
+      tsb: data.today?.tsb ?? null,
+      lastRpe: lastRide?.rpe ?? null,
+      hardRidesLast7: real.filter((r) => now - r.startedAt < 7 * DAY && ((r.intensityFactor ?? 0) >= 0.85 || (r.tss ?? 0) >= 80)).length,
+      hoursSinceLastRide: lastRide ? (now - lastRide.endedAt) / 3_600_000 : null,
+    })
+    return { achievements, streaks: computeStreaks(rides, now), lastRide, suggestion, suggested: BUILTINS.find((w) => w.id === suggestion.workoutId) ?? null }
   }, [data, now])
 
   const ftpNow = data?.ftp.at(-1) ?? null
@@ -101,6 +113,22 @@ export function HomePage() {
           note={derived ? `Best: ${derived.streaks.bestDays} days, ${derived.streaks.bestWeeks} weeks` : undefined}
         />
       </section>
+
+      {derived?.suggested && (
+        <Link
+          to="/workouts"
+          search={{ open: derived.suggested.id }}
+          className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-accent/40 bg-accent/5 px-5 py-3 text-sm hover:bg-accent/10"
+          data-testid="suggested-workout"
+        >
+          <span>
+            <span className="text-xs font-medium uppercase tracking-wider text-ink-faint">Suggested next · </span>
+            <span className="font-semibold">{derived.suggested.name}</span>
+            <span className="text-ink-dim"> · {derived.suggestion.reason}</span>
+          </span>
+          <span className="text-accent">Open →</span>
+        </Link>
+      )}
 
       {derived?.lastRide && (
         <Link

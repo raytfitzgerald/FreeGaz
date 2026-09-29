@@ -26,11 +26,12 @@ const LENGTHS: { id: Length; label: string; test: (s: number) => boolean }[] = [
 export function WorkoutsPage() {
   const { ftpW, known } = useFtp()
   const library = useLiveQuery(() => loadLibrary(ftpW), [ftpW])
-  const initial = useSearch({ from: '/workouts' }).filter
+  const search = useSearch({ from: '/workouts' })
+  const initial = search.filter
   const [filter, setFilter] = useState<Filter>(initial === 'tests' || initial === 'favorites' || initial === 'mine' ? initial : 'all')
   const [length, setLength] = useState<Length>('any')
   const [query, setQuery] = useState('')
-  const [openId, setOpenId] = useState<string | null>(null)
+  const [openId, setOpenId] = useState<string | null>(search.open ?? null)
   const [notice, setNotice] = useState<{ tone: 'good' | 'bad'; text: string } | null>(null)
   const [dragging, setDragging] = useState(false)
   const fileInput = useRef<HTMLInputElement>(null)
