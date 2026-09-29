@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Hand-written FreeGaz test fixture. Tag and attribute names use mixed case on purpose. -->
+<Workout_File>
+  <Author>FreeGaz Tests</Author>
+  <Name>Fixture &amp; Friends</Name>
+  <Description>Exercises every block type.
+Second line, caf&#233; included.</Description>
+  <SportType>bike</SportType>
+  <Tags>
+    <Tag name="Intervals"/>
+    <TAG NAME="Fixture"/>
+    <tag name="intervals"/>
+  </Tags>
+  <category>Custom</category>
+  <workout>
+    <Warmup Duration="600" PowerLow="0.40" PowerHigh="0.75" pace="0">
+      <textevent timeoffset="0" message="Easy does it"/>
+      <TextEvent TimeOffset="300" mssage="Halfway through the warm-up" duration="15"/>
+    </Warmup>
+    <SteadyState Duration="300" Power="0.60" Cadence="90" show_avg="1"/>
+    <SOLIDSTATE duration="120" powerlow="0.88" powerhigh="0.92"/>
+    <IntervalsT Repeat="4" OnDuration="60" OffDuration="90" OnPower="1.15" OffPower="0.5" Cadence="100" CadenceResting="85">
+      <textevent timeoffset="200" message="Second rep: stay on top of it"/>
+    </IntervalsT>
+    <intervalst repeat="2" onduration="30" offduration="30" poweronlow="1.2" poweronhigh="1.3" powerofflow="0.5" poweroffhigh="0.5"/>
+    <Ramp Duration="120" PowerLow="0.9" PowerHigh="0.6"/>
+    <FreeRide Duration="600" FlatRoad="0" Zone="2"/>
+    <Freeride Duration="60"/>
+    <MaxEffort Duration="20"/>
+    <Sprint Duration="10"/>
+    <Cooldown Duration="300" PowerLow="0.65" PowerHigh="0.40"/>
+    <Cooldown Duration="180" PowerLow="0.30" PowerHigh="0.55"/>
+  </workout>
+</Workout_File>
