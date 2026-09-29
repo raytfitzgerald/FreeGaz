@@ -14,6 +14,7 @@ import { SimWorld } from '@core/sim/world'
 import { SystemClock, WarpClock, type Clock } from '@core/time/clock'
 import type { InvokeRes } from '@shared/ipc/contract'
 import { WebBluetoothTransport } from '../ble/web-bluetooth'
+import { createCoachRuntime, type CoachRuntime } from '../coach/runtime'
 import { bridge } from '../platform/bridge'
 import { devicesStore, pushCapture, pushNotice } from '../stores/devices'
 import { liveStore } from '../stores/live'
@@ -31,6 +32,8 @@ export interface Runtime {
   controller: TrainerController
   engine: LiveEngine
   rides: RideRunner
+  /** The live coach: lines on screen and spoken during rides. */
+  coach: CoachRuntime
   sim: SimWorld | null
   connect(role: DeviceRole): Promise<void>
   disconnect(role: DeviceRole): void
@@ -103,6 +106,9 @@ export function initRuntime(info: AppInfo): Runtime {
     },
   })
   rides = new RideRunner({ clock, hub, controller, engine, simulated })
+  // The coach follows every ride. Automated test runs never make the Mac talk.
+  const coach = createCoachRuntime({ rides, engine, clock, hub, controller }, { speak: !info.isTest })
+  coach.start()
   engine.start()
   void rides.loadRecoveries()
 
@@ -146,6 +152,7 @@ export function initRuntime(info: AppInfo): Runtime {
     controller,
     engine,
     rides,
+    coach,
     sim,
     connect,
     disconnect: (role) => devices.disconnect(role),
