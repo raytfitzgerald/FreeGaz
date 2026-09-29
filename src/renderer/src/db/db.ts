@@ -4,6 +4,7 @@ import Dexie, { type EntityTable } from 'dexie'
 import type { RideStreams } from '@core/ride/streams'
 import type { RideSummary } from '@core/ride/types'
 import type { Workout } from '@core/workout/model'
+import type { StoredRoute, StoredRouteRide } from '../routes/route-codec'
 
 export interface StoredWorkout {
   id: string
@@ -56,6 +57,8 @@ export class FreeGazDb extends Dexie {
   ftpHistory!: EntityTable<FtpEntry, 'id'>
   profile!: EntityTable<ProfileEntry, 'id'>
   kv!: EntityTable<KvEntry, 'key'>
+  routes!: EntityTable<StoredRoute, 'id'>
+  routeRides!: EntityTable<StoredRouteRide, 'rideId'>
 
   constructor(name = 'freegaz') {
     super(name)
@@ -66,6 +69,12 @@ export class FreeGazDb extends Dexie {
       ftpHistory: '++id, date, source',
       profile: '++id, from',
       kv: 'key',
+    })
+    // v2: the route library (points packed, see routes/route-codec.ts) and
+    // the rides on each route, for Challenge ghosts.
+    this.version(2).stores({
+      routes: 'id, name, importedAt',
+      routeRides: 'rideId, routeId, startedAt',
     })
   }
 }

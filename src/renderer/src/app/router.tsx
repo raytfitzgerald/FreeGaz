@@ -9,6 +9,7 @@ import { RideDetailPage } from '../features/history/RideDetailPage'
 import { SettingsPage } from '../features/settings/SettingsPage'
 import { FitnessPage } from '../features/fitness/FitnessPage'
 import { CoachChatPage } from '../features/ai/CoachChatPage'
+import { RoutesPage } from '../features/routes/RoutesPage'
 import { PlaceholderPage } from './PlaceholderPage'
 
 const rootRoute = createRootRoute({ component: AppShell })
@@ -50,7 +51,7 @@ const routeTree = rootRoute.addChildren([
   fitnessRoute,
   coachRoute,
   page('/builder', 'Workout builder', 'Build .zwo workouts with blocks or text.'),
-  page('/routes', 'Routes', 'Import GPX routes and ride them in SIM mode.'),
+  createRoute({ getParentRoute: () => rootRoute, path: '/routes', component: RoutesPage }),
 ])
 
 export const router = createRouter({ routeTree, history: createHashHistory(), defaultPreload: false })
