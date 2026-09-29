@@ -46,6 +46,7 @@ export class RideRunner {
   private lastMetrics = 0
   private actualSeen = 0
   private actualRev = -1
+  private readonly sessionListeners = new Set<(session: RideSession) => void>()
 
   constructor(private readonly deps: RideRunnerDeps) {
     bridge().on('ride.command', (cmd) => this.command(cmd))
@@ -56,6 +57,15 @@ export class RideRunner {
 
   get active(): boolean {
     return !!this.session && this.session.currentState !== 'finished'
+  }
+
+  /**
+   * Called with every new ride right after it starts, for features that react
+   * to rides (the coach, integrations). Subscribe to its events with session.on().
+   */
+  onSessionStart(listener: (session: RideSession) => void): () => void {
+    this.sessionListeners.add(listener)
+    return () => this.sessionListeners.delete(listener)
   }
 
   async start(opts: { plan?: RidePlan; name?: string; kind?: RideKind } = {}): Promise<void> {
@@ -97,6 +107,7 @@ export class RideRunner {
       }
     })
     session.start()
+    for (const l of this.sessionListeners) l(session)
     rideStore.setState({
       active: true,
       rideId,
