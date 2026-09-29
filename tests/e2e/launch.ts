@@ -29,6 +29,9 @@ export async function launchApp(opts: LaunchOptions = {}): Promise<Launched> {
 
   const app = await electron.launch({
     args,
+    // Playwright emulates a light prefers-color-scheme by default; the app's
+    // theme follows Electron's nativeTheme, so let the real value through.
+    colorScheme: null,
     env: {
       ...(process.env as Record<string, string>),
       FREEGAZ_TEST: '1',

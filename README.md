@@ -58,6 +58,7 @@ The code is tested thoroughly, against simulated devices (see [What has been ver
 - **Phone remote.** Off by default. When on, you scan a QR code; access needs a token and origin checks.
 - **Alerts.** Personal-best toasts, and drink and eat reminders.
 - **Music.** Spotify or Apple Music controls: `N` next, `Shift+N` previous, `P` play/pause.
+- **Light or dark.** Pick in **Settings → Appearance**, or follow macOS. Charts and zone colours have their own validated steps for each theme; the mini-HUD stays dark so it reads over video.
 
 **Building workouts**
 - **A builder like zwofactory.com**, with blocks you can grab:
@@ -154,7 +155,7 @@ Everything stays on this Mac. Rides live in the app's database, plus a FIT file 
 ## What has been verified
 
 **Automated**, on every push, on Linux and macOS:
-- **Tests:** over 1,500 unit and simulator tests, plus 19 Playwright end-to-end tests (devices, workouts, FTP test, builder, routes, crash recovery), run against simulated devices that speak real Bluetooth bytes.
+- **Tests:** over 1,500 unit and simulator tests, plus 20 Playwright end-to-end tests (devices, workouts, FTP test, builder, routes, crash recovery, appearance), run against simulated devices that speak real Bluetooth bytes.
 - **Devices:**
   - codecs are checked against the specs;
   - ERG settles within ±5 W in under 5 s;

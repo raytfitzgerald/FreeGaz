@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import uPlot from 'uplot'
 import 'uplot/dist/uPlot.min.css'
+import { useTheme } from '../app/theme'
 
 /**
  * Thin imperative wrapper: uPlot owns its canvas; React only hands it new
@@ -24,6 +25,8 @@ export function UPlot({
   const host = useRef<HTMLDivElement>(null)
   const plot = useRef<uPlot | null>(null)
   const dataRef = useRef(data)
+  // uPlot bakes colours into its canvas: rebuild when the theme flips.
+  const theme = useTheme()
 
   useEffect(() => {
     const el = host.current
@@ -41,7 +44,7 @@ export function UPlot({
     }
     // Rebuild only when the option set changes; data flows through setData below.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [optsKey, height])
+  }, [optsKey, height, theme])
 
   useEffect(() => {
     dataRef.current = data

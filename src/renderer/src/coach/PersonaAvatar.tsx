@@ -26,7 +26,7 @@ export function PersonaAvatar({ persona, size = 'sm', className }: { persona: Pi
       </div>
       {persona.parody && (
         <span
-          className="absolute -bottom-1.5 left-1/2 flex -translate-x-1/2 items-center gap-0.5 rounded-md bg-warn px-1 py-px text-[9px] font-bold uppercase leading-none tracking-wider text-black shadow"
+          className="absolute -bottom-1.5 left-1/2 flex -translate-x-1/2 items-center gap-0.5 rounded-md bg-amber-400 px-1 py-px text-[9px] font-bold uppercase leading-none tracking-wider text-black shadow"
           data-testid="parody-badge"
         >
           <Drama className="size-2.5" aria-hidden /> Parody

@@ -2,6 +2,7 @@ import { BrowserWindow, shell } from 'electron'
 import { join } from 'node:path'
 import { APP_ORIGIN, isAllowedNavigation } from './navigation'
 import { env } from '../env'
+import { followTheme, windowBackground } from './theme'
 
 export function createMainWindow(): BrowserWindow {
   const win = new BrowserWindow({
@@ -11,7 +12,7 @@ export function createMainWindow(): BrowserWindow {
     minWidth: 1100,
     minHeight: 700,
     show: false,
-    backgroundColor: '#0a0c10',
+    backgroundColor: windowBackground(),
     titleBarStyle: 'hiddenInset',
     trafficLightPosition: { x: 14, y: 14 },
     webPreferences: {
@@ -25,6 +26,9 @@ export function createMainWindow(): BrowserWindow {
       spellcheck: false,
     },
   })
+
+  const stopFollowing = followTheme(win)
+  win.on('closed', stopFollowing)
 
   win.once('ready-to-show', () => {
     if (!env.isTest || process.env.FREEGAZ_SHOW === '1') win.show()

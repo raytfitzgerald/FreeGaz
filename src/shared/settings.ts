@@ -74,6 +74,8 @@ export const AppSettingsSchema = z.object({
   /** Folder for automatic FIT export; null = ~/Documents/FreeGaz/Rides. */
   exportDir: z.string().nullable().default(null),
   units: z.enum(['metric', 'imperial']).default('metric'),
+  /** Light, dark, or follow macOS. The mini-HUD stays dark so it reads over video. */
+  appearance: z.enum(['system', 'light', 'dark']).default('system'),
   /** Upload finished (non-simulated) rides automatically. */
   autoUpload: z.object({ strava: z.boolean().default(false), intervals: z.boolean().default(false) }).default({ strava: false, intervals: false }),
   trainer: TrainerPrefsSchema.default(TrainerPrefsSchema.parse({})),

@@ -69,10 +69,54 @@
   --color-grade-5: #feb898;
 }
 
+/* Light theme. The UI tokens are WCAG-checked for text: ink, ink-dim,
+   ink-faint, accent and the status colours are all >= 4.5:1 on the panels
+   and the page. Data colours are the light-surface steps, validated with the
+   dataviz checker on #ffffff and #f6f7f9: the series pass every gate; zones
+   pass lightness, CVD (worst adjacent ΔE 9.9) and the normal-vision floor.
+   Z1 stays deliberately neutral, and Z4's yellow is 2.2:1 against white
+   (any darker yellow collides with Z5 for colour-blind readers). Both are
+   covered because zones are always labeled and height-encoded, so colour is
+   never the only signal. The mini-HUD never sets data-theme and stays dark. */
+:root {
+  color-scheme: dark;
+}
+:root[data-theme='light'] {
+  color-scheme: light;
+  --color-bg: #f3f4f7;
+  --color-panel: #ffffff;
+  --color-panel-2: #f6f7f9;
+  --color-panel-3: #eceef2;
+  --color-line: #e3e6ec;
+  --color-line-strong: #cdd2db;
+  --color-ink: #0f172a;
+  --color-ink-dim: #475467;
+  --color-ink-faint: #5d6679;
+
+  --color-accent: #c41f61;
+  --color-accent-dim: #9c174c;
+  --color-good: #15803d;
+  --color-warn: #b45309;
+  --color-bad: #c81e1e;
+
+  --color-z1: #848d98;
+  --color-z2: #1f6fca;
+  --color-z3: #399d57;
+  --color-z4: #cbae31;
+  --color-z5: #bb7234;
+  --color-z6: #c01323;
+  --color-z7: #8652b9;
+
+  --color-power: #c3760a;
+  --color-hr: #c23246;
+  --color-cadence: #1274bd;
+  --color-speed: #0c8a5e;
+  --color-wbal: #7347af;
+}
+
 /* The grade ramp stepped for a light surface (steeper is darker), validated
-   the same way on #fcfcfb and #ffffff (low end 2.19:1 and 2.25:1). Inert
-   until a light theme puts .light on <html>. */
-.light {
+   the same way on #fcfcfb and #ffffff (low end 2.19:1 and 2.25:1). */
+:root[data-theme='light'] {
   --color-grade-0: #caa594;
   --color-grade-1: #c88160;
   --color-grade-2: #bf5d2c;
@@ -125,7 +169,7 @@
   -webkit-app-region: no-drag;
 }
 
-/* Thin, dark scrollbars */
+/* Thin scrollbars in the theme's line colour */
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--color-line-strong) transparent;

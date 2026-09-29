@@ -35,7 +35,7 @@ The build ran in milestones. Each one had to pass `npm run check` and `npm run e
   - Spotify / Music controls.
   - Nine coaching personas with voice, spice and guardrails.
 - **M9 AI.** Claude, OpenAI and Ollama; debriefs, coach chat, the workout generator, and fresh coach lines.
-- **M10 Long tail.** PowerMatch, Headwind fan control, live RMSSD and DFA-α1, and the app icon.
+- **M10 Long tail.** PowerMatch, Headwind fan control, live RMSSD and DFA-α1, the app icon, and a light theme.
 
 ## Next: needs a real KICKR and HR strap
 
@@ -51,7 +51,6 @@ The build ran in milestones. Each one had to pass `npm run check` and `npm run e
 - Garmin FIT workout export, so builder workouts can go onto a Garmin device.
 - The Kolie Moore FTP protocol.
 - AI ride titles for Strava (rename after upload).
-- A light theme. Its validated zone and series palettes are already chosen.
 
 ## Backlog (researched, not scheduled)
 

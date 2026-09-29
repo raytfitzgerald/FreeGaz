@@ -1,11 +1,12 @@
 import { Tabs } from 'radix-ui'
-import { Bot, Database, Gauge, Info, Link2, Megaphone, Smartphone, SlidersHorizontal } from 'lucide-react'
+import { Bot, Database, Gauge, Info, Link2, Megaphone, Smartphone, SlidersHorizontal, SunMoon } from 'lucide-react'
 import { PageHeader } from '../../ui/PageHeader'
 import { AthleteSection } from './AthleteSection'
 import { TrainerSection } from './TrainerSection'
 import { CoachSection } from './CoachSection'
 import { IntegrationsSection } from './IntegrationsSection'
 import { AiSection } from './AiSection'
+import { AppearanceSection } from './AppearanceSection'
 import { RemoteSection } from './RemoteSection'
 import { AboutSection } from './AboutSection'
 import { DataSection } from './DataSection'
@@ -17,6 +18,7 @@ const TABS = [
   { id: 'integrations', label: 'Strava & sync', icon: Link2, el: <IntegrationsSection /> },
   { id: 'ai', label: 'AI', icon: Bot, el: <AiSection /> },
   { id: 'remote', label: 'Remote & mini-HUD', icon: Smartphone, el: <RemoteSection /> },
+  { id: 'appearance', label: 'Appearance', icon: SunMoon, el: <AppearanceSection /> },
   { id: 'data', label: 'Data & backup', icon: Database, el: <DataSection /> },
   { id: 'about', label: 'About', icon: Info, el: <AboutSection /> },
 ] as const

@@ -3,6 +3,7 @@ import { join } from 'node:path'
 import { configureUserData, env } from './env'
 import { handleAppScheme, registerAppScheme } from './app-protocol'
 import { createMainWindow } from './windows/main-window'
+import { applyAppearance } from './windows/theme'
 import { registerAppHandlers } from './ipc/app-handlers'
 import { registerDeviceHandlers } from './ipc/device-handlers'
 import { defaultExportDir, registerRideHandlers } from './ipc/ride-handlers'
@@ -45,6 +46,9 @@ app.on('second-instance', () => {
 void app.whenReady().then(() => {
   handleAppScheme(join(__dirname, '../renderer'))
   const settings = SettingsStore.inDir(app.getPath('userData'))
+  // Before any window exists, so the first paint is already in the right theme.
+  applyAppearance(settings.get().appearance)
+  settings.onChange((s) => applyAppearance(s.appearance))
   const chooser = new BluetoothChooser(
     (state) => mainWindow && emit(mainWindow.webContents, 'ble.chooser', state),
     (info) => mainWindow && emit(mainWindow.webContents, 'ble.chosen', info),
