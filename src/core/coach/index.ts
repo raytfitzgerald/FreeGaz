@@ -1,0 +1,37 @@
+// The live coach: trigger detection from the ride loop, the content gate, the
+// per-ride coach that drives the persona engine, and AI quip-pack handling.
+export {
+  AI_LINE_WEIGHT,
+  MAX_AI_LINES,
+  QUIP_TRIGGERS,
+  quipLinesFromPack,
+  quipPackPrompt,
+  workoutStructure,
+  type QuipFilterResult,
+  type QuipRejection,
+  type QuipRide,
+} from './ai-quips'
+export { SAFETY_FALLBACK_TEXT, gateLine, matchesAny, personaBannedPatterns, sanitizeFacts, textAllowed } from './content'
+export {
+  DETECTOR_RULES,
+  TriggerDetector,
+  prLabel,
+  type DetectorMetrics,
+  type DetectorOptions,
+  type DetectorTick,
+  type FuelingPlan,
+} from './detector'
+export { PREVIEW_TRIGGERS, previewLine } from './preview'
+export { RideProbe } from './probe'
+export { RideCoach, type RideCoachOptions } from './ride-coach'
+export {
+  SEGMENT_RULES,
+  classifyStep,
+  isAnnounced,
+  isMicro,
+  segmentFromNext,
+  segmentFromTick,
+  workoutSegments,
+  type CoachSegment,
+  type SegmentResolver,
+} from './segments'
