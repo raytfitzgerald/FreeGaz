@@ -8,6 +8,14 @@ import type { FtpTestProtocol } from '@core/workout/model'
 import type { SaveResult, PendingRecovery } from '../db/rides-repo'
 import type { LiveRide } from '@shared/live'
 
+export interface Toast {
+  id: number
+  tone: 'pr' | 'fuel' | 'info'
+  title: string
+  body?: string
+  at: number
+}
+
 export interface FtpTestOutcome {
   rideId: string
   testName: string
@@ -40,6 +48,7 @@ interface RideStoreState {
   rescue: (RescueOffer & { at: number }) | null
   planFinished: boolean
   ftpTest: FtpTestOutcome | null
+  toasts: Toast[]
 }
 
 export const rideStore = createStore<RideStoreState>(() => ({
@@ -58,7 +67,17 @@ export const rideStore = createStore<RideStoreState>(() => ({
   rescue: null,
   planFinished: false,
   ftpTest: null,
+  toasts: [],
 }))
+
+let toastSeq = 0
+/** Shows a toast (the newest three stay on screen, each for ~8 s). */
+export function pushToast(t: Omit<Toast, 'id' | 'at'>): void {
+  rideStore.setState((s) => ({ toasts: [...s.toasts, { ...t, id: ++toastSeq, at: Date.now() }].slice(-3) }))
+}
+export function dismissToast(id: number): void {
+  rideStore.setState((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) }))
+}
 
 export function useRide<T>(selector: (s: RideStoreState) => T): T {
   return useStore(rideStore, selector)

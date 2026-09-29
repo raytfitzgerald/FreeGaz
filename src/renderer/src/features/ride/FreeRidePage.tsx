@@ -4,13 +4,13 @@ import { AlertTriangle, ArrowDown, ArrowUp, CheckCircle2, Minus, Plus } from 'lu
 import type { Desired } from '@core/control/trainer-controller'
 import type { TrainerMode } from '@shared/live'
 import { getRuntime } from '../../runtime/composition'
-import { useDevices } from '../../stores/devices'
 import { useLive } from '../../stores/live'
 import { Button } from '../../ui/Button'
 import { MetricTile } from '../../ui/MetricTile'
 import { PageHeader } from '../../ui/PageHeader'
 import { Segmented } from '../../ui/Segmented'
 import { cn } from '../../ui/cn'
+import { HudGrid } from '../../hud/HudGrid'
 import { RecordingBar } from './RecordingBar'
 import { FtpResultCard } from './FtpResultCard'
 import { SavedRideCard } from './SavedRideCard'
@@ -65,7 +65,6 @@ function initialFromController(): { mode: Mode; targets: Targets } {
 export function FreeRidePage() {
   const [{ mode, targets }, setState] = useState(initialFromController)
   const trainerConnected = useLive((f) => f.trainer.connected)
-  const hrConnected = useDevices((s) => s.devices.some((d) => d.role === 'hr' && d.state === 'connected'))
 
   // Push the desired state to the controller whenever it changes.
   useEffect(() => {
@@ -161,11 +160,8 @@ export function FreeRidePage() {
         </div>
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <LiveTile metric="cadence" label="Cadence" unit="rpm" color="var(--color-cadence)" />
-        <LiveTile metric="hr" label="Heart rate" unit="bpm" color="var(--color-hr)" sub={hrConnected ? undefined : 'No HR sensor'} />
-        <LiveTile metric="power10s" label="10 s power" unit="W" color="var(--color-power)" />
-        <LiveTile metric="speedKmh" label="Speed" unit="km/h" color="var(--color-speed)" />
+      <div className="mt-4">
+        <HudGrid view="free" />
       </div>
     </div>
   )
@@ -212,11 +208,6 @@ function ComplianceChip({ state, delta }: { state: 'on' | 'low' | 'high'; delta:
       <Icon className="size-3.5" /> {text}
     </span>
   )
-}
-
-function LiveTile({ metric, label, unit, color, sub }: { metric: 'cadence' | 'hr' | 'power10s' | 'speedKmh'; label: string; unit: string; color: string; sub?: string }) {
-  const value = useLive((f) => f[metric])
-  return <MetricTile label={label} value={value} unit={unit} size="md" accent={color} sub={sub} testId={metric} />
 }
 
 function SentToTrainer({ mode }: { mode: Mode }) {

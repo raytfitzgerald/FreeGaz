@@ -33,10 +33,15 @@ export interface LiveFrame {
   power: number | null
   power3s: number | null
   power10s: number | null
+  power30s: number | null
+  /** % of power from the left leg (dual-sided pedals only). */
+  lrBalance: number | null
   cadence: number | null
   hr: number | null
   /** Trainer-reported speed, km/h. */
   speedKmh: number | null
+  /** CORE body-temperature sensor, °C. */
+  coreTemp: number | null
   trainer: LiveTrainer
   sources: { power: string | null; cadence: string | null; hr: string | null }
   simulated: boolean
@@ -48,9 +53,12 @@ export const EMPTY_FRAME: LiveFrame = {
   power: null,
   power3s: null,
   power10s: null,
+  power30s: null,
+  lrBalance: null,
   cadence: null,
   hr: null,
   speedKmh: null,
+  coreTemp: null,
   trainer: {
     mode: 'idle',
     targetW: null,

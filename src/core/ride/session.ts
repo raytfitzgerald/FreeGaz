@@ -88,6 +88,7 @@ export class RideSession {
   private readonly prWindows = PR_DURATIONS.map((d) => ({ d, mean: new RollingMean(d) }))
   private bests: Partial<Record<number, number>>
   private kjSum = 0
+  private ride = { maxPower: null as number | null, hrSum: 0, hrN: 0, maxHr: null as number | null, cadSum: 0, cadN: 0 }
   private lapAcc = { index: -1, powerSum: 0, powerN: 0, hrSum: 0, hrN: 0, cadSum: 0, cadN: 0, seconds: 0 }
   private coachLine: string | null = null
   private coachLineAt = 0
@@ -289,6 +290,11 @@ export class RideSession {
       wbalJ: this.wbal.valueJ,
       zonesS: this.zones.seconds(),
       decouplingPct: this.drift.value(),
+      avgPower: this.np.validSeconds > 0 ? Math.round(this.kjSum / this.np.validSeconds) : null,
+      maxPower: this.ride.maxPower,
+      avgHr: this.ride.hrN > 0 ? Math.round(this.ride.hrSum / this.ride.hrN) : null,
+      maxHr: this.ride.maxHr,
+      avgCadence: this.ride.cadN > 0 ? Math.round(this.ride.cadSum / this.ride.cadN) : null,
       lap: {
         index: Math.max(0, this.lapAcc.index),
         seconds: this.lapAcc.seconds,
@@ -370,6 +376,17 @@ export class RideSession {
     this.zones.push(r.power)
     this.drift.push(r.power, r.hr)
     if (r.power !== null) this.kjSum += r.power
+    const ride = this.ride
+    if (r.power !== null) ride.maxPower = Math.max(ride.maxPower ?? 0, r.power)
+    if (r.hr !== null) {
+      ride.hrSum += r.hr
+      ride.hrN++
+      ride.maxHr = Math.max(ride.maxHr ?? 0, r.hr)
+    }
+    if (r.cadence !== null && r.cadence > 0) {
+      ride.cadSum += r.cadence
+      ride.cadN++
+    }
     if (r.lap !== this.lapAcc.index) this.lapAcc = { index: r.lap, powerSum: 0, powerN: 0, hrSum: 0, hrN: 0, cadSum: 0, cadN: 0, seconds: 0 }
     const lap = this.lapAcc
     lap.seconds++

@@ -5,6 +5,7 @@ import { ChooserDialog } from '../features/devices/ChooserDialog'
 import { DeviceStatusBar } from '../features/devices/DeviceStatusBar'
 import { RecoveryBanner } from '../features/ride/RecoveryBanner'
 import { useGlobalHotkeys } from './hotkeys'
+import { ToastHost } from './ToastHost'
 
 export function AppShell() {
   useGlobalHotkeys()
@@ -47,6 +48,7 @@ export function AppShell() {
         </div>
       </main>
       <ChooserDialog />
+      <ToastHost />
     </div>
   )
 }

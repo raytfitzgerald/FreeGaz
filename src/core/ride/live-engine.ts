@@ -80,9 +80,12 @@ export class LiveEngine {
       power,
       power3s: round(hub.meanOver('power', now - 3000, now)),
       power10s: round(hub.meanOver('power', now - 10_000, now)),
+      power30s: round(hub.meanOver('power', now - 30_000, now)),
+      lrBalance: roundTo(hub.value('lrBalance', now), 1),
       cadence: cadence === null ? null : Math.round(cadence),
       hr: hr === null ? null : Math.round(hr),
       speedKmh: speed === null ? null : Math.round(speed * 3.6 * 10) / 10,
+      coreTemp: roundTo(hub.value('coreTemp', now), 1),
       trainer: {
         mode: desired.mode,
         targetW: eff.kind === 'erg' ? eff.watts : null,
@@ -106,3 +109,4 @@ export class LiveEngine {
 }
 
 const round = (v: number | null) => (v === null ? null : Math.round(v))
+const roundTo = (v: number | null, dp: number) => (v === null ? null : Math.round(v * 10 ** dp) / 10 ** dp)

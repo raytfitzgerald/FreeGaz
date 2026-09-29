@@ -1,6 +1,7 @@
 // Owns the active RideSession inside the renderer: wiring it to the engine
 // tick, the journal (via main), keep-awake, commands and persistence.
 import { decideFtpUpdate, FTP_SOURCE } from '@core/ride/ftp-update'
+import { FuelingTimer } from '@core/ride/fueling'
 import type { RidePlan } from '@core/ride/plan'
 import type { RideRecord } from '@core/ride/recorder'
 import { RideSession, type JournalSink } from '@core/ride/session'
@@ -15,7 +16,7 @@ import { athleteSnapshot, currentFtp, deleteFtp, recordFtp } from '../db/athlete
 import { bestPowers } from '../db/bests'
 import { discardRecovery, pendingRecoveries, recoverRide, saveFinishedRide } from '../db/rides-repo'
 import { bridge } from '../platform/bridge'
-import { rideStore } from '../stores/ride'
+import { pushToast, rideStore } from '../stores/ride'
 import { settingsStore } from '../stores/settings'
 
 const journal: JournalSink = {
@@ -96,11 +97,16 @@ export class RideRunner {
       if (e.type === 'journal-error') rideStore.setState({ error: `Ride journal: ${e.message}` })
       if (e.type === 'rescue') rideStore.setState({ rescue: { ...e.offer, at: Date.now() } })
       if (e.type === 'plan-finished') rideStore.setState({ planFinished: true })
+      if (e.type === 'pr') pushToast({ tone: 'pr', title: `New ${prLabel(e.durationS)} best: ${e.watts} W`, body: e.previous === null ? undefined : `Previous best ${Math.round(e.previous)} W` })
     })
+    const fueling = new FuelingTimer(settingsStore.getState().fueling)
     this.offTick = this.deps.engine.onTick((now) => {
       session.tick(now)
       if (opts.plan) rideStore.setState({ plan: session.planTick })
       if (workout) this.trackActual(session, workout)
+      for (const r of fueling.due(session.movingSeconds)) {
+        pushToast(r.kind === 'drink' ? { tone: 'fuel', title: 'Drink', body: 'A few good sips.' } : { tone: 'fuel', title: `Eat about ${r.grams} g of carbs`, body: 'A gel, a bar or a banana.' })
+      }
       if (now - this.lastMetrics >= 1000) {
         this.lastMetrics = now
         rideStore.setState({ snapshot: session.snapshot(), metrics: session.liveMetrics() })
@@ -267,6 +273,10 @@ export class RideRunner {
     this.offSession?.()
     this.offTick = this.offSession = null
   }
+}
+
+function prLabel(s: number): string {
+  return s < 60 ? `${s}-second` : `${Math.round(s / 60)}-minute`
 }
 
 const ENDED = { plan: null, workout: null, actual: null, rescue: null, planFinished: false } as const

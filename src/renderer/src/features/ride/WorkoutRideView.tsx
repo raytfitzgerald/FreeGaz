@@ -10,6 +10,7 @@ import { Segmented } from '../../ui/Segmented'
 import { cn } from '../../ui/cn'
 import { formatDuration } from '../../ui/format'
 import { profileBlocks } from '../../workouts/profile'
+import { HudGrid } from '../../hud/HudGrid'
 import { CueBanner } from './CueBanner'
 import { RecordingBar } from './RecordingBar'
 import { RescueBanner } from './RescueBanner'
@@ -61,7 +62,7 @@ export function WorkoutRideView() {
         <ChartWithControls />
       </div>
 
-      <SecondaryTiles />
+      <HudGrid view="workout" />
       <RecordingBar />
     </div>
   )
@@ -222,30 +223,6 @@ function ChartWithControls() {
         </Button>
         <span className="ml-auto text-xs text-ink-faint">Space pause · Tab skip · B back · E +30 s · ↑/↓ intensity · M mode · L lap</span>
       </div>
-    </div>
-  )
-}
-
-function SecondaryTiles() {
-  const hr = useLive((f) => f.hr)
-  const cadence = useLive((f) => f.cadence)
-  const cadTarget = useRide((s) => s.plan?.cadence ?? null)
-  const lapAvg = useRide((s) => s.metrics?.lap.avgPower ?? null)
-  const lapHr = useRide((s) => s.metrics?.lap.avgHr ?? null)
-  const np = useRide((s) => s.snapshot?.np ?? null)
-  const tss = useRide((s) => s.snapshot?.tss ?? null)
-  const kj = useRide((s) => s.snapshot?.kj ?? null)
-  const wbal = useRide((s) => s.snapshot?.wbalPct ?? null)
-  const cadenceBand = cadTarget ? (cadTarget.low !== undefined && cadTarget.high !== undefined ? `Target ${cadTarget.low}–${cadTarget.high}` : cadTarget.rpm !== undefined ? `Target ${cadTarget.rpm}` : undefined) : undefined
-  return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
-      <MetricTile label="Heart rate" value={hr} unit="bpm" size="md" accent="var(--color-hr)" testId="hr" sub={lapHr !== null ? `Interval avg ${lapHr}` : undefined} />
-      <MetricTile label="Cadence" value={cadence === null ? null : Math.round(cadence)} unit="rpm" size="md" accent="var(--color-cadence)" testId="cadence" sub={cadenceBand} />
-      <MetricTile label="Interval avg" value={lapAvg} unit="W" size="md" accent="var(--color-power)" />
-      <MetricTile label="NP" value={np} unit="W" size="md" />
-      <MetricTile label="TSS" value={tss === null ? null : Math.round(tss)} size="md" />
-      <MetricTile label="Work" value={kj} unit="kJ" size="md" />
-      <MetricTile label="W′ balance" value={wbal} unit="%" size="md" accent="var(--color-wbal)" />
     </div>
   )
 }

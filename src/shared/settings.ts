@@ -46,6 +46,13 @@ export const FuelingPrefsSchema = z.object({
   drinkEveryMin: z.number().min(5).max(60).default(15),
 })
 
+/** HUD tile layouts per ride view; null = the built-in preset. */
+export const HudPrefsSchema = z.object({
+  free: z.array(z.string().max(40)).max(24).nullable().default(null),
+  workout: z.array(z.string().max(40)).max(24).nullable().default(null),
+  route: z.array(z.string().max(40)).max(24).nullable().default(null),
+})
+
 export const AppSettingsSchema = z.object({
   version: z.literal(1).default(1),
   /** One remembered device per role, auto-selected on launch. */
@@ -60,12 +67,14 @@ export const AppSettingsSchema = z.object({
   trainer: TrainerPrefsSchema.default(TrainerPrefsSchema.parse({})),
   coach: CoachPrefsSchema.default(CoachPrefsSchema.parse({})),
   fueling: FuelingPrefsSchema.default(FuelingPrefsSchema.parse({})),
+  hud: HudPrefsSchema.default(HudPrefsSchema.parse({})),
 })
 
 export type AppSettings = z.infer<typeof AppSettingsSchema>
 export type TrainerPrefs = z.infer<typeof TrainerPrefsSchema>
 export type CoachPrefs = z.infer<typeof CoachPrefsSchema>
 export type FuelingPrefs = z.infer<typeof FuelingPrefsSchema>
+export type HudPrefs = z.infer<typeof HudPrefsSchema>
 export type RememberedDeviceSetting = z.infer<typeof RememberedDeviceSchema>
 
 export const DEFAULT_SETTINGS: AppSettings = AppSettingsSchema.parse({})
