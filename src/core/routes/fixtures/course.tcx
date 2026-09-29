@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Hand-written synthetic fixture: a TCX course with a tcx: prefix, a summary
+     lap (which has no track) and a course point. -->
+<tcx:TrainingCenterDatabase xmlns:tcx="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2">
+  <tcx:Courses>
+    <tcx:Course>
+      <tcx:Name>Fixture Course</tcx:Name>
+      <tcx:Lap>
+        <tcx:TotalTimeSeconds>60</tcx:TotalTimeSeconds>
+        <tcx:DistanceMeters>235.9</tcx:DistanceMeters>
+        <tcx:Intensity>Active</tcx:Intensity>
+      </tcx:Lap>
+      <tcx:Track>
+        <tcx:Trackpoint>
+          <tcx:Time>2026-01-01T08:00:00Z</tcx:Time>
+          <tcx:Position><tcx:LatitudeDegrees>45.000</tcx:LatitudeDegrees><tcx:LongitudeDegrees>7.000</tcx:LongitudeDegrees></tcx:Position>
+          <tcx:AltitudeMeters>50</tcx:AltitudeMeters>
+          <tcx:DistanceMeters>0</tcx:DistanceMeters>
+        </tcx:Trackpoint>
+        <tcx:Trackpoint>
+          <tcx:Time>2026-01-01T08:00:30Z</tcx:Time>
+          <tcx:Position><tcx:LatitudeDegrees>45.000</tcx:LatitudeDegrees><tcx:LongitudeDegrees>7.0015</tcx:LongitudeDegrees></tcx:Position>
+          <tcx:AltitudeMeters>53</tcx:AltitudeMeters>
+          <tcx:DistanceMeters>117.9</tcx:DistanceMeters>
+        </tcx:Trackpoint>
+        <tcx:Trackpoint>
+          <tcx:Time>2026-01-01T08:01:00Z</tcx:Time>
+          <tcx:Position><tcx:LatitudeDegrees>45.000</tcx:LatitudeDegrees><tcx:LongitudeDegrees>7.0030</tcx:LongitudeDegrees></tcx:Position>
+          <tcx:AltitudeMeters>56</tcx:AltitudeMeters>
+          <tcx:DistanceMeters>235.9</tcx:DistanceMeters>
+        </tcx:Trackpoint>
+      </tcx:Track>
+      <tcx:CoursePoint>
+        <tcx:Name>Top</tcx:Name>
+        <tcx:Time>2026-01-01T08:01:00Z</tcx:Time>
+        <tcx:Position><tcx:LatitudeDegrees>45.000</tcx:LatitudeDegrees><tcx:LongitudeDegrees>7.0030</tcx:LongitudeDegrees></tcx:Position>
+        <tcx:PointType>Summit</tcx:PointType>
+      </tcx:CoursePoint>
+    </tcx:Course>
+  </tcx:Courses>
+</tcx:TrainingCenterDatabase>
