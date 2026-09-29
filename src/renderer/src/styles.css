@@ -46,6 +46,36 @@
   --color-wbal: #8c69c5;
 }
 
+/* Route grade: a sequential one-hue ramp (OKLCH h 45) in six classes,
+   < 1 % · 1-3 · 3-5 · 5-7 · 7-10 · 10 %+ (routes/grade.ts). Validated as an
+   ordinal ramp with the dataviz validator on panel #10131a and panel-2
+   #161a23: monotone lightness, adjacent ΔL >= 0.06, the low end at 2.35:1
+   and 2.20:1. Steeper is brighter on the dark surface; `.light` below has
+   the light-surface steps. Always shown with a legend and the grade as a
+   number, so colour is never the only signal. `static`: the charts pick a
+   class with var(--color-grade-${i}), which Tailwind's scanner can't see,
+   and it only emits theme variables it sees used. */
+@theme static {
+  --color-grade-0: #6a4a3b;
+  --color-grade-1: #93573b;
+  --color-grade-2: #be6438;
+  --color-grade-3: #e67339;
+  --color-grade-4: #fe8f5b;
+  --color-grade-5: #feb898;
+}
+
+/* The grade ramp stepped for a light surface (steeper is darker), validated
+   the same way on #fcfcfb and #ffffff (low end 2.19:1 and 2.25:1). Inert
+   until a light theme puts .light on <html>. */
+.light {
+  --color-grade-0: #caa594;
+  --color-grade-1: #c88160;
+  --color-grade-2: #bf5d2c;
+  --color-grade-3: #a64403;
+  --color-grade-4: #833404;
+  --color-grade-5: #622501;
+}
+
 @layer base {
   html,
   body,
