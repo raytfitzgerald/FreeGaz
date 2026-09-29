@@ -180,7 +180,7 @@ describe('the coach on a simulated VO2 Max 5×4', () => {
         expect(violatesGuardrails(l.text), l.text).toBeNull()
         expect(violatesGuardrails(l.speech), l.speech).toBeNull()
         const level = detectProfanity(l.text)
-        expect(level === 'strong' || (level === 'mild' && !profanity), l.text).toBe(false)
+        expect(level !== null && !profanity, l.text).toBe(false)
         if (persona === BIBI && l.personaId === 'bibi') {
           expect(BIBI_BANNED_PATTERNS.filter((p) => p.test(l.text) || p.test(normalizeForMatching(l.text))).map(String), l.text).toEqual([])
         }

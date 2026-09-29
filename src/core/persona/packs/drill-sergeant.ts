@@ -328,6 +328,10 @@ b.add('idle_banter', [
   [5, 'Quit sightseeing and pedal, damn it! The view in here never changes!', P],
 ])
 
+b.add('segment_start', [[5, '{targetW} watts! Move and fucking pedal, recruit!', P]], [HARD])
+b.add('under_target', [[5, 'Under target! That effort was shit, recruit! Fix it!', P]])
+b.add('idle_banter', [[5, 'Quit sightseeing and fucking pedal, recruit!', P]])
+
 export const DRILL_SERGEANT: PersonaPack = {
   meta: {
     id: 'drill-sergeant',

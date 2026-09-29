@@ -48,5 +48,5 @@ Return JSON only, matching the schema.`
 
 /** Persona instruction appended to the user message (keeps system prompts cache-stable). */
 export function personaInstruction(p: { name: string; tagline: string; spice: number; profanity: boolean }): string {
-  return [`Persona: ${p.name} — ${p.tagline}.`, `Spice level ${p.spice}/5 (1 = gentle encouragement, 5 = savage roast).`, p.profanity ? 'Mild profanity is allowed.' : 'No profanity.'].join(' ')
+  return [`Persona: ${p.name} — ${p.tagline}.`, `Spice level ${p.spice}/5 (1 = gentle encouragement, 5 = savage roast).`, p.profanity ? 'No language restrictions.' : 'No profanity.'].join(' ')
 }

@@ -331,6 +331,9 @@ b.add('idle_banter', [
   [5, 'Pedal smoother, damn it. My variability index is weeping.', P],
 ])
 
+b.add('under_target', [[5, '{power} watts. That sample is fucking noise. Get back on target.', P]])
+b.add('idle_banter', [[5, 'This power trace is shit. Smooth it out.', P]])
+
 export const DATA_NERD: PersonaPack = {
   meta: {
     id: 'data-nerd',

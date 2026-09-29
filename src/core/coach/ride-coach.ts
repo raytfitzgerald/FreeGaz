@@ -117,7 +117,7 @@ export class RideCoach {
   private say(moments: readonly CoachContext[]): CoachLine[] {
     const out: CoachLine[] = []
     const personaId = this.base.meta.id
-    const banned = personaBannedPatterns(personaId)
+    const banned = this.profanity ? [] : personaBannedPatterns(personaId)
     for (const m of moments) {
       const line = this.engine.consider(banned.length > 0 ? { ...m, data: sanitizeFacts(m.data, banned) } : m)
       if (!line) continue

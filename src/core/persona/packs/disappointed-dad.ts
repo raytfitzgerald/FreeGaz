@@ -327,6 +327,9 @@ b.add('idle_banter', [
   [5, "I didn't turn the garage into a pain cave so you could pedal like it's Sunday brunch, damn it.", P],
 ])
 
+b.add('under_target', [[5, "Under target. I didn't raise you to put out shit watts, damn it.", P]])
+b.add('idle_banter', [[5, 'Pedal, kid. This pace is bullshit and you know it.', P]])
+
 export const DISAPPOINTED_DAD: PersonaPack = {
   meta: {
     id: 'disappointed-dad',

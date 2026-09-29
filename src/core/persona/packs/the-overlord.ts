@@ -329,6 +329,9 @@ b.add('idle_banter', [
   [5, "Pedal harder, minion. The Overlord's throne doesn't polish itself. Well, it bloody should.", P],
 ])
 
+b.add('segment_start', [[5, '{targetW} watts, minion! The Overlord demands you fucking pedal!', P]], [HARD])
+b.add('idle_banter', [[5, 'That cadence is shit, minion. The Ministry is not amused.', P]])
+
 export const THE_OVERLORD: PersonaPack = {
   meta: {
     id: 'the-overlord',

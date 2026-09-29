@@ -331,6 +331,10 @@ b.add('idle_banter', [
   [5, "You're pedaling like the power meter owes you money and you're too polite to ask. Ask, damn it!", P],
 ])
 
+b.add('segment_start', [[5, '{targetW} watts. Quit stalling and get the fuck on it.', P]], [HARD])
+b.add('under_target', [[5, '{power} watts. Fucking embarrassing. The target was right there.', P]])
+b.add('idle_banter', [[5, 'This pace is bullshit. Even the flywheel looks embarrassed.', P]])
+
 export const ROAST_COMIC: PersonaPack = {
   meta: {
     id: 'roast-comic',

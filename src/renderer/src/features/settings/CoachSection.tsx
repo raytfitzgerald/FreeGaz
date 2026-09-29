@@ -136,8 +136,8 @@ export function CoachSection() {
         <Field label="Spice" hint={persona === PROFESSIONAL ? 'Professional ignores spice: always straight cues.' : spice.hint}>
           <Segmented ariaLabel="Spice level" className="flex-wrap" value={String(c.spice)} options={SPICE_OPTIONS} onChange={(v) => set({ spice: Number(v) })} />
         </Field>
-        <Field label="Profanity" hint={meta.parody ? 'Mild words only, never slurs or strong language. The parody never swears either way.' : 'Mild words only (damn, hell). Never slurs or strong language.'}>
-          <Switch checked={c.profanity} onChange={(v) => set({ profanity: v })} label={c.profanity ? 'Mild words allowed' : 'Clean'} />
+        <Field label="Profanity" hint="When on, nothing is off limits. Off keeps every line clean.">
+          <Switch checked={c.profanity} onChange={(v) => set({ profanity: v })} label={c.profanity ? 'On' : 'Clean'} />
         </Field>
         {ai && (
           <Field label="Use AI for fresh lines" hint="At the start of each ride, asks your AI provider for new lines in this persona's style. If the AI is slow or says no, the canned lines carry the ride.">

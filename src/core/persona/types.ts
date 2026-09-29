@@ -146,7 +146,7 @@ export interface CoachLineTemplate {
   triggers: readonly CoachTrigger[]
   /** The lowest spice level at which this line may be used. */
   spice: Spice
-  /** Contains mild profanity; used only when profanity is enabled. */
+  /** Contains profanity; used only when profanity is enabled. */
   profanity?: boolean
   criteria?: readonly Criterion[]
   /** Relative weight among equally specific lines. Default 1. */

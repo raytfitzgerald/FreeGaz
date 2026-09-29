@@ -31,7 +31,7 @@ describe('quipPackPrompt', () => {
     const p = quipPackPrompt(ROAST_COMIC.meta, { spice: 4, profanity: true }, { kind: 'workout', name: 'VO2 Max 5×4', durationS: 3900, structure: '5 × 4:00 at 115 % FTP' })
     expect(p).toContain('Persona: Roast Comic')
     expect(p).toContain('Spice level 4/5')
-    expect(p).toContain('Mild profanity is allowed.')
+    expect(p).toContain('No language restrictions.')
     expect(p).toContain('a structured workout called "VO2 Max 5×4", 65 minutes')
     expect(p).toContain('Main work: 5 × 4:00 at 115 % FTP.')
     expect(p).not.toContain('parody')
@@ -39,7 +39,7 @@ describe('quipPackPrompt', () => {
 
   it('passes the ride name and the profanity setting through, parody included', () => {
     const p = quipPackPrompt(BIBI.meta, { spice: 5, profanity: true }, { kind: 'workout', name: 'Battle of the Bulge', durationS: 3600, structure: null })
-    expect(p).toContain('Mild profanity is allowed.')
+    expect(p).toContain('No language restrictions.')
     expect(p).toContain('called "Battle of the Bulge"')
     expect(quipPackPrompt(ROAST_COMIC.meta, { spice: 3, profanity: false }, { kind: 'free', name: 'Fat Burner', durationS: null, structure: null })).toContain('called "Fat Burner"')
   })
@@ -94,9 +94,17 @@ describe('quipLinesFromPack', () => {
     expect(lines.map((l) => l.text)).toContain('This is a war on watts.')
   })
 
-  it('keeps mild profanity only when the rider allows it, flagged so the engine can drop it later', () => {
-    const allowed = quipLinesFromPack(pack([{ trigger: 'idle_banter', text: 'Damn, that cadence.' }]), { ...opts, profanity: true })
-    expect(allowed.lines[0]).toMatchObject({ text: 'Damn, that cadence.', profanity: true })
+  it('keeps profanity, mild and strong, only when the rider allows it', () => {
+    const allowed = quipLinesFromPack(
+      pack([
+        { trigger: 'idle_banter', text: 'Damn, that cadence.' },
+        { trigger: 'under_target', text: 'What the fuck is this pace.' },
+      ]),
+      { ...opts, profanity: true },
+    )
+    expect(allowed.lines.find((l) => l.text.startsWith('Damn'))).toMatchObject({ profanity: true })
+    expect(allowed.lines.find((l) => l.text.includes('fuck'))).toMatchObject({ profanity: true })
+    expect(quipLinesFromPack(pack([{ trigger: 'idle_banter', text: 'What the fuck is this pace.' }]), opts).rejected.map((r) => r.reason)).toEqual(['profanity'])
   })
 
   it('keeps parody lines the topic list used to drop, and still honors the profanity setting', () => {

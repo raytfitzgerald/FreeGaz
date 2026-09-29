@@ -88,7 +88,7 @@ describe('validatePack: sad paths', () => {
       { id: 'weight', text: 'Hi.', triggers: ['idle_banter'], spice: 1, weight: 0 },
       { id: 'topic', text: 'Pedal like a girl.', triggers: ['idle_banter'], spice: 3 },
       { id: 'body', text: 'Burn off that belly.', triggers: ['idle_banter'], spice: 3 },
-      { id: 'strong', text: 'Pedal, you bastard.', triggers: ['idle_banter'], spice: 5, profanity: true },
+      { id: 'strong', text: 'Pedal, you bastard.', triggers: ['idle_banter'], spice: 5 },
       { id: 'unflagged', text: 'Damn, pedal.', triggers: ['idle_banter'], spice: 3 },
       { id: 'placeholder', text: 'Hold {pwoer}.', triggers: ['idle_banter'], spice: 1 },
       { id: 'brace', text: 'Hold {power.', triggers: ['idle_banter'], spice: 1 },
@@ -106,7 +106,7 @@ describe('validatePack: sad paths', () => {
     expect(text).toMatch(/lines\[4\]\.spice/)
     expect(text).toMatch(/\("topic"\): text: touches a banned topic \(gender/)
     expect(text).toMatch(/\("body"\): text: touches a banned topic \(body/)
-    expect(text).toMatch(/\("strong"\): text: strong profanity is never allowed/)
+    expect(text).toMatch(/\("strong"\): text: contains profanity; set "profanity": true/)
     expect(text).toMatch(/\("unflagged"\): text: contains profanity; set "profanity": true/)
     expect(text).toMatch(/\("placeholder"\): text: unknown placeholder \{pwoer\}/)
     expect(text).toMatch(/\("brace"\): text: stray/)
