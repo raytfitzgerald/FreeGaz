@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1d2836"/>
+      <stop offset="1" stop-color="#0b1119"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.55" r="0.5">
+      <stop offset="0" stop-color="#f2c230" stop-opacity="0.14"/>
+      <stop offset="1" stop-color="#f2c230" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect x="100" y="100" width="824" height="824" rx="186" fill="url(#bg)"/>
+  <rect x="100" y="100" width="824" height="824" rx="186" fill="url(#glow)"/>
+  <rect x="101.5" y="101.5" width="821" height="821" rx="184.5" fill="none" stroke="#ffffff" stroke-opacity="0.08" stroke-width="3"/>
+  <line x1="355.0" y1="717.0" x2="373.4" y2="698.6" stroke="#ffffff" stroke-opacity="0.55" stroke-width="7" stroke-linecap="round"/>
+  <line x1="330.9" y1="688.5" x2="342.4" y2="680.4" stroke="#ffffff" stroke-opacity="0.25" stroke-width="4" stroke-linecap="round"/>
+  <line x1="312.0" y1="656.3" x2="324.6" y2="650.2" stroke="#ffffff" stroke-opacity="0.25" stroke-width="4" stroke-linecap="round"/>
+  <line x1="298.7" y1="621.5" x2="312.1" y2="617.6" stroke="#ffffff" stroke-opacity="0.25" stroke-width="4" stroke-linecap="round"/>
+  <line x1="291.4" y1="584.9" x2="317.2" y2="581.9" stroke="#ffffff" stroke-opacity="0.55" stroke-width="7" stroke-linecap="round"/>
+  <line x1="290.3" y1="547.6" x2="304.3" y2="548.3" stroke="#ffffff" stroke-opacity="0.25" stroke-width="4" stroke-linecap="round"/>
+  <line x1="295.6" y1="510.6" x2="309.2" y2="513.7" stroke="#ffffff" stroke-opacity="0.25" stroke-width="4" stroke-linecap="round"/>
+  <line x1="306.9" y1="475.0" x2="319.8" y2="480.4" stroke="#ffffff" stroke-opacity="0.25" stroke-width="4" stroke-linecap="round"/>
+  <line x1="324.0" y1="441.9" x2="346.0" y2="455.7" stroke="#ffffff" stroke-opacity="0.55" stroke-width="7" stroke-linecap="round"/>
+  <line x1="346.5" y1="412.1" x2="356.9" y2="421.4" stroke="#ffffff" stroke-opacity="0.25" stroke-width="4" stroke-linecap="round"/>
+  <line x1="373.6" y1="386.4" x2="382.3" y2="397.4" stroke="#ffffff" stroke-opacity="0.25" stroke-width="4" stroke-linecap="round"/>
+  <line x1="404.6" y1="365.7" x2="411.4" y2="378.0" stroke="#ffffff" stroke-opacity="0.25" stroke-width="4" stroke-linecap="round"/>
+  <line x1="438.7" y1="350.5" x2="447.3" y2="375.0" stroke="#ffffff" stroke-opacity="0.55" stroke-width="7" stroke-linecap="round"/>
+  <line x1="474.8" y1="341.1" x2="477.2" y2="354.9" stroke="#ffffff" stroke-opacity="0.25" stroke-width="4" stroke-linecap="round"/>
+  <line x1="512.0" y1="338.0" x2="512.0" y2="352.0" stroke="#ffffff" stroke-opacity="0.25" stroke-width="4" stroke-linecap="round"/>
+  <line x1="549.2" y1="341.1" x2="546.8" y2="354.9" stroke="#ffffff" stroke-opacity="0.25" stroke-width="4" stroke-linecap="round"/>
+  <line x1="585.3" y1="350.5" x2="576.7" y2="375.0" stroke="#ffffff" stroke-opacity="0.55" stroke-width="7" stroke-linecap="round"/>
+  <line x1="619.4" y1="365.7" x2="612.6" y2="378.0" stroke="#ffffff" stroke-opacity="0.25" stroke-width="4" stroke-linecap="round"/>
+  <line x1="650.4" y1="386.4" x2="641.7" y2="397.4" stroke="#ffffff" stroke-opacity="0.25" stroke-width="4" stroke-linecap="round"/>
+  <line x1="677.5" y1="412.1" x2="667.1" y2="421.4" stroke="#ffffff" stroke-opacity="0.25" stroke-width="4" stroke-linecap="round"/>
+  <line x1="700.0" y1="441.9" x2="678.0" y2="455.7" stroke="#ffffff" stroke-opacity="0.55" stroke-width="7" stroke-linecap="round"/>
+  <line x1="717.1" y1="475.0" x2="704.2" y2="480.4" stroke="#ffffff" stroke-opacity="0.25" stroke-width="4" stroke-linecap="round"/>
+  <line x1="728.4" y1="510.6" x2="714.8" y2="513.7" stroke="#ffffff" stroke-opacity="0.25" stroke-width="4" stroke-linecap="round"/>
+  <line x1="733.7" y1="547.6" x2="719.7" y2="548.3" stroke="#ffffff" stroke-opacity="0.25" stroke-width="4" stroke-linecap="round"/>
+  <line x1="732.6" y1="584.9" x2="706.8" y2="581.9" stroke="#ffffff" stroke-opacity="0.55" stroke-width="7" stroke-linecap="round"/>
+  <line x1="725.3" y1="621.5" x2="711.9" y2="617.6" stroke="#ffffff" stroke-opacity="0.25" stroke-width="4" stroke-linecap="round"/>
+  <line x1="712.0" y1="656.3" x2="699.4" y2="650.2" stroke="#ffffff" stroke-opacity="0.25" stroke-width="4" stroke-linecap="round"/>
+  <line x1="693.1" y1="688.5" x2="681.6" y2="680.4" stroke="#ffffff" stroke-opacity="0.25" stroke-width="4" stroke-linecap="round"/>
+  <line x1="669.0" y1="717.0" x2="650.6" y2="698.6" stroke="#ffffff" stroke-opacity="0.55" stroke-width="7" stroke-linecap="round"/>
+  <path d="M294.0 766.1 A300 300 0 0 1 214.9 601.9" stroke="#8a939e" stroke-width="78" fill="none" stroke-linecap="butt"/>
+  <path d="M213.1 585.3 A300 300 0 0 1 253.6 407.5" stroke="#2f8cf0" stroke-width="78" fill="none" stroke-linecap="butt"/>
+  <path d="M262.5 393.4 A300 300 0 0 1 405.0 279.7" stroke="#2fb35c" stroke-width="78" fill="none" stroke-linecap="butt"/>
+  <path d="M420.9 274.2 A300 300 0 0 1 603.1 274.2" stroke="#f2c230" stroke-width="78" fill="none" stroke-linecap="butt"/>
+  <path d="M619.0 279.7 A300 300 0 0 1 761.5 393.4" stroke="#f58b1f" stroke-width="78" fill="none" stroke-linecap="butt"/>
+  <path d="M770.4 407.5 A300 300 0 0 1 810.9 585.3" stroke="#e2474b" stroke-width="78" fill="none" stroke-linecap="butt"/>
+  <path d="M809.1 601.9 A300 300 0 0 1 730.0 766.1" stroke="#9d6ad8" stroke-width="78" fill="none" stroke-linecap="butt"/>
+  <path d="M486.1 558.3 L529.6 298.6 L537.9 561.7 Z" fill="#ffffff"/>
+  <circle cx="512" cy="560" r="54" fill="#ffffff"/>
+  <circle cx="512" cy="560" r="24" fill="#0b1119"/>
+</svg>

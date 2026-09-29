@@ -119,6 +119,10 @@ export const invoke = {
     res: z.object({ path: z.string().nullable() }),
   },
   'files.openUrl': { req: z.object({ url: z.string().url().max(2000) }), res: Ok },
+  /** FIT files in the export folder (for "rebuild history from folder"). */
+  'files.listFits': { req: Empty, res: z.object({ dir: z.string(), files: z.array(z.object({ name: z.string(), size: z.number(), mtime: z.number() })) }) },
+  /** Reads one FIT file from the export folder, by plain file name (no paths). */
+  'files.readFit': { req: z.object({ name: z.string().min(5).max(255).regex(/^[^/\\]+\.fit$/i) }), res: z.object({ bytes: z.instanceof(Uint8Array) }) },
   /** Writes a .zwo into every Zwift account folder under ~/Documents/Zwift/Workouts. */
   'files.exportZwift': {
     req: z.object({ fileName: z.string().min(1).max(120), text: z.string().max(2_000_000) }),

@@ -21,6 +21,10 @@ export interface FinalizeInput {
   utcOffsetMin: number
   softwareVersion: number
   recovered?: boolean
+  /** Set for rides imported from someone else's FIT file (no FIT is written for them). */
+  imported?: { fileName: string; device?: string }
+  /** Overrides the computed elevation gain (imports carry the device's own). */
+  elevationGainM?: number | null
   now: number
   /** Optional per-lap labels (from workout segments). */
   lapLabels?: string[]
@@ -143,12 +147,14 @@ export function finalizeRide(input: FinalizeInput): FinalizedRide {
     workoutName: input.workoutName,
     workoutJson: input.workoutJson,
     recovered: input.recovered,
+    ...(input.imported ? { imported: input.imported } : {}),
     createdAt: input.now,
     updatedAt: input.now,
   }
 
+  if (input.elevationGainM !== undefined) summary.elevationGainM = input.elevationGainM
   let fit: Uint8Array | null = null
-  if (records.length > 0) {
+  if (records.length > 0 && !input.imported) {
     const wb = new WPrimeBalance({ cp: athlete.cpW ?? athlete.ftpW, wPrimeJ: athlete.wPrimeJ ?? 20_000 })
     const wbal = power.map((p) => wb.push(p, 1))
     const fitLaps: FitLapSummary[] = (laps.length ? laps : computeLaps(records)).map((l) => ({

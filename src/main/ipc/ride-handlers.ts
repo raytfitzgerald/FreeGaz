@@ -76,6 +76,29 @@ export function registerRideHandlers(deps: { journal: JournalStore; settings: Se
     shell.showItemInFolder(path)
     return { ok: true }
   })
+  handle('files.listFits', async () => {
+    const { readdirSync, statSync } = await import('node:fs')
+    const dir = exportDir()
+    let names: string[] = []
+    try {
+      names = readdirSync(dir).filter((n) => /\.fit$/i.test(n))
+    } catch {
+      // no folder yet
+    }
+    const files = names.flatMap((name) => {
+      const st = statSync(join(dir, name), { throwIfNoEntry: false })
+      return st?.isFile() ? [{ name, size: st.size, mtime: st.mtimeMs }] : []
+    })
+    return { dir, files }
+  })
+  handle('files.readFit', async ({ name }) => {
+    const { readFileSync, statSync } = await import('node:fs')
+    const { basename } = await import('node:path')
+    if (basename(name) !== name) throw new Error('Plain file names only')
+    const path = join(exportDir(), name)
+    if ((statSync(path).size ?? 0) > 64 * 1024 * 1024) throw new Error('File too large')
+    return { bytes: new Uint8Array(readFileSync(path)) }
+  })
   handle('files.exportZwift', async ({ fileName, text }) => {
     const root = join(app.getPath('documents'), 'Zwift', 'Workouts')
     const { readdirSync, statSync, writeFileSync } = await import('node:fs')

@@ -27,7 +27,8 @@
     "dist": "npm run build && electron-builder --mac --publish never",
     "licenses": "node scripts/check-licenses.mjs",
     "selftest:packaged": "FREEGAZ_SELFTEST=1 FREEGAZ_TEST=1 FREEGAZ_USER_DATA=$(mktemp -d) release/$npm_package_version/mac-arm64/FreeGaz.app/Contents/MacOS/FreeGaz",
-    "postinstall": "install-electron"
+    "postinstall": "install-electron",
+    "icon": "electron scripts/make-icon.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.129.0",

@@ -35,7 +35,7 @@ export function RideDetailPage() {
     <div className="mx-auto max-w-6xl px-8 pb-12">
       <PageHeader
         title={ride.name}
-        subtitle={`${formatDateTime(ride.startedAt)} · ${formatDuration(ride.movingS)} moving${ride.simulated ? ' · simulated' : ''}${ride.recovered ? ' · recovered after a crash' : ''}`}
+        subtitle={`${formatDateTime(ride.startedAt)} · ${formatDuration(ride.movingS)} moving${ride.simulated ? ' · simulated' : ''}${ride.recovered ? ' · recovered after a crash' : ''}${ride.imported ? ` · imported${ride.imported.device ? ` from ${ride.imported.device}` : ''}` : ''}`}
         actions={
           <>
             <Button asChild size="sm" variant="ghost">
@@ -48,7 +48,7 @@ export function RideDetailPage() {
                 <FolderOpen className="size-3.5" /> FIT file
               </Button>
             )}
-            {!ride.simulated && (
+            {!ride.simulated && !ride.imported && (
               <Button size="sm" variant="ghost" onClick={() => void bridge().invoke('files.openUrl', { url: 'https://www.strava.com/upload/select' })}>
                 <ExternalLink className="size-3.5" /> Strava upload
               </Button>

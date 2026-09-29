@@ -23,6 +23,8 @@ export const INVOKE_CHANNELS = [
   'files.saveAs',
   'files.openUrl',
   'files.exportZwift',
+  'files.listFits',
+  'files.readFit',
   'power.keepAwake',
   'strava.status',
   'strava.setApp',

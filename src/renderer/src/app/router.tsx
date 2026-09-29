@@ -23,7 +23,12 @@ const page = <P extends string>(path: P, title: string, blurb: string) =>
   })
 
 const rideRoute = createRoute({ getParentRoute: () => rootRoute, path: '/ride', component: RidePage })
-const workoutsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/workouts', component: WorkoutsPage })
+const workoutsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/workouts',
+  validateSearch: (s: Record<string, unknown>): { filter?: string } => (typeof s.filter === 'string' ? { filter: s.filter } : {}),
+  component: WorkoutsPage,
+})
 const devicesRoute = createRoute({ getParentRoute: () => rootRoute, path: '/devices', component: DevicesPage })
 const historyRoute = createRoute({ getParentRoute: () => rootRoute, path: '/history', component: HistoryPage })
 const rideDetailRoute = createRoute({ getParentRoute: () => rootRoute, path: '/history/$rideId', component: RideDetailPage })

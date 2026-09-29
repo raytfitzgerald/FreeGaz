@@ -1,6 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useMemo, useRef, useState, type DragEvent } from 'react'
-import { Link } from '@tanstack/react-router'
+import { Link, useSearch } from '@tanstack/react-router'
 import { FileUp, Gauge, Plus, Search, Star } from 'lucide-react'
 import { WorkoutThumb } from '../../charts/WorkoutThumb'
 import { useFtp } from '../../db/use-athlete'
@@ -26,7 +26,8 @@ const LENGTHS: { id: Length; label: string; test: (s: number) => boolean }[] = [
 export function WorkoutsPage() {
   const { ftpW, known } = useFtp()
   const library = useLiveQuery(() => loadLibrary(ftpW), [ftpW])
-  const [filter, setFilter] = useState<Filter>('all')
+  const initial = useSearch({ from: '/workouts' }).filter
+  const [filter, setFilter] = useState<Filter>(initial === 'tests' || initial === 'favorites' || initial === 'mine' ? initial : 'all')
   const [length, setLength] = useState<Length>('any')
   const [query, setQuery] = useState('')
   const [openId, setOpenId] = useState<string | null>(null)
@@ -204,10 +205,17 @@ function WorkoutCard({ entry, ftpW, onOpen }: { entry: LibraryEntry; ftpW: numbe
         {entry.favorite && <Star className="mt-0.5 size-4 shrink-0 fill-current text-warn" aria-label="Favorite" />}
       </div>
       <div className="tabular mt-1 text-xs text-ink-dim">
-        {formatDurationShort(stats.durationS)}
-        {stats.tss !== null && ` · TSS ${Math.round(stats.tss)}`}
-        {stats.if !== null && ` · IF ${stats.if.toFixed(2)}`}
-        {w.ftpTest && ' · FTP test'}
+        {w.ftpTest?.protocol === 'ramp' ? (
+          // A ramp test ends when you fail, so full-length stats would be fiction.
+          'Until you can’t hold it · about 20–30 min · FTP test'
+        ) : (
+          <>
+            {formatDurationShort(stats.durationS)}
+            {stats.tss !== null && ` · TSS ${Math.round(stats.tss)}`}
+            {stats.if !== null && ` · IF ${stats.if.toFixed(2)}`}
+            {w.ftpTest && ' · FTP test'}
+          </>
+        )}
       </div>
       <div className="mt-2 flex flex-wrap gap-1">
         {!entry.builtin && <span className="rounded bg-accent/15 px-1.5 py-0.5 text-[10px] text-ink">{w.source === 'import' ? 'Imported' : w.source === 'ai' ? 'AI' : 'Mine'}</span>}

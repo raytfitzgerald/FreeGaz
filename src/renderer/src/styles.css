@@ -24,7 +24,12 @@
   --color-good: #22c55e;
   --color-warn: #f59e0b;
   --color-bad: #ef4444;
+}
 
+/* Data colours are read from JavaScript (charts, zone fills) as var(--color-…),
+   which Tailwind's class scanner can't see, so this block is `static`: every
+   variable is always emitted, used by a class or not. */
+@theme static {
   /* Power zones (Coggan Z1-Z7), stepped for the dark surface and validated
      with the dataviz six-check validator (adjacent CVD ΔE >= 8.8, normal-vision
      ΔE >= 15.8). Z1 is deliberately neutral; zones are always also labeled and

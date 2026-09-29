@@ -72,6 +72,8 @@ export interface RideSummary {
   rpe?: number
   feel?: 1 | 2 | 3 | 4 | 5
   notes?: string
+  /** Imported from a FIT file (Garmin, Wahoo, another app): not re-exported or uploaded. */
+  imported?: { fileName: string; device?: string }
   /** AI post-ride debrief (markdown), cached once generated. */
   debrief?: string
   fit?: { fileName: string; path?: string; bytes: number }

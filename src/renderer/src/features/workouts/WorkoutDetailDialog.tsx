@@ -63,6 +63,11 @@ export function WorkoutDetailDialog({
       <div className="space-y-5">
         <WorkoutChart blocks={blocks} durationS={timeline.durationS} ftpW={ftpW} height={200} title={`${w.name} profile`} />
 
+        {w.ftpTest?.protocol === 'ramp' && (
+          <div className="rounded-xl border border-line bg-panel-2 px-3 py-2 text-sm text-ink-dim">
+            The ramp keeps climbing until you can’t hold the target, then drops you into the cool-down. Most riders finish in 20–30 minutes; the numbers below assume every step, which nobody does.
+          </div>
+        )}
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
           {(
             [

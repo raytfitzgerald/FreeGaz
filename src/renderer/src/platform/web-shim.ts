@@ -149,6 +149,10 @@ export function createWebShim(): FreegazBridge {
     'files.exportDir': () => ({ dir: 'Downloads' }),
     'files.chooseExportDir': () => ({ dir: null }),
     'files.reveal': () => ({ ok: false }),
+    'files.listFits': () => ({ dir: 'browser', files: [] }),
+    'files.readFit': () => {
+      throw new Error('Reading the FIT folder needs the desktop app')
+    },
     'files.exportZwift': ({ fileName, text }) => {
       const url = URL.createObjectURL(new Blob([text], { type: 'application/xml' }))
       const a = document.createElement('a')
