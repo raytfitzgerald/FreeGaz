@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!-- Hand-written synthetic fixture: a GPX 1.0 planned route (rte/rtept), default
+     namespace, no timestamps, last point without elevation. -->
+<gpx version="1.0" creator="FreeGaz test fixture" xmlns="http://www.topografix.com/GPX/1/0">
+  <name>Fixture file name</name>
+  <rte>
+    <name>Synthetic Planned Route</name>
+    <rtept lat="45.000" lon="7.000"><ele>200</ele><name>Start</name></rtept>
+    <rtept lat="45.001" lon="7.000"><ele>205</ele></rtept>
+    <rtept lat="45.002" lon="7.000"><ele>210</ele></rtept>
+    <rtept lat="45.003" lon="7.000"></rtept>
+  </rte>
+</gpx>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Hand-written synthetic fixture (not a real ride): GPX 1.1 with a prefixed
+     namespace, a Garmin extension, two segments, an exact duplicate point, a
+     point without elevation, an SRTM void (-32768) and a decimal comma. -->
+<gpx:gpx xmlns:gpx="http://www.topografix.com/GPX/1/1"
+         xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd"
+         version="1.1" creator="FreeGaz test fixture">
+  <gpx:metadata>
+    <gpx:name>Fixture metadata name</gpx:name>
+    <gpx:time>2026-01-01T08:00:00Z</gpx:time>
+  </gpx:metadata>
+  <gpx:trk>
+    <gpx:name>Synthetic Hill &amp; Dale</gpx:name>
+    <gpx:trkseg>
+      <gpx:trkpt lat="45.0000000" lon="7.0000000">
+        <gpx:ele>100.0</gpx:ele>
+        <gpx:time>2026-01-01T08:00:00Z</gpx:time>
+        <gpx:extensions>
+          <gpxtpx:TrackPointExtension><gpxtpx:hr>120</gpxtpx:hr></gpxtpx:TrackPointExtension>
+        </gpx:extensions>
+      </gpx:trkpt>
+      <gpx:trkpt lat="45.0000000" lon="7.0012700"><gpx:ele>101.0</gpx:ele><gpx:time>2026-01-01T08:00:10Z</gpx:time></gpx:trkpt>
+      <gpx:trkpt lat="45.0000000" lon="7.0012700"><gpx:ele>101.0</gpx:ele><gpx:time>2026-01-01T08:00:11Z</gpx:time></gpx:trkpt>
+      <gpx:trkpt lat="45.0000000" lon="7.0025400"><gpx:time>2026-01-01T08:00:20Z</gpx:time></gpx:trkpt>
+    </gpx:trkseg>
+    <gpx:trkseg>
+      <gpx:trkpt lat="45.0000000" lon="7.0038100"><gpx:ele>103.0</gpx:ele><gpx:time>2026-01-01T08:00:30Z</gpx:time></gpx:trkpt>
+      <gpx:trkpt lat="45.0000000" lon="7.0050800"><gpx:ele>-32768</gpx:ele><gpx:time>2026-01-01T08:00:40Z</gpx:time></gpx:trkpt>
+      <gpx:trkpt lat="45.0000000" lon="7.0063500"><gpx:ele>105,5</gpx:ele><gpx:time>2026-01-01T08:00:50Z</gpx:time></gpx:trkpt>
+    </gpx:trkseg>
+  </gpx:trk>
+</gpx:gpx>

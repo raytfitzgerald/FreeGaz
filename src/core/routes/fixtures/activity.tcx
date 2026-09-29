@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Hand-written synthetic fixture: a TCX activity with a default namespace and
+     an ns3 extension, two laps, a trackpoint that lost its GPS position (a
+     tunnel) but kept altitude and distance, and a time-only trackpoint. -->
+<TrainingCenterDatabase xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2"
+                        xmlns:ns3="http://www.garmin.com/xmlschemas/ActivityExtension/v2">
+  <Activities>
+    <Activity Sport="Biking">
+      <Id>2026-01-01T08:00:00Z</Id>
+      <Lap StartTime="2026-01-01T08:00:00Z">
+        <TotalTimeSeconds>11</TotalTimeSeconds>
+        <DistanceMeters>111.2</DistanceMeters>
+        <Track>
+          <Trackpoint>
+            <Time>2026-01-01T08:00:00Z</Time>
+            <Position><LatitudeDegrees>45.000</LatitudeDegrees><LongitudeDegrees>7.000</LongitudeDegrees></Position>
+            <AltitudeMeters>300.0</AltitudeMeters>
+            <DistanceMeters>0.0</DistanceMeters>
+            <Extensions><ns3:TPX><ns3:Speed>10.0</ns3:Speed></ns3:TPX></Extensions>
+          </Trackpoint>
+          <Trackpoint>
+            <Time>2026-01-01T08:00:11Z</Time>
+            <Position><LatitudeDegrees>45.001</LatitudeDegrees><LongitudeDegrees>7.000</LongitudeDegrees></Position>
+            <AltitudeMeters>305.0</AltitudeMeters>
+            <DistanceMeters>111.2</DistanceMeters>
+          </Trackpoint>
+        </Track>
+      </Lap>
+      <Lap StartTime="2026-01-01T08:00:11Z">
+        <TotalTimeSeconds>12</TotalTimeSeconds>
+        <DistanceMeters>111.2</DistanceMeters>
+        <Track>
+          <Trackpoint>
+            <Time>2026-01-01T08:00:16Z</Time>
+            <AltitudeMeters>307.5</AltitudeMeters>
+            <DistanceMeters>166.8</DistanceMeters>
+          </Trackpoint>
+          <Trackpoint>
+            <Time>2026-01-01T08:00:22Z</Time>
+            <Position><LatitudeDegrees>45.002</LatitudeDegrees><LongitudeDegrees>7.000</LongitudeDegrees></Position>
+            <AltitudeMeters>310.0</AltitudeMeters>
+            <DistanceMeters>222.4</DistanceMeters>
+          </Trackpoint>
+          <Trackpoint>
+            <Time>2026-01-01T08:00:23Z</Time>
+          </Trackpoint>
+        </Track>
+      </Lap>
+    </Activity>
+  </Activities>
+</TrainingCenterDatabase>
