@@ -7,7 +7,7 @@ let ctx: Launched
 test.beforeAll(async () => {
   ctx = await launchApp({ sim: true, warp: 30 })
   // Wait for the simulated trainer to connect (launch auto-connect).
-  await ctx.page.getByRole('link', { name: 'Devices' }).click()
+  await ctx.page.getByRole('link', { name: 'Devices', exact: true }).click()
   await expect(ctx.page.getByTestId('device-trainer-name')).toHaveText('SIM KICKR 0001')
 })
 test.afterAll(async () => {
@@ -15,7 +15,7 @@ test.afterAll(async () => {
 })
 
 async function openWorkout(page: Page, name: string) {
-  await page.getByRole('link', { name: 'Workouts' }).click()
+  await page.getByRole('link', { name: 'Workouts', exact: true }).click()
   await expect(page.getByTestId('workout-card').nth(27)).toBeVisible()
   await page.getByPlaceholder('Search workouts').fill(name)
   await page.getByTestId('workout-card').filter({ hasText: name }).first().click()

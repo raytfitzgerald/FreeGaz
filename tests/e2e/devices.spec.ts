@@ -33,7 +33,7 @@ test.afterAll(async () => {
 
 test('simulated trainer and HR auto-connect on launch', async () => {
   const { page } = ctx
-  await page.getByRole('link', { name: 'Devices' }).click()
+  await page.getByRole('link', { name: 'Devices', exact: true }).click()
   await expect(page.getByTestId('device-trainer-name')).toHaveText('SIM KICKR 0001')
   await expect(page.getByTestId('device-hr-name')).toHaveText('SIM HRM 0002')
   await expect(page.getByTestId('device-trainer')).toContainText('FTMS')
@@ -41,7 +41,7 @@ test('simulated trainer and HR auto-connect on launch', async () => {
 
 test('ERG 200 W: simulated power converges to 200 ± 5 W within 5 s', async () => {
   const { page } = ctx
-  await page.getByRole('link', { name: 'Ride' }).click()
+  await page.getByRole('link', { name: 'Ride', exact: true }).click()
   await page.getByRole('radio', { name: 'ERG' }).click()
   // Entering ERG soft-starts over 10 s; the criterion is the step response once
   // ERG is holding, so settle at the default 150 W first.

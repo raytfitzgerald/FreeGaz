@@ -34,6 +34,8 @@ export interface SimWorldOptions {
 }
 
 const STEP_MS = 250
+/** Longer gaps (sleep, a debugger pause) are not replayed in full. */
+const MAX_CATCH_UP_S = 5
 const WHEEL_M = 2.105
 
 export class SimWorld {
@@ -109,7 +111,19 @@ export class SimWorld {
 
   start(): void {
     if (this.cancelStep) return
-    this.cancelStep = this.opts.clock.every(STEP_MS, () => this.step(STEP_MS / 1000))
+    // Advance by the clock time that actually passed, in steps of at most
+    // 250 ms, so a busy machine (late timers) slows the frame rate, not the world.
+    let last = this.opts.clock.now()
+    this.cancelStep = this.opts.clock.every(STEP_MS, () => {
+      const now = this.opts.clock.now()
+      let dt = Math.min(MAX_CATCH_UP_S, (now - last) / 1000)
+      last = now
+      while (dt > 1e-6) {
+        const d = Math.min(STEP_MS / 1000, dt)
+        this.step(d)
+        dt -= d
+      }
+    })
     this.cancelNotify = this.opts.clock.every(1000, () => {
       for (const d of this.devices) (d as { tick?: () => void }).tick?.()
     })
