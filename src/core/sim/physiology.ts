@@ -207,7 +207,8 @@ export interface PedalOutput {
   fatigued: boolean
 }
 
-const ERG_TAU_S = 2.5
+// A KICKR settles an ERG step in about 3 s; τ = 1.2 s puts a 50 W step within 5 W in ~2.8 s.
+const ERG_TAU_S = 1.2
 const EFFORT_TAU_S = 1
 const CADENCE_TAU_S = 1
 const POWER_NOISE = 0.01
@@ -223,7 +224,7 @@ const DEFAULT_CADENCE = 88
  * A simulated rider.
  *
  * - erg: the trainer does the work. Delivered power follows targetW with a
- *   first-order lag (τ = 2.5 s) and 1 % noise, and cadence stays near the
+ *   first-order lag (τ = 1.2 s) and 1 % noise, and cadence stays near the
  *   preferred value.
  * - effort: the rider aims for desiredW (τ = 1 s) and is limited by W', which
  *   is tracked with the Skiba 2015 differential model at the true CP/W'. Once

@@ -25,18 +25,25 @@
   --color-warn: #f59e0b;
   --color-bad: #ef4444;
 
-  --color-z1: #8b93a1;
-  --color-z2: #3b8bff;
-  --color-z3: #22c55e;
-  --color-z4: #facc15;
-  --color-z5: #fb923c;
-  --color-z6: #ef4444;
-  --color-z7: #c084fc;
+  /* Power zones (Coggan Z1-Z7), stepped for the dark surface and validated
+     with the dataviz six-check validator (adjacent CVD ΔE >= 8.8, normal-vision
+     ΔE >= 15.8). Z1 is deliberately neutral; zones are always also labeled and
+     height-encoded, so colour is never the only signal. */
+  --color-z1: #7b848f;
+  --color-z2: #2482eb;
+  --color-z3: #22a150;
+  --color-z4: #7f6c1a;
+  --color-z5: #dc7702;
+  --color-z6: #c03033;
+  --color-z7: #915dc5;
 
-  --color-hr: #ff4d6d;
-  --color-cadence: #38bdf8;
-  --color-power: #fbbf24;
-  --color-speed: #34d399;
+  /* Metric series (one chart per metric; order power, HR, cadence, speed, W'bal
+     passes every gate on the dark surface). */
+  --color-power: #cf8020;
+  --color-hr: #dc374f;
+  --color-cadence: #348dd7;
+  --color-speed: #2f9e71;
+  --color-wbal: #8c69c5;
 }
 
 @layer base {
@@ -44,6 +51,9 @@
   body,
   #root {
     height: 100%;
+  }
+  body.minihud {
+    background: transparent;
   }
   body {
     background: var(--color-bg);

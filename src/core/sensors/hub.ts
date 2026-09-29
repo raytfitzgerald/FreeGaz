@@ -171,6 +171,31 @@ export class SensorHub {
   }
 
   /**
+   * The value that was holding at instant `t` (last sample at or before t,
+   * within TTL), from the source active at `t`. Unlike `value()`, this is
+   * correct when a late tick catches up on past seconds.
+   */
+  valueAt(metric: Metric, t: number, sourceId?: string): number | null {
+    const src = sourceId ?? this.activeSource(metric, t)
+    if (!src) return null
+    const pts = this.series.get(`${metric}|${src}`)?.points
+    if (!pts || pts.length === 0) return null
+    let lo = 0
+    let hi = pts.length - 1
+    let found = -1
+    while (lo <= hi) {
+      const mid = (lo + hi) >> 1
+      if (pts[mid]!.t <= t) {
+        found = mid
+        lo = mid + 1
+      } else hi = mid - 1
+    }
+    if (found < 0) return null
+    const p = pts[found]!
+    return t - p.t <= this.ttlFor(metric) ? p.v : null
+  }
+
+  /**
    * Time-weighted mean over [from, to) using sample-and-hold, where each
    * sample is valid until the next sample or its TTL, whichever comes first.
    * Spans with no valid sample are excluded; returns null if nothing was valid.
@@ -186,7 +211,16 @@ export class SensorHub {
     const pts = s.points
     let weighted = 0
     let covered = 0
-    for (let i = 0; i < pts.length; i++) {
+    // First candidate: the last point at or before `from - ttl` can't contribute; start just after it.
+    let lo = 0
+    let hi = pts.length - 1
+    const floor = from - ttl
+    while (lo < hi) {
+      const mid = (lo + hi + 1) >> 1
+      if (pts[mid]!.t <= floor) lo = mid
+      else hi = mid - 1
+    }
+    for (let i = lo; i < pts.length; i++) {
       const p = pts[i]!
       const nextT = pts[i + 1]?.t ?? Infinity
       const validEnd = Math.min(nextT, p.t + ttl)
@@ -199,6 +233,18 @@ export class SensorHub {
       if (p.t >= to) break
     }
     return covered > 0 ? weighted / covered : null
+  }
+
+  /**
+   * Stateless choice for recording: the highest-priority source with any
+   * valid data in [from, to). Unlike activeSource() it has no hysteresis and
+   * never mutates state, so it is safe for catch-up queries on past slots.
+   */
+  pickSource(metric: Metric, from: number, to: number): string | null {
+    for (const src of this.sourcesFor(metric)) {
+      if (this.meanOver(metric, from, to, src) !== null) return src
+    }
+    return null
   }
 
   /** RR intervals received in [from, to). */

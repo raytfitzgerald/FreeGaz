@@ -1,8 +1,13 @@
 import { Link, Outlet } from '@tanstack/react-router'
 import { NAV } from './nav'
 import { cn } from '../ui/cn'
+import { ChooserDialog } from '../features/devices/ChooserDialog'
+import { DeviceStatusBar } from '../features/devices/DeviceStatusBar'
+import { RecoveryBanner } from '../features/ride/RecoveryBanner'
+import { useGlobalHotkeys } from './hotkeys'
 
 export function AppShell() {
+  useGlobalHotkeys()
   return (
     <div className="flex h-full">
       <aside className="flex w-[208px] shrink-0 flex-col border-r border-line bg-panel">
@@ -33,11 +38,15 @@ export function AppShell() {
         </div>
       </aside>
       <main className="relative flex min-w-0 flex-1 flex-col">
-        <div className="drag-region absolute inset-x-0 top-0 h-11" />
+        <div className="drag-region absolute inset-x-0 top-0 z-10 flex h-11 items-center justify-end px-4">
+          <DeviceStatusBar />
+        </div>
         <div className="min-h-0 flex-1 overflow-auto">
+          <RecoveryBanner />
           <Outlet />
         </div>
       </main>
+      <ChooserDialog />
     </div>
   )
 }

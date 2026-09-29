@@ -3,9 +3,14 @@ import { createRoot } from 'react-dom/client'
 import { RouterProvider } from '@tanstack/react-router'
 import { ensureBridge } from './platform/bridge'
 import { router } from './app/router'
+import { initRuntime, startAutoConnect } from './runtime/composition'
+import { loadSettings } from './stores/settings'
 import './styles.css'
 
-ensureBridge()
+const bridge = ensureBridge()
+const info = await bridge.invoke('app.info', {})
+await loadSettings()
+const runtime = initRuntime(info)
 
 const root = document.getElementById('root')
 if (!root) throw new Error('#root missing')
@@ -15,3 +20,5 @@ createRoot(root).render(
     <RouterProvider router={router} />
   </StrictMode>,
 )
+
+void startAutoConnect(runtime)

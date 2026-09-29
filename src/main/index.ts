@@ -1,10 +1,16 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, safeStorage } from 'electron'
 import { join } from 'node:path'
 import { configureUserData, env } from './env'
 import { handleAppScheme, registerAppScheme } from './app-protocol'
 import { createMainWindow } from './windows/main-window'
 import { registerAppHandlers } from './ipc/app-handlers'
 import { registerDeviceHandlers } from './ipc/device-handlers'
+import { defaultExportDir, registerRideHandlers } from './ipc/ride-handlers'
+import { registerIntegrationHandlers } from './ipc/integration-handlers'
+import { registerAiHandlers } from './ipc/ai-handlers'
+import { registerHudHandlers } from './ipc/hud-handlers'
+import { SecretStore, type Cipher } from './secrets/secret-store'
+import { JournalStore } from './ride/journal-store'
 import { emit } from './ipc/register'
 import { BluetoothChooser } from './ble/chooser'
 import { SettingsStore } from './store/settings-store'
@@ -45,6 +51,15 @@ void app.whenReady().then(() => {
   )
   registerAppHandlers()
   registerDeviceHandlers({ settings, chooser })
+  registerRideHandlers({ journal: new JournalStore(app.getPath('userData')), settings })
+  // Keychain-backed encryption; E2E runs use a plain cipher so tests never touch the Keychain.
+  const cipher: Cipher = env.isTest
+    ? { isAvailable: () => true, encrypt: (s) => Buffer.from(s, 'utf8'), decrypt: (b) => b.toString('utf8') }
+    : { isAvailable: () => safeStorage.isEncryptionAvailable(), encrypt: (s) => safeStorage.encryptString(s), decrypt: (b) => safeStorage.decryptString(b) }
+  const secrets = SecretStore.inDir(app.getPath('userData'), cipher)
+  registerIntegrationHandlers({ secrets, userData: app.getPath('userData'), exportDir: () => settings.get().exportDir ?? defaultExportDir() })
+  registerAiHandlers({ secrets })
+  registerHudHandlers(() => mainWindow)
   mainWindow = createMainWindow()
   chooser.attach(mainWindow.webContents)
   runSelfTestIfRequested(mainWindow)

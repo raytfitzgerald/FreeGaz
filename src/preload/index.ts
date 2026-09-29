@@ -1,11 +1,12 @@
 // The entire renderer <-> main surface. Kept deliberately small: it forwards
 // allowlisted channels and nothing else. All validation happens in main.
 import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
-import type { EventChannel, EventMap, FreegazBridge, InvokeChannel } from '@shared/ipc/contract'
-import { EVENT_CHANNELS, INVOKE_CHANNELS } from '@shared/ipc/channels'
+import type { EventChannel, EventMap, FreegazBridge, InvokeChannel, SendChannel, SendMap } from '@shared/ipc/contract'
+import { EVENT_CHANNELS, INVOKE_CHANNELS, SEND_CHANNELS } from '@shared/ipc/channels'
 
 const invokeAllowed = new Set<string>(INVOKE_CHANNELS)
 const eventsAllowed = new Set<string>(EVENT_CHANNELS)
+const sendAllowed = new Set<string>(SEND_CHANNELS)
 
 const bridge: FreegazBridge = {
   platform: 'electron',
@@ -22,6 +23,10 @@ const bridge: FreegazBridge = {
     return () => {
       ipcRenderer.removeListener(event, wrapped)
     }
+  },
+
+  send<S extends SendChannel>(channel: S, payload: SendMap[S]) {
+    if (sendAllowed.has(channel)) ipcRenderer.send(channel, payload)
   },
 } as FreegazBridge
 

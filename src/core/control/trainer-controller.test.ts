@@ -174,6 +174,26 @@ describe('reconnect / rebind', () => {
     expect(r.sent[0]?.cmd).toEqual({ kind: 'erg', watts: 220 })
   })
 
+  it('reapplies the exact target after a reconnect, without a soft start', () => {
+    let r = run(withDesired({ mode: 'erg', watts: 280 }), 15, () => ({ power: 280 }))
+    r = run(markUnknown(r.state), 1, () => ({ power: 160 }), settings, r.end)
+    expect(r.sent[0]?.cmd).toEqual({ kind: 'erg', watts: 280 })
+    expect(r.state.guard).toBe('none')
+  })
+
+  it('backs off after the trainer refuses control, instead of retrying every tick', () => {
+    let s = withDesired({ mode: 'erg', watts: 200 })
+    let d = decide(s, { now: 0, cadence: 90, power: 200, hr: null, paused: false }, { settings })
+    s = acknowledge(markSent(d.state, 0), d.command!, 'not-permitted')
+    for (const now of [250, 1000, 4750]) {
+      d = decide(s, { now, cadence: 90, power: 200, hr: null, paused: false }, { settings })
+      expect(d.command).toBeNull()
+      s = d.state
+    }
+    d = decide(s, { now: 5000, cadence: 90, power: 200, hr: null, paused: false }, { settings })
+    expect(d.command).toEqual({ kind: 'erg', watts: 200 })
+  })
+
   it('a failed send is retried', () => {
     let s = withDesired({ mode: 'erg', watts: 200 })
     let d = decide(s, { now: 0, cadence: 90, power: null, hr: null, paused: false }, { settings })

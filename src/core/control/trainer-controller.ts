@@ -87,6 +87,8 @@ export interface ControllerState {
   /** Last command the trainer acknowledged, or null when unknown (fresh bind / reconnect). */
   applied: TrainerCommand | null
   lastSentAt: number | null
+  /** After a failed send nothing goes out before this time (another app holding control is retried slowly). */
+  retryAt: number | null
   softStart: { fromW: number; startedAt: number } | null
   spiral: { lowSince: number | null; active: boolean; recoverSince: number | null }
   hrErg: { watts: number | null; integral: number; lastUpdate: number | null }
@@ -102,6 +104,7 @@ export function initialControllerState(): ControllerState {
     desired: { mode: 'idle' },
     applied: null,
     lastSentAt: null,
+    retryAt: null,
     softStart: null,
     spiral: { lowSince: null, active: false, recoverSince: null },
     hrErg: { watts: null, integral: 0, lastUpdate: null },
@@ -115,6 +118,11 @@ export function initialControllerState(): ControllerState {
 export function scaleGrade(gradePct: number, s: SlopeScaling): number {
   const scaled = gradePct >= 0 ? (gradePct * s.uphillPct) / 100 : (gradePct * s.downhillPct) / 100
   return Math.max(-s.limitPct, Math.min(s.limitPct, scaled))
+}
+
+/** The ERG target the rider is asked to hold: intensity and offset applied, guards ignored. */
+export function scaledErgTarget(watts: number, settings: Pick<ControllerSettings, 'intensityPct' | 'ergOffsetW'>): number {
+  return Math.round((watts * settings.intensityPct) / 100 + settings.ergOffsetW)
 }
 
 export function clampToRange(value: number, range: Range | undefined): number {
@@ -158,11 +166,20 @@ export function markSent(prev: ControllerState, now: number): ControllerState {
   return { ...prev, lastSentAt: now }
 }
 
+/** Retry delays after a failed send, from when it was sent. */
+export const RETRY_MS: Record<Exclude<CommandResult, 'ok'>, number> = {
+  'not-permitted': 5000,
+  unsupported: 10_000,
+  rejected: 1000,
+  timeout: 1000,
+  disconnected: 1000,
+}
+
 /** Records the outcome of sending `cmd`. */
 export function acknowledge(prev: ControllerState, cmd: TrainerCommand, result: CommandResult): ControllerState {
-  if (result === 'ok') return { ...prev, applied: cmd }
-  // Anything else: we no longer know what the trainer holds; resend on next opportunity.
-  return { ...prev, applied: null }
+  if (result === 'ok') return { ...prev, applied: cmd, retryAt: null }
+  // Anything else: we no longer know what the trainer holds; resend after a pause.
+  return { ...prev, applied: null, retryAt: (prev.lastSentAt ?? 0) + RETRY_MS[result] }
 }
 
 /** Sets a new desired state; mode changes into ERG arm the soft start. */
@@ -178,9 +195,13 @@ export function setDesired(prev: ControllerState, desired: Desired): ControllerS
   return next
 }
 
-/** A new trainer was bound (or reconnected): its state is unknown, so reapply. */
+/**
+ * A new trainer was bound (or reconnected): its state is unknown, so reapply.
+ * No soft start: a reconnect should be invisible to the rider, and the
+ * trainer's own ERG ramp covers a trainer that rebooted.
+ */
 export function markUnknown(prev: ControllerState): ControllerState {
-  return { ...prev, applied: null, lastSentAt: null, wantsSoftStart: prev.desired.mode === 'erg' || prev.desired.mode === 'hr' }
+  return { ...prev, applied: null, lastSentAt: null, retryAt: null }
 }
 
 function computeEffective(s: ControllerState, input: ControllerInputs, ctx: DecideContext): TrainerCommand {
@@ -220,7 +241,7 @@ function computeEffective(s: ControllerState, input: ControllerInputs, ctx: Deci
   if (d.mode === 'hr') {
     targetW = hrErgStep(s, d.targetBpm, input, settings)
   } else {
-    targetW = (d.watts * settings.intensityPct) / 100 + settings.ergOffsetW
+    targetW = scaledErgTarget(d.watts, settings)
   }
   targetW = clampToRange(Math.round(targetW), ctx.powerRange)
 
@@ -292,6 +313,7 @@ function hrErgStep(s: ControllerState, targetBpm: number, input: ControllerInput
 
 function shouldSend(s: ControllerState, cmd: TrainerCommand, now: number, settings: ControllerSettings): boolean {
   if (cmd.kind === 'idle') return false
+  if (s.retryAt !== null && now < s.retryAt) return false
   const a = s.applied
   const sinceLast = s.lastSentAt === null ? Infinity : now - s.lastSentAt
   const modeChanged = !a || a.kind !== cmd.kind

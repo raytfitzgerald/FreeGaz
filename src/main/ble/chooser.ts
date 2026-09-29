@@ -11,7 +11,7 @@ interface PendingRequest {
   callback: Callback | null
   resolved: boolean
   devices: Map<string, string>
-  timer: NodeJS.Timeout
+  timer: ReturnType<typeof setTimeout>
 }
 
 export type ChooserState = EventMap['ble.chooser']
