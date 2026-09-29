@@ -97,3 +97,106 @@ export function snapDuration(s: number, step = 5, min = 5): number {
 function clampIndex(i: number, len: number): number {
   return Math.max(0, Math.min(len, Math.round(i)))
 }
+
+// --- builder helpers: selection, reordering, targeted power/duration edits ---
+
+/** Start time (s) of every segment, in order. */
+export function segmentStartsS(w: Workout): number[] {
+  const out: number[] = []
+  let t = 0
+  for (const seg of w.segments) {
+    out.push(t)
+    t += segmentDurationS(seg)
+  }
+  return out
+}
+
+/** Where a new block goes: right after the selected segment, or at the end. */
+export function insertionIndex(w: Workout, selected: number | null): number {
+  return selected === null || selected < 0 || selected >= w.segments.length ? w.segments.length : selected + 1
+}
+
+/**
+ * Moves the segment at `from` into the gap before `gap` (0..length, as a drop
+ * indicator shows it). Returns the segment's new index; dropping it next to
+ * itself is a no-op that returns the same workout.
+ */
+export function moveSegmentToGap(w: Workout, from: number, gap: number): { workout: Workout; index: number } {
+  if (from < 0 || from >= w.segments.length) return { workout: w, index: from }
+  const g = clampIndex(gap, w.segments.length)
+  const to = g > from ? g - 1 : g
+  return to === from ? { workout: w, index: from } : { workout: moveSegment(w, from, to), index: to }
+}
+
+/**
+ * A power target with a new value, keeping its unit. A low/high range moves
+ * with the value (same width, never below 0): an imported "95-105%" block
+ * (value 100 %) set to 103 % becomes "98-108%".
+ */
+export function retarget(p: PowerTarget, value: number): PowerTarget {
+  const v = Math.max(0, value)
+  const out: PowerTarget = { unit: p.unit, value: v }
+  if (p.low !== undefined && p.high !== undefined && Number.isFinite(p.low) && Number.isFinite(p.high)) {
+    const d = v - p.value
+    out.low = round4(Math.max(0, p.low + d))
+    out.high = round4(Math.max(0, p.high + d))
+  }
+  return out
+}
+
+/** A power target inside a segment: steady `power`, ramp `from`/`to`, interval `on`/`off`. */
+export type PowerField = 'power' | 'from' | 'to' | 'on' | 'off'
+
+/** The target a field names, or null when the segment has none there (free ride, max effort, wrong kind). */
+export function powerAt(seg: Segment, field: PowerField): PowerTarget | null {
+  switch (seg.kind) {
+    case 'steady':
+      return field === 'power' ? seg.power : null
+    case 'ramp':
+      return field === 'from' ? seg.from : field === 'to' ? seg.to : null
+    case 'intervals':
+      return field === 'on' ? seg.on.power : field === 'off' ? seg.off.power : null
+    case 'freeride':
+    case 'maxeffort':
+      return null
+  }
+}
+
+/** Sets one power target's value (see retarget); segments without that target come back unchanged. */
+export function withPower(seg: Segment, field: PowerField, value: number): Segment {
+  const p = powerAt(seg, field)
+  if (!p) return seg
+  const next = retarget(p, value)
+  switch (seg.kind) {
+    case 'steady':
+      return { ...seg, power: next }
+    case 'ramp':
+      return field === 'from' ? { ...seg, from: next } : { ...seg, to: next }
+    case 'intervals':
+      return field === 'on' ? { ...seg, on: { ...seg.on, power: next } } : { ...seg, off: { ...seg.off, power: next } }
+    default:
+      return seg
+  }
+}
+
+/** A duration inside a segment: the whole segment, or one half of every interval rep. */
+export type DurationField = 'duration' | 'on' | 'off'
+
+export function durationAt(seg: Segment, field: DurationField): number | null {
+  if (seg.kind === 'intervals') return field === 'on' ? seg.on.durationS : field === 'off' ? seg.off.durationS : null
+  return field === 'duration' ? seg.durationS : null
+}
+
+/** Sets a duration (seconds, taken as given); fields the segment lacks leave it unchanged. */
+export function withDuration(seg: Segment, field: DurationField, durationS: number): Segment {
+  if (seg.kind === 'intervals') {
+    if (field === 'on') return { ...seg, on: { ...seg.on, durationS } }
+    if (field === 'off') return { ...seg, off: { ...seg.off, durationS } }
+    return seg
+  }
+  return field === 'duration' ? { ...seg, durationS } : seg
+}
+
+function round4(n: number): number {
+  return Math.round(n * 1e4) / 1e4
+}
