@@ -1,5 +1,6 @@
 import type { TrainerPrefs } from '@shared/settings'
-import { patchSettings, useSettings } from '../../stores/settings'
+import { patchSettings, settingsStore, useSettings } from '../../stores/settings'
+import { Segmented } from '../../ui/Segmented'
 import { Field, NumberInput, Section, Slider, Switch } from '../../ui/form'
 
 export function TrainerSection() {
@@ -35,6 +36,8 @@ export function TrainerSection() {
         </Field>
       </Section>
 
+      <FanSettings />
+
       <Section title="Virtual bike" description="Physics for virtual speed and distance on routes and free rides.">
         <Field label="Bike weight">
           <NumberInput value={t.bikeKg} onChange={(v) => v && set({ bikeKg: v })} unit="kg" min={4} max={30} step={0.1} />
@@ -47,5 +50,51 @@ export function TrainerSection() {
         </Field>
       </Section>
     </>
+  )
+}
+
+const FAN_MODES = [
+  { value: 'off' as const, label: 'Off' },
+  { value: 'fixed' as const, label: 'Fixed' },
+  { value: 'hr' as const, label: 'Heart rate' },
+  { value: 'speed' as const, label: 'Speed' },
+  { value: 'power' as const, label: 'Power' },
+]
+
+/** KICKR Headwind: which signal sets the fan speed. */
+function FanSettings() {
+  const fan = useSettings((s) => s.fan)
+  const set = (patch: Partial<typeof fan>) => void patchSettings({ fan: { ...settingsStore.getState().fan, ...patch } })
+  return (
+    <Section title="Fan (KICKR Headwind)" description="Connect the fan on the Devices page; FreeGaz sets its speed as you ride.">
+      <Field label="Fan follows">
+        <Segmented ariaLabel="Fan mode" value={fan.mode} onChange={(mode) => set({ mode })} options={FAN_MODES} />
+      </Field>
+      {fan.mode === 'fixed' && (
+        <Field label="Speed">
+          <Slider ariaLabel="Fixed fan speed" value={fan.fixedPct} min={0} max={100} step={5} format={(v) => `${v} %`} onChange={(fixedPct) => set({ fixedPct })} />
+        </Field>
+      )}
+      {fan.mode === 'hr' && (
+        <>
+          <Field label="Starts at" hint="Below this heart rate the fan is off.">
+            <Slider ariaLabel="Fan start heart rate" value={fan.hrStart} min={60} max={180} step={5} format={(v) => `${v} bpm`} onChange={(hrStart) => set({ hrStart, hrFull: Math.max(fan.hrFull, hrStart + 10) })} />
+          </Field>
+          <Field label="Full speed at">
+            <Slider ariaLabel="Fan full-speed heart rate" value={fan.hrFull} min={90} max={210} step={5} format={(v) => `${v} bpm`} onChange={(hrFull) => set({ hrFull: Math.max(hrFull, fan.hrStart + 10) })} />
+          </Field>
+        </>
+      )}
+      {fan.mode === 'speed' && (
+        <Field label="Full speed at" hint="Virtual speed on routes, trainer speed otherwise.">
+          <Slider ariaLabel="Fan full-speed road speed" value={fan.speedFullKmh} min={15} max={60} step={1} format={(v) => `${v} km/h`} onChange={(speedFullKmh) => set({ speedFullKmh })} />
+        </Field>
+      )}
+      {fan.mode === 'power' && (
+        <Field label="Full speed at" hint="3-second power as a share of your FTP.">
+          <Slider ariaLabel="Fan full-speed power" value={Math.round(fan.powerFull * 100)} min={60} max={200} step={5} format={(v) => `${v} % FTP`} onChange={(v) => set({ powerFull: v / 100 })} />
+        </Field>
+      )}
+    </Section>
   )
 }

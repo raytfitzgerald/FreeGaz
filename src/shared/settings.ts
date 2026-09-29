@@ -48,6 +48,16 @@ export const FuelingPrefsSchema = z.object({
   drinkEveryMin: z.number().min(5).max(60).default(15),
 })
 
+/** KICKR Headwind (or any smart fan driver): what drives its speed. */
+export const FanPrefsSchema = z.object({
+  mode: z.enum(['off', 'fixed', 'hr', 'speed', 'power']).default('hr'),
+  fixedPct: z.number().min(0).max(100).default(60),
+  hrStart: z.number().min(60).max(200).default(110),
+  hrFull: z.number().min(80).max(220).default(170),
+  speedFullKmh: z.number().min(10).max(80).default(40),
+  powerFull: z.number().min(0.5).max(2).default(1.2),
+})
+
 /** HUD tile layouts per ride view; null = the built-in preset. */
 export const HudPrefsSchema = z.object({
   free: z.array(z.string().max(40)).max(24).nullable().default(null),
@@ -70,6 +80,7 @@ export const AppSettingsSchema = z.object({
   coach: CoachPrefsSchema.default(CoachPrefsSchema.parse({})),
   fueling: FuelingPrefsSchema.default(FuelingPrefsSchema.parse({})),
   hud: HudPrefsSchema.default(HudPrefsSchema.parse({})),
+  fan: FanPrefsSchema.default(FanPrefsSchema.parse({})),
 })
 
 export type AppSettings = z.infer<typeof AppSettingsSchema>
@@ -77,6 +88,7 @@ export type TrainerPrefs = z.infer<typeof TrainerPrefsSchema>
 export type CoachPrefs = z.infer<typeof CoachPrefsSchema>
 export type FuelingPrefs = z.infer<typeof FuelingPrefsSchema>
 export type HudPrefs = z.infer<typeof HudPrefsSchema>
+export type FanPrefs = z.infer<typeof FanPrefsSchema>
 export type RememberedDeviceSetting = z.infer<typeof RememberedDeviceSchema>
 
 export const DEFAULT_SETTINGS: AppSettings = AppSettingsSchema.parse({})
