@@ -15,6 +15,14 @@ const Empty = z.object({}).strict()
 const Ok = z.object({ ok: z.boolean() })
 const RequestId = z.string().min(1).max(100)
 const RideId = z.string().regex(/^[A-Za-z0-9_-]{6,64}$/)
+export const MusicStatusSchema = z.object({
+  player: z.enum(['spotify', 'music']).nullable(),
+  state: z.enum(['playing', 'paused', 'stopped']).nullable(),
+  track: z.string().nullable(),
+  artist: z.string().nullable(),
+  volume: z.number().nullable(),
+})
+
 export const OutboxItemSchema = z.object({
   id: z.string(),
   rideId: z.string(),
@@ -119,6 +127,9 @@ export const invoke = {
     res: z.object({ path: z.string().nullable() }),
   },
   'files.openUrl': { req: z.object({ url: z.string().url().max(2000) }), res: Ok },
+  /** Spotify / Apple Music via AppleScript (macOS asks for Automation permission once). */
+  'music.status': { req: Empty, res: MusicStatusSchema },
+  'music.command': { req: z.object({ action: z.enum(['playpause', 'next', 'previous', 'duck', 'unduck']) }), res: MusicStatusSchema },
   /** FIT files in the export folder (for "rebuild history from folder"). */
   'files.listFits': { req: Empty, res: z.object({ dir: z.string(), files: z.array(z.object({ name: z.string(), size: z.number(), mtime: z.number() })) }) },
   /** Reads one FIT file from the export folder, by plain file name (no paths). */

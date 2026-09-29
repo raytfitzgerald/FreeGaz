@@ -23,6 +23,8 @@ export const INVOKE_CHANNELS = [
   'files.saveAs',
   'files.openUrl',
   'files.exportZwift',
+  'music.status',
+  'music.command',
   'files.listFits',
   'files.readFit',
   'power.keepAwake',

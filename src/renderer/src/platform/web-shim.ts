@@ -149,6 +149,8 @@ export function createWebShim(): FreegazBridge {
     'files.exportDir': () => ({ dir: 'Downloads' }),
     'files.chooseExportDir': () => ({ dir: null }),
     'files.reveal': () => ({ ok: false }),
+    'music.status': () => ({ player: null, state: null, track: null, artist: null, volume: null }),
+    'music.command': () => ({ player: null, state: null, track: null, artist: null, volume: null }),
     'files.listFits': () => ({ dir: 'browser', files: [] }),
     'files.readFit': () => {
       throw new Error('Reading the FIT folder needs the desktop app')

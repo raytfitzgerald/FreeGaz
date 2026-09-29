@@ -11,6 +11,7 @@ import { PageHeader } from '../../ui/PageHeader'
 import { Segmented } from '../../ui/Segmented'
 import { cn } from '../../ui/cn'
 import { HudGrid } from '../../hud/HudGrid'
+import { NowPlaying } from './NowPlaying'
 import { RecordingBar } from './RecordingBar'
 import { FtpResultCard } from './FtpResultCard'
 import { SavedRideCard } from './SavedRideCard'
@@ -103,7 +104,12 @@ export function FreeRidePage() {
       <PageHeader
         title="Just ride"
         subtitle="No plan, just pedals. Switch modes any time."
-        actions={<Segmented ariaLabel="Trainer mode" value={mode} onChange={(m) => setState((s) => ({ ...s, mode: m }))} options={MODE_OPTIONS} />}
+        actions={
+          <>
+            <NowPlaying />
+            <Segmented ariaLabel="Trainer mode" value={mode} onChange={(m) => setState((s) => ({ ...s, mode: m }))} options={MODE_OPTIONS} />
+          </>
+        }
       />
 
       {!trainerConnected && (
@@ -216,10 +222,14 @@ function SentToTrainer({ mode }: { mode: Mode }) {
   const resistance = useLive((f) => f.trainer.resistancePct)
   const target = useLive((f) => f.trainer.targetW)
   const intensity = useLive((f) => f.trainer.intensityPct)
+  const powerMatch = useLive((f) => f.trainer.powerMatch)
   let text = ''
   if (mode === 'sim' && grade !== null) text = raw !== null && raw !== grade ? `Trainer feels ${grade.toFixed(1)} % (slope scaling)` : `Trainer at ${grade.toFixed(1)} %`
   if (mode === 'resistance' && resistance !== null) text = `Resistance ${resistance.toFixed(0)} %`
-  if ((mode === 'erg' || mode === 'hr') && target !== null) text = `Trainer asked for ${target} W${intensity !== 100 ? ` (${intensity} % intensity)` : ''}`
+  if ((mode === 'erg' || mode === 'hr') && target !== null) {
+    const pm = powerMatch !== null && Math.abs(powerMatch - 1) >= 0.005 ? `, PowerMatch ${powerMatch > 1 ? '+' : ''}${((powerMatch - 1) * 100).toFixed(1)} %` : ''
+    text = `Trainer asked for ${target} W${intensity !== 100 ? ` (${intensity} % intensity)` : ''}${pm}`
+  }
   return <div className="h-5 text-center text-xs text-ink-dim">{text}</div>
 }
 

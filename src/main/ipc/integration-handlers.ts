@@ -1,6 +1,7 @@
 import { BrowserWindow, shell } from 'electron'
 import { readFileSync } from 'node:fs'
 import { IntervalsClient } from '../integrations/intervals'
+import { MusicControl } from '../integrations/music'
 import { UploadOutbox } from '../integrations/outbox'
 import { StravaClient } from '../integrations/strava'
 import type { SecretStore } from '../secrets/secret-store'
@@ -23,6 +24,10 @@ export function registerIntegrationHandlers(deps: { secrets: SecretStore; userDa
     },
   )
   outbox.kick()
+
+  const music = new MusicControl()
+  handle('music.status', () => music.status())
+  handle('music.command', ({ action }) => music.command(action))
 
   handle('strava.status', () => strava.status())
   handle('strava.setApp', ({ clientId, clientSecret }) => {

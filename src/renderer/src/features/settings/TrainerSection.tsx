@@ -27,6 +27,9 @@ export function TrainerSection() {
         <Field label="Spiral-of-death guard" hint="If cadence collapses under a high ERG load, release resistance so you can spin back up.">
           <Switch checked={t.spiralGuard} onChange={(v) => set({ spiralGuard: v })} label={t.spiralGuard ? 'On' : 'Off'} />
         </Field>
+        <Field label="PowerMatch" hint="With power pedals connected, ERG is corrected so your pedals read the target instead of the trainer's own sensor.">
+          <Switch checked={t.powerMatch} onChange={(v) => set({ powerMatch: v })} label={t.powerMatch ? 'On' : 'Off'} />
+        </Field>
         <Field label="Auto-pause" hint="Pause recording when you stop pedalling.">
           <Switch checked={t.autoPause} onChange={(v) => set({ autoPause: v })} label={t.autoPause ? 'On' : 'Off'} />
         </Field>

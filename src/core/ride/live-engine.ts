@@ -2,6 +2,8 @@
 // the TrainerController reconcile, and publishes a LiveFrame. Recording
 // (RideSession, M2) layers on top of the same tick.
 import type { LiveFrame } from '../../shared/live'
+import { PowerMatch, WINDOW_MS } from '../control/power-match'
+import { dfaAlpha1, rmssd } from '../metrics/hrv'
 import type { TrainerController } from '../control/trainer-controller'
 import type { SensorHub } from '../sensors/hub'
 import type { Clock, Cancel } from '../time/clock'
@@ -16,6 +18,8 @@ export interface LiveEngineDeps {
   trainerConnected: () => boolean
   simulated: () => boolean
   onFrame: (frame: LiveFrame) => void
+  /** Use power pedals to correct ERG (PowerMatch). Default on. */
+  powerMatch?: () => boolean
 }
 
 export class LiveEngine {
@@ -25,6 +29,10 @@ export class LiveEngine {
   private offController: (() => void) | null = null
   private lastPrune = 0
   private readonly extraTick = new Set<(now: number) => void>()
+  private readonly powerMatch = new PowerMatch()
+  private lastErgTarget: number | null = null
+  private powerMatchOn = false
+  private hrv = { at: -Infinity, dfa: null as number | null, rmssd: null as number | null }
 
   constructor(private readonly deps: LiveEngineDeps) {}
 
@@ -55,6 +63,42 @@ export class LiveEngine {
     return () => this.extraTick.delete(fn)
   }
 
+  /** DFA-α1 and RMSSD, recomputed every 5 s (DFA needs ~2 min of beats). */
+  private heartRateVariability(now: number): { dfaA1: number | null; rmssd: number | null } {
+    if (now - this.hrv.at >= 5000) {
+      const hub = this.deps.hub
+      this.hrv = { at: now, dfa: dfaAlpha1(hub.rrBetween(now - 120_000, now)), rmssd: rmssd(hub.rrBetween(now - 60_000, now)) }
+    }
+    return { dfaA1: roundTo(this.hrv.dfa, 2), rmssd: round(this.hrv.rmssd) }
+  }
+
+  /** Feeds PowerMatch and hands its factor to the controller (only while pedals and a trainer both report). */
+  private applyPowerMatch(now: number): void {
+    const { hub, controller } = this.deps
+    const ids = hub.sourcesFor('power')
+    const pedals = pedalSource(ids)
+    const trainer = trainerSource(ids)
+    const enabled = (this.deps.powerMatch?.() ?? true) && pedals !== null && trainer !== null
+    if (!enabled) {
+      if (this.powerMatchOn || controller.currentSettings.powerMatchFactor !== 1) controller.updateSettings({ powerMatchFactor: 1 })
+      this.powerMatch.reset()
+      this.powerMatchOn = false
+      return
+    }
+    this.powerMatchOn = true
+    const snap = controller.snapshot
+    const target = snap.desired.mode === 'erg' ? snap.desired.watts : null
+    const changed = target !== this.lastErgTarget
+    this.lastErgTarget = target
+    const factor = this.powerMatch.update({
+      now,
+      ergSteady: target !== null && !changed && snap.guard === 'none' && !this.paused,
+      pedalW: hub.meanOver('power', now - WINDOW_MS, now, pedals),
+      trainerW: hub.meanOver('power', now - WINDOW_MS, now, trainer),
+    })
+    if (Math.abs(factor - controller.currentSettings.powerMatchFactor) >= 0.002) controller.updateSettings({ powerMatchFactor: factor })
+  }
+
   tick(): void {
     const { clock, hub, controller } = this.deps
     const now = clock.now()
@@ -62,6 +106,7 @@ export class LiveEngine {
     const power = hub.value('power', now)
     const hr = hub.value('hr', now)
 
+    this.applyPowerMatch(now)
     controller.tick({ now, cadence, power, hr, paused: this.paused })
     for (const fn of this.extraTick) fn(now)
 
@@ -86,6 +131,7 @@ export class LiveEngine {
       hr: hr === null ? null : Math.round(hr),
       speedKmh: speed === null ? null : Math.round(speed * 3.6 * 10) / 10,
       coreTemp: roundTo(hub.value('coreTemp', now), 1),
+      ...this.heartRateVariability(now),
       trainer: {
         mode: desired.mode,
         targetW: eff.kind === 'erg' ? eff.watts : null,
@@ -96,6 +142,7 @@ export class LiveEngine {
         intensityPct: controller.currentSettings.intensityPct,
         guard: snap.guard,
         controlLost: this.controlLost,
+        powerMatch: this.powerMatchOn && this.powerMatch.active ? Math.round(this.powerMatch.factor * 1000) / 1000 : null,
         connected: this.deps.trainerConnected(),
       },
       sources: {
@@ -109,4 +156,6 @@ export class LiveEngine {
 }
 
 const round = (v: number | null) => (v === null ? null : Math.round(v))
+const pedalSource = (ids: string[]) => ids.find((s) => s.startsWith('power:')) ?? null
+const trainerSource = (ids: string[]) => ids.find((s) => s.startsWith('trainer:')) ?? null
 const roundTo = (v: number | null, dp: number) => (v === null ? null : Math.round(v * 10 ** dp) / 10 ** dp)

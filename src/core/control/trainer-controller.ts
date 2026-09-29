@@ -34,6 +34,8 @@ export interface ControllerSettings {
   intensityPct: number
   /** Added to ERG targets after scaling, W. */
   ergOffsetW: number
+  /** PowerMatch: the trainer command is multiplied by this so power pedals read the target (1 = off). */
+  powerMatchFactor: number
   ergSoftStartS: number
   spiralGuard: {
     enabled: boolean
@@ -59,6 +61,7 @@ export interface ControllerSettings {
 export const DEFAULT_CONTROLLER_SETTINGS: ControllerSettings = {
   intensityPct: 100,
   ergOffsetW: 0,
+  powerMatchFactor: 1,
   ergSoftStartS: 10,
   spiralGuard: { enabled: true, lowCadenceRpm: 55, lowForS: 3, recoverCadenceRpm: 70, recoverForS: 5, releasePct: 10 },
   pausedResistancePct: 5,
@@ -241,7 +244,8 @@ function computeEffective(s: ControllerState, input: ControllerInputs, ctx: Deci
   if (d.mode === 'hr') {
     targetW = hrErgStep(s, d.targetBpm, input, settings)
   } else {
-    targetW = scaledErgTarget(d.watts, settings)
+    // PowerMatch scales only what the trainer is asked for; the rider's target stays as written.
+    targetW = scaledErgTarget(d.watts, settings) * settings.powerMatchFactor
   }
   targetW = clampToRange(Math.round(targetW), ctx.powerRange)
 

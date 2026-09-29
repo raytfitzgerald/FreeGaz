@@ -24,6 +24,8 @@ export const TrainerPrefsSchema = z.object({
   cda: z.number().min(0.15).max(0.7).default(0.35),
   crr: z.number().min(0.001).max(0.02).default(0.0033),
   autoPause: z.boolean().default(true),
+  /** With power pedals connected, correct ERG so the pedals read the target. */
+  powerMatch: z.boolean().default(true),
 })
 
 export const CoachPrefsSchema = z.object({

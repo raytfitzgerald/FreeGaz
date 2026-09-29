@@ -80,6 +80,8 @@ export const WIDGETS: readonly WidgetDef[] = [
   { id: 'pctMaxHr', label: '% max HR', group: 'Heart rate', unit: '%', read: (s) => pctOf(s.frame.hr, s.athlete.maxHr) },
   { id: 'pctLthr', label: '% LTHR', group: 'Heart rate', unit: '%', read: (s) => pctOf(s.frame.hr, s.athlete.lthr) },
   { id: 'hrZone', label: 'HR zone', group: 'Heart rate', read: (s) => (s.athlete.lthr && s.frame.hr !== null ? zoneName(s.frame.hr / s.athlete.lthr, FRIEL_HR_LTHR) : null) },
+  { id: 'dfa', label: 'DFA α1', group: 'Heart rate', read: (s) => (s.frame.dfaA1 === null ? null : s.frame.dfaA1.toFixed(2)), sub: () => 'Experimental · ~0.75 at aerobic threshold' },
+  { id: 'rmssd', label: 'HRV (RMSSD)', group: 'Heart rate', unit: 'ms', read: (s) => s.frame.rmssd },
   { id: 'decoupling', label: 'Decoupling (Pa:HR)', group: 'Heart rate', unit: '%', read: (s) => (s.ride.metrics?.decouplingPct === null || s.ride.metrics?.decouplingPct === undefined ? null : s.ride.metrics.decouplingPct.toFixed(1)) },
   // ---- cadence
   { id: 'cadence', label: 'Cadence', group: 'Cadence', unit: 'rpm', accent: CAD, read: (s) => s.frame.cadence, sub: (s) => {

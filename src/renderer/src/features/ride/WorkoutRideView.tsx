@@ -12,6 +12,7 @@ import { formatDuration } from '../../ui/format'
 import { profileBlocks } from '../../workouts/profile'
 import { HudGrid } from '../../hud/HudGrid'
 import { CueBanner } from './CueBanner'
+import { NowPlaying } from './NowPlaying'
 import { RecordingBar } from './RecordingBar'
 import { RescueBanner } from './RescueBanner'
 
@@ -43,6 +44,7 @@ export function WorkoutRideView() {
           <Progress />
         </div>
         <div className="flex flex-wrap items-center gap-3">
+          <NowPlaying />
           <Segmented ariaLabel="Trainer mode" value={mode} onChange={(m) => command({ type: 'mode', mode: m })} options={MODES} />
           {manual ? <ManualLevel mode={mode as Exclude<Mode, 'erg'>} value={manual.mode === 'resistance' ? manual.pct : manual.gradePct} /> : <Intensity />}
         </div>

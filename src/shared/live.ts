@@ -22,6 +22,8 @@ export interface LiveTrainer {
   guard: TrainerGuard
   /** Another app/head unit has taken control of the trainer. */
   controlLost: boolean
+  /** PowerMatch factor while power pedals steer ERG (e.g. 1.04), else null. */
+  powerMatch: number | null
   connected: boolean
 }
 
@@ -42,6 +44,9 @@ export interface LiveFrame {
   speedKmh: number | null
   /** CORE body-temperature sensor, °C. */
   coreTemp: number | null
+  /** HRV from RR intervals (straps that send them): DFA-α1 over 2 min, RMSSD over 1 min. */
+  dfaA1: number | null
+  rmssd: number | null
   trainer: LiveTrainer
   sources: { power: string | null; cadence: string | null; hr: string | null }
   simulated: boolean
@@ -59,6 +64,8 @@ export const EMPTY_FRAME: LiveFrame = {
   hr: null,
   speedKmh: null,
   coreTemp: null,
+  dfaA1: null,
+  rmssd: null,
   trainer: {
     mode: 'idle',
     targetW: null,
@@ -69,6 +76,7 @@ export const EMPTY_FRAME: LiveFrame = {
     intensityPct: 100,
     guard: 'none',
     controlLost: false,
+    powerMatch: null,
     connected: false,
   },
   sources: { power: null, cadence: null, hr: null },

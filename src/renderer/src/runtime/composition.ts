@@ -97,6 +97,7 @@ export function initRuntime(info: AppInfo): Runtime {
     controller,
     trainerConnected: () => devices.trainer() !== null,
     simulated: () => simulated,
+    powerMatch: () => settingsStore.getState().trainer.powerMatch,
     onFrame: (frame) => {
       liveStore.setState(frame, true)
       rides?.publish(frame)
