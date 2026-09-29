@@ -19,7 +19,9 @@ export interface Launched {
 /** Launches the built app (run `npm run build` first) with an isolated profile. */
 export async function launchApp(opts: LaunchOptions = {}): Promise<Launched> {
   const userData = mkdtempSync(join(tmpdir(), 'freegaz-e2e-'))
-  const args = [join(__dirname, '../../out/main/index.js')]
+  // Launch the project root so Electron reads package.json (name, version,
+  // "main": out/main/index.js) exactly like the packaged app does.
+  const args = [join(__dirname, '../..')]
   if (process.platform === 'linux') args.unshift('--no-sandbox')
 
   const app = await electron.launch({
