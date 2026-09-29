@@ -157,7 +157,8 @@ describe('RoutePlan: switching Reactive and Steady mid-ride', () => {
     const steady = run(p, 120, 180, { power: 0 }).at(-1)!.route
     expect(steady.riddenM - before.riddenM).toBeCloseTo((25 / 3.6) * 60, 6)
     expect(steady.elapsedS).toBeCloseTo(180, 9)
-    p.setMode('reactive')
+    // The remote, mini-HUD and S key go through the command bus.
+    expect(p.command({ type: 'routeMode', mode: 'reactive' })).toBe(true)
     const back = run(p, 180, 181).at(-1)!.route
     expect(back.mode).toBe('reactive')
     expect(back.speedMps).toBeGreaterThan(6.5) // carried the Steady speed over, not a standing start

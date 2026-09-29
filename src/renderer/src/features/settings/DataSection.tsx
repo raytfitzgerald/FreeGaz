@@ -31,7 +31,7 @@ export function DataSection() {
     setMsg(null)
     try {
       const r = await restoreBackup(new Uint8Array(await file.arrayBuffer()))
-      setMsg(`Restored ${r.rides} rides, ${r.workouts} workouts and ${r.ftpEntries} FTP entries.`)
+      setMsg(`Restored ${r.rides} rides, ${r.workouts} workouts, ${r.routes} routes and ${r.ftpEntries} FTP entries.`)
     } catch (e) {
       setMsg(`Restore failed: ${e instanceof Error ? e.message : String(e)}`)
     } finally {
@@ -61,7 +61,7 @@ export function DataSection() {
 
   return (
     <Section title="Your data" description="Rides live in this app's database and as FIT files in your export folder. Back up the database to move to another Mac or keep a safety copy.">
-      <Field label="Backup" hint="Everything: rides with every second of data, workouts, FTP history and profile.">
+      <Field label="Backup" hint="Everything: rides with every second of data, workouts, routes, FTP history and profile.">
         <Button size="sm" disabled={busy} onClick={() => void backup()}>
           <Download className="size-3.5" /> Save backup…
         </Button>

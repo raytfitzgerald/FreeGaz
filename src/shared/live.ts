@@ -99,6 +99,8 @@ export const RideCommandSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('nudge'), delta: z.number().min(-100).max(100) }),
   z.object({ type: z.literal('mode'), mode: z.enum(['erg', 'resistance', 'sim', 'hr']) }),
   z.object({ type: z.literal('muteCoach') }),
+  // Routes: switch between Reactive (your watts) and Steady (the route's pace).
+  z.object({ type: z.literal('routeMode'), mode: z.enum(['reactive', 'steady']) }),
   // Interval rescue answer: 5 % easier, a 30-s breather, or "I've got this".
   z.object({ type: z.literal('rescue'), choice: z.enum(['easier', 'rest', 'dismiss']) }),
 ])

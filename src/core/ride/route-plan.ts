@@ -283,6 +283,8 @@ export class RoutePlan implements RidePlan {
 
   command(cmd: RideCommand): boolean {
     switch (cmd.type) {
+      case 'routeMode':
+        return this.setMode(cmd.mode)
       case 'mode':
         if (cmd.mode === 'hr') return false
         if (cmd.mode === 'sim') this.override = null

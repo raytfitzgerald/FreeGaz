@@ -52,7 +52,7 @@ export function RouteRideView() {
   if (!plan || !tick) return null
   const r = tick.route
   const switchPlayback = (m: RoutePlayback) => {
-    plan.setMode(m)
+    command({ type: 'routeMode', mode: m })
     refresh()
   }
   const switchTrainer = (m: TrainerControl) => {
@@ -279,7 +279,7 @@ function useRouteHotkeys(plan: RoutePlan | null, control: TrainerControl, refres
     const onKey = (e: KeyboardEvent) => {
       const t = e.target
       if (t instanceof HTMLInputElement || t instanceof HTMLTextAreaElement || t instanceof HTMLSelectElement || e.metaKey || e.ctrlKey || e.altKey) return
-      if (e.key === 's' || e.key === 'S') plan.setMode(plan.playbackMode === 'steady' ? 'reactive' : 'steady')
+      if (e.key === 's' || e.key === 'S') command({ type: 'routeMode', mode: plan.playbackMode === 'steady' ? 'reactive' : 'steady' })
       else if (e.key === 'm' || e.key === 'M') {
         const order: TrainerControl[] = ['sim', 'resistance', 'erg']
         command({ type: 'mode', mode: order[(order.indexOf(control) + 1) % order.length]! })

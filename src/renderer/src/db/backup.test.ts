@@ -31,6 +31,13 @@ describe('backup / restore', () => {
     await db().rideStreams.put(recordsToStreams('ride-aaaaaa', records))
     await db().ftpHistory.add({ date: 1, ftpW: 250, source: 'manual' })
     await db().profile.add({ from: 1, weightKg: 75, lthr: 168 })
+    const route = {
+      id: 'route-x', name: 'Test hill', source: 'import', importedAt: 1, distanceM: 1200, elevationGainM: 40, elevationLossM: 0,
+      maxGradePct: 5, minGradePct: 0, hasTimes: false, loop: false, thumb: { ele: [1, 2], grade: [0, 5] },
+      points: { n: 2, lat: Int32Array.from([451234567, 451234999]), lon: Int32Array.from([71234567, 71235000]), ele: Float32Array.from([100, NaN]), dist: Float64Array.from([0, 1200]) },
+    }
+    await db().routes.put(route as never)
+    await db().routeRides.put({ rideId: 'ride-aaaaaa', routeId: 'route-x', startedAt: 1, mode: 'reactive', laps: 1, finishS: 10, dist: Float32Array.from([0, 9.5, 19]) } as never)
 
     const zip = await createBackup()
     const before = {
@@ -45,7 +52,12 @@ describe('backup / restore', () => {
     expect(await db().rides.count()).toBe(0)
 
     const res = await restoreBackup(zip)
-    expect(res).toEqual({ rides: 1, workouts: 0, ftpEntries: 1 })
+    expect(res).toEqual({ rides: 1, workouts: 0, ftpEntries: 1, routes: 1 })
+    const r = (await db().routes.get('route-x'))! as unknown as typeof route
+    expect(r.points.lat).toBeInstanceOf(Int32Array)
+    expect(Array.from(r.points.lat)).toEqual([451234567, 451234999])
+    expect(Number.isNaN(r.points.ele[1])).toBe(true)
+    expect(Array.from((await db().routeRides.get('ride-aaaaaa'))!.dist!)).toEqual([0, 9.5, 19])
     expect(await db().rides.toArray()).toEqual(before.rides)
     expect(await db().ftpHistory.toArray()).toEqual(before.ftp)
     expect(await db().profile.toArray()).toEqual(before.profile)

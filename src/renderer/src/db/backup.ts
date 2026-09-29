@@ -34,6 +34,30 @@ const b64 = (u8: Uint8Array): string => {
 }
 const unb64 = (s: string): Uint8Array => Uint8Array.from(atob(s), (c) => c.charCodeAt(0))
 
+// Tables with typed arrays inside rows (routes, route rides) go through this
+// JSON encoding: each typed array becomes { __ta: 'Float32Array', b64: '…' }.
+const TYPED_ARRAYS = { Int8Array, Uint8Array, Int16Array, Uint16Array, Int32Array, Uint32Array, Float32Array, Float64Array } as const
+type TypedName = keyof typeof TYPED_ARRAYS
+
+function typedReplacer(_key: string, v: unknown): unknown {
+  if (ArrayBuffer.isView(v) && !(v instanceof DataView)) {
+    return { __ta: v.constructor.name, b64: b64(new Uint8Array(v.buffer, v.byteOffset, v.byteLength)) }
+  }
+  return v
+}
+
+function typedReviver(_key: string, v: unknown): unknown {
+  if (v && typeof v === 'object' && '__ta' in v && 'b64' in v) {
+    const { __ta, b64: data } = v as { __ta: string; b64: string }
+    const C = TYPED_ARRAYS[__ta as TypedName]
+    if (C && typeof data === 'string') {
+      const copy = new Uint8Array(unb64(data)) // own, aligned ArrayBuffer
+      return new C(copy.buffer)
+    }
+  }
+  return v
+}
+
 function encodeStreams(s: RideStreams): Record<string, unknown> {
   const out: Record<string, unknown> = { rideId: s.rideId, length: s.length }
   for (const k of Object.keys(TYPED) as TypedKey[]) {
@@ -56,21 +80,25 @@ function decodeStreams(o: Record<string, unknown>): RideStreams {
 
 export async function createBackup(): Promise<Uint8Array> {
   const d = db()
-  const [rides, streams, workouts, ftpHistory, profile, kv] = await Promise.all([
+  const [rides, streams, workouts, ftpHistory, profile, kv, routes, routeRides] = await Promise.all([
     d.rides.toArray(),
     d.rideStreams.toArray(),
     d.workouts.toArray(),
     d.ftpHistory.toArray(),
     d.profile.toArray(),
     d.kv.toArray(),
+    d.routes.toArray(),
+    d.routeRides.toArray(),
   ])
   const files: Zippable = {
-    'manifest.json': strToU8(JSON.stringify({ format: BACKUP_FORMAT, version: BACKUP_VERSION, createdAt: Date.now(), counts: { rides: rides.length, workouts: workouts.length } })),
+    'manifest.json': strToU8(JSON.stringify({ format: BACKUP_FORMAT, version: BACKUP_VERSION, createdAt: Date.now(), counts: { rides: rides.length, workouts: workouts.length, routes: routes.length } })),
     'rides.json': strToU8(JSON.stringify(rides)),
     'workouts.json': strToU8(JSON.stringify(workouts)),
     'ftpHistory.json': strToU8(JSON.stringify(ftpHistory)),
     'profile.json': strToU8(JSON.stringify(profile)),
     'kv.json': strToU8(JSON.stringify(kv)),
+    'routes.json': strToU8(JSON.stringify(routes, typedReplacer)),
+    'routeRides.json': strToU8(JSON.stringify(routeRides, typedReplacer)),
   }
   for (const s of streams) files[`streams/${s.rideId}.json`] = strToU8(JSON.stringify(encodeStreams(s)))
   return zipSync(files, { level: 6 })
@@ -80,12 +108,15 @@ export interface RestoreResult {
   rides: number
   workouts: number
   ftpEntries: number
+  routes: number
 }
 
 /** Merges a backup into the database (existing ids are overwritten, nothing is deleted). */
 export async function restoreBackup(zip: Uint8Array): Promise<RestoreResult> {
   const files = unzipSync(zip)
   const json = <T>(name: string, fallback: T): T => (files[name] ? (JSON.parse(strFromU8(files[name]!)) as T) : fallback)
+  // Backups made before routes existed simply have no route files.
+  const typedJson = <T>(name: string, fallback: T): T => (files[name] ? (JSON.parse(strFromU8(files[name]!), typedReviver) as T) : fallback)
   const manifest = json<{ format?: string; version?: number }>('manifest.json', {})
   if (manifest.format !== BACKUP_FORMAT) throw new Error('This is not a FreeGaz backup')
   if ((manifest.version ?? 0) > BACKUP_VERSION) throw new Error('This backup was made by a newer FreeGaz')
@@ -96,17 +127,21 @@ export async function restoreBackup(zip: Uint8Array): Promise<RestoreResult> {
   const ftpHistory = json<unknown[]>('ftpHistory.json', [])
   const profile = json<unknown[]>('profile.json', [])
   const kv = json<unknown[]>('kv.json', [])
+  const routes = typedJson<unknown[]>('routes.json', [])
+  const routeRides = typedJson<unknown[]>('routeRides.json', [])
   const streams = Object.keys(files)
     .filter((n) => n.startsWith('streams/') && n.endsWith('.json'))
     .map((n) => decodeStreams(JSON.parse(strFromU8(files[n]!)) as Record<string, unknown>))
 
-  await d.transaction('rw', [d.rides, d.rideStreams, d.workouts, d.ftpHistory, d.profile, d.kv], async () => {
+  await d.transaction('rw', [d.rides, d.rideStreams, d.workouts, d.ftpHistory, d.profile, d.kv, d.routes, d.routeRides], async () => {
     await d.rides.bulkPut(rides as never[])
     await d.rideStreams.bulkPut(streams)
     await d.workouts.bulkPut(workouts as never[])
     await d.ftpHistory.bulkPut(ftpHistory as never[])
     await d.profile.bulkPut(profile as never[])
     await d.kv.bulkPut(kv as never[])
+    await d.routes.bulkPut(routes as never[])
+    await d.routeRides.bulkPut(routeRides as never[])
   })
-  return { rides: rides.length, workouts: workouts.length, ftpEntries: ftpHistory.length }
+  return { rides: rides.length, workouts: workouts.length, ftpEntries: ftpHistory.length, routes: routes.length }
 }
