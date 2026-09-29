@@ -87,7 +87,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          # 0.x builds are pre-releases until they've been ridden on real hardware.
+          PRE=""
+          case "${GITHUB_REF_NAME}" in v0.*|*-*) PRE="--prerelease" ;; esac
           gh release create "${GITHUB_REF_NAME}" release/*/*.dmg \
             --title "FreeGaz ${GITHUB_REF_NAME}" \
-            --notes "Unsigned, ad-hoc signed build for Apple Silicon. See README → Installing for the Gatekeeper step." \
-            --verify-tag
+            --notes "Ad-hoc signed, un-notarized build for Apple Silicon Macs. The README's Install section has the one-time Gatekeeper step, and its 'What has been verified' section lists what still needs real hardware." \
+            --verify-tag $PRE
