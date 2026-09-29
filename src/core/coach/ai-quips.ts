@@ -1,16 +1,16 @@
 // AI quip packs: the request for one (the user message; the system prompt
 // lives in main with the rest of the prompts) and the filter every returned
-// line must pass before it may join the canned lines for one ride. AI output
-// gets the same treatment as a user-authored pack, plus the persona's own bans
-// and a few TTS-specific checks. Distress lines are never AI-written.
+// line must pass before it may join the canned lines for one ride. Topic
+// bans do not apply here. What remains is shape (trigger, length,
+// placeholders), the rider's profanity setting, and a few TTS checks.
+// Distress lines are never AI-written.
 import { personaInstruction } from '../ai/prompts'
 import { QuipPackSchema } from '../ai/schemas'
 import { clampSpice } from '../persona/engine'
-import { detectProfanity, violatesGuardrails } from '../persona/guardrails'
+import { detectProfanity } from '../persona/guardrails'
 import { bracesBalanced, formatDuration, placeholdersOf } from '../persona/template'
 import { isDataKey, type CoachLineTemplate, type CoachTrigger, type PersonaMeta, type RideKind } from '../persona/types'
 import { MAX_LINE_CHARS } from '../persona/validate'
-import { matchesAny, personaBannedPatterns } from './content'
 import type { CoachSegment } from './segments'
 
 /** The triggers QUIP_PACK_SYSTEM asks for. Anything else in a reply is dropped. */
@@ -58,20 +58,15 @@ const KIND_LABEL: Record<RideKind, string> = {
   'ftp-test': 'an FTP test',
 }
 
-const PARODY_RULES =
-  'Stay on the ride: watts, pacing, intervals and podium delivery only. Never mention religion, heritage, land or borders, countries or nations, war, the military or security, courts or trials, or any real person by name.'
-
 /** The user message for an 'ai.structured' quip-pack request. */
 export function quipPackPrompt(meta: PersonaMeta, opts: { spice: number; profanity: boolean }, ride: QuipRide): string {
-  const patterns = personaBannedPatterns(meta.id)
-  const name = ride.name && violatesGuardrails(ride.name) === null && !matchesAny(ride.name, patterns) ? ride.name.slice(0, 60) : null
+  const name = ride.name ? ride.name.slice(0, 60) : null
   const minutes = ride.durationS !== null && ride.durationS > 0 ? Math.round(ride.durationS / 60) : null
   return [
-    personaInstruction({ name: meta.name, tagline: meta.tagline, spice: clampSpice(opts.spice), profanity: opts.profanity && !meta.parody, parody: meta.parody }),
-    meta.parody ? PARODY_RULES : '',
+    personaInstruction({ name: meta.name, tagline: meta.tagline, spice: clampSpice(opts.spice), profanity: opts.profanity }),
     `Ride: ${KIND_LABEL[ride.kind]}${name ? ` called "${name}"` : ''}${minutes ? `, ${minutes} minutes` : ''}.`,
     ride.structure ? `Main work: ${ride.structure}.` : '',
-    'Write two or three lines for every trigger, 40 to 55 lines in all. Every line is about the ride, never about the rider as a person.',
+    'Write two or three lines for every trigger, 40 to 55 lines in all.',
   ]
     .filter(Boolean)
     .join('\n')
@@ -96,34 +91,31 @@ export function workoutStructure(segments: readonly CoachSegment[], maxGroups = 
     .join('; ')
 }
 
-export type QuipRejection = 'trigger' | 'length' | 'placeholder' | 'guardrails' | 'profanity' | 'persona' | 'unspeakable' | 'duplicate' | 'limit'
+export type QuipRejection = 'trigger' | 'length' | 'placeholder' | 'profanity' | 'unspeakable' | 'duplicate' | 'limit'
 
 export interface QuipFilterResult {
   lines: CoachLineTemplate[]
   rejected: { text: string; reason: QuipRejection }[]
 }
 
-function rejection(trigger: string, text: string, patterns: readonly RegExp[], allowMild: boolean): QuipRejection | null {
+function rejection(trigger: string, text: string, allowMild: boolean): QuipRejection | null {
   if (!QUIP_TRIGGER_SET.has(trigger)) return 'trigger'
   if (text.length < 3 || text.length > MAX_LINE_CHARS) return 'length'
   if (!bracesBalanced(text) || placeholdersOf(text).some((k) => !isDataKey(k))) return 'placeholder'
   if (UNSPEAKABLE.test(text)) return 'unspeakable'
-  if (violatesGuardrails(text) !== null) return 'guardrails'
   const level = detectProfanity(text)
   if (level === 'strong' || (level === 'mild' && !allowMild)) return 'profanity'
-  if (matchesAny(text, patterns)) return 'persona'
   return null
 }
 
 /**
  * The lines of an AI quip pack that may be used, as canned-style templates at
- * the ride's spice level. Parody personas never swear, whatever the setting.
+ * the ride's spice level. Topic bans do not apply; the profanity setting does.
  */
 export function quipLinesFromPack(value: unknown, opts: { persona: PersonaMeta; spice: number; profanity: boolean }): QuipFilterResult {
   const parsed = QuipPackSchema.safeParse(value)
   if (!parsed.success) return { lines: [], rejected: [] }
-  const patterns = personaBannedPatterns(opts.persona.id)
-  const allowMild = opts.profanity && !opts.persona.parody
+  const allowMild = opts.profanity
   const spice = clampSpice(opts.spice)
   const lines: CoachLineTemplate[] = []
   const rejected: QuipFilterResult['rejected'] = []
@@ -133,7 +125,7 @@ export function quipLinesFromPack(value: unknown, opts: { persona: PersonaMeta; 
     const trigger = raw.trigger.trim().toLowerCase()
     const text = raw.text.replace(/\s+/g, ' ').trim()
     const dedupe = text.toLowerCase()
-    const reason = lines.length >= MAX_AI_LINES ? 'limit' : seen.has(dedupe) ? 'duplicate' : rejection(trigger, text, patterns, allowMild)
+    const reason = lines.length >= MAX_AI_LINES ? 'limit' : seen.has(dedupe) ? 'duplicate' : rejection(trigger, text, allowMild)
     if (reason) {
       rejected.push({ text, reason })
       continue

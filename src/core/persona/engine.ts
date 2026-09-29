@@ -400,7 +400,8 @@ export class CoachEngine {
       const text = renderTemplate(line.text, facts)
       if (text === null) continue
       // Rendered text is checked, not the template: labels from workout files end up in it.
-      if (violatesGuardrails(text) !== null) continue
+      // AI-written lines skip the topic list; the rider asked for an unfiltered voice.
+      if (!line.id.startsWith('ai.') && violatesGuardrails(text) !== null) continue
       const profanity = detectProfanity(text)
       if (profanity === 'strong' || (profanity === 'mild' && !this.profanity)) continue
       candidates.push({ line, text, packId, specificity: line.criteria?.length ?? 0 })

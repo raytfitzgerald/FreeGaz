@@ -37,13 +37,11 @@ describe('quipPackPrompt', () => {
     expect(p).not.toContain('parody')
   })
 
-  it('keeps the parody on the ride, clean, and away from banned names', () => {
+  it('passes the ride name and the profanity setting through, parody included', () => {
     const p = quipPackPrompt(BIBI.meta, { spice: 5, profanity: true }, { kind: 'workout', name: 'Battle of the Bulge', durationS: 3600, structure: null })
-    expect(p).toContain('clearly-labeled parody')
-    expect(p).toContain('Never mention religion')
-    expect(p).toContain('No profanity.')
-    expect(p).not.toContain('Battle')
-    expect(quipPackPrompt(ROAST_COMIC.meta, { spice: 3, profanity: false }, { kind: 'free', name: 'Fat Burner', durationS: null, structure: null })).not.toContain('Fat')
+    expect(p).toContain('Mild profanity is allowed.')
+    expect(p).toContain('called "Battle of the Bulge"')
+    expect(quipPackPrompt(ROAST_COMIC.meta, { spice: 3, profanity: false }, { kind: 'free', name: 'Fat Burner', durationS: null, structure: null })).toContain('called "Fat Burner"')
   })
 })
 
@@ -74,7 +72,7 @@ describe('quipLinesFromPack', () => {
     expect(lines.map((l) => l.id)).toEqual(['ai.segment_start.1', 'ai.idle_banter.1', 'ai.ride_start.1', 'ai.halfway.1', 'ai.pr.1', 'ai.workout_complete.1'])
   })
 
-  it('drops anything off-brief, off-limits or unspeakable', () => {
+  it('drops anything off-brief, too sweary or unspeakable, and keeps the rest', () => {
     const bad = [
       { trigger: 'distress', text: 'Keep going, you are fine.' },
       { trigger: 'made_up', text: 'Nice.' },
@@ -91,22 +89,9 @@ describe('quipLinesFromPack', () => {
       { trigger: 'idle_banter', text: 'Smooth circles, champ. The trainer is listening.' },
     ]
     const { lines, rejected } = quipLinesFromPack(pack(bad), opts)
-    expect(rejected.map((r) => r.reason)).toEqual([
-      'trigger',
-      'trigger',
-      'placeholder',
-      'placeholder',
-      'guardrails',
-      'guardrails',
-      'guardrails',
-      'guardrails',
-      'profanity',
-      'profanity',
-      'unspeakable',
-      'unspeakable',
-      'duplicate',
-    ])
-    expect(lines).toHaveLength(FILLER.length)
+    expect(rejected.map((r) => r.reason)).toEqual(['trigger', 'trigger', 'placeholder', 'placeholder', 'profanity', 'profanity', 'unspeakable', 'unspeakable', 'duplicate'])
+    expect(lines.map((l) => l.text)).toContain('Pedal off that belly, big guy.')
+    expect(lines.map((l) => l.text)).toContain('This is a war on watts.')
   })
 
   it('keeps mild profanity only when the rider allows it, flagged so the engine can drop it later', () => {
@@ -114,7 +99,7 @@ describe('quipLinesFromPack', () => {
     expect(allowed.lines[0]).toMatchObject({ text: 'Damn, that cadence.', profanity: true })
   })
 
-  it('holds the Bibi parody to its own bans, and it never swears', () => {
+  it('keeps parody lines the topic list used to drop, and still honors the profanity setting', () => {
     const bibi = { persona: BIBI.meta, spice: 5, profanity: true }
     const { lines, rejected } = quipLinesFromPack(
       pack([
@@ -126,10 +111,16 @@ describe('quipLinesFromPack', () => {
       ]),
       bibi,
     )
-    expect(lines[0]?.text).toBe('I have drawn a red line at {targetW} watts. Again.')
-    // victory, enemy and iron dome are fine for other personas, never for this one
-    expect(rejected.map((r) => r.reason)).toEqual(['persona', 'persona', 'persona', 'profanity'])
-    expect(quipLinesFromPack(pack([{ trigger: 'halfway', text: 'Halfway. A historic victory is near.' }]), opts).rejected).toEqual([])
+    expect(rejected).toEqual([])
+    expect(lines.map((l) => l.text)).toEqual([
+      'I have drawn a red line at {targetW} watts. Again.',
+      'Halfway. A historic victory is near.',
+      'My friends, this cadence is under siege by the enemy.',
+      'This interval is protected by the iron dome of my charts.',
+      'Damn fine chart, if I say so myself.',
+      ...FILLER.map((l) => l.text),
+    ])
+    expect(lines.find((l) => l.text.startsWith('Damn'))).toMatchObject({ profanity: true })
   })
 
   it('rejects malformed replies outright and caps the pack', () => {
