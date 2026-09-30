@@ -4,13 +4,12 @@ import { BIBI, BIBI_BANNED_PATTERNS } from './bibi'
 
 const bannedHits = (text: string): string[] => BIBI_BANNED_PATTERNS.filter((p) => p.test(text)).map((p) => `${p.source.slice(0, 40)}… → ${p.exec(text)?.[0] ?? ''}`)
 
-describe('the Bibi parody', () => {
-  it('is labeled as a parody with the required disclaimer', () => {
+describe('Bibi', () => {
+  it('names itself and its style', () => {
     expect(BIBI.meta).toMatchObject({
       id: 'bibi',
       name: 'Bibi',
-      parody: true,
-      disclaimer: 'Parody. Not affiliated with or endorsed by Benjamin Netanyahu.',
+      tagline: 'Grand podium oratory, dramatic pauses and a chart for every interval.',
     })
   })
 
@@ -43,7 +42,7 @@ describe('the Bibi parody', () => {
     expect(count(/histor(?:y|ic)/i)).toBeGreaterThanOrEqual(10)
   })
 
-  it('has banned patterns that catch what the parody must never say', () => {
+  it('has banned patterns that catch what it must never say', () => {
     const forbidden = [
       'Pray for more watts.',
       'This climb is our promised land.',

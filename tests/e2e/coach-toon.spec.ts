@@ -1,8 +1,8 @@
 import { expect, test, type Page } from '@playwright/test'
 import { launchApp, type Launched } from './launch'
 
-// The Bibi caricature: a labelled parody bobblehead that swaps photos with each
-// line and rides onto the ride screen with his lines.
+// The Bibi caricature: a bobblehead that swaps photos with each line and rides
+// onto the ride screen with his lines.
 let ctx: Launched
 
 /** A silent stand-in for the Mac's voice: it reports each word, then finishes. */
@@ -29,16 +29,14 @@ test.afterAll(async () => {
   await ctx?.close()
 })
 
-test('Settings: Bibi is a labelled caricature that swaps photos with every sample', async () => {
+test('Settings: Bibi is a caricature that swaps photos with every sample', async () => {
   const { page } = ctx
   await silenceVoice(page)
   await page.getByRole('link', { name: 'Settings', exact: true }).click()
   await page.getByRole('tab', { name: 'Coach' }).click()
   await page.getByTestId('persona-bibi').click()
-  const toon = page.getByRole('img', { name: /Bibi, parody caricature/ })
+  const toon = page.getByRole('img', { name: /Bibi, riding a bike/ })
   await expect(toon).toBeVisible()
-  await expect(toon.getByTestId('parody-badge')).toHaveText(/parody/i)
-  await expect(page.getByTestId('parody-disclaimer')).toHaveText('Parody. Not affiliated with or endorsed by Benjamin Netanyahu.')
   // every photo layer actually loads
   const loaded = await page.evaluate(async () => {
     const imgs = [...document.querySelectorAll('[data-testid="persona-bibi"] img')] as HTMLImageElement[]
@@ -67,8 +65,7 @@ test('ride: Bibi rides alongside and says his line, and stands still when the Ma
   await page.getByRole('link', { name: 'Ride', exact: true }).click()
   await page.getByTestId('start-ride').click()
   const along = page.getByTestId('ride-along')
-  await expect(along.getByRole('img', { name: /Bibi, parody caricature, riding next to you/ })).toBeVisible()
-  await expect(along.getByTestId('parody-badge').first()).toHaveText(/parody/i)
+  await expect(along.getByRole('img', { name: /Bibi, riding next to you/ })).toBeVisible()
   // the ride-start line comes within a couple of seconds, in his speech bubble rather than the cue banner
   const bubble = page.getByTestId('ride-along-bubble')
   await expect(bubble).not.toHaveText(/^\s*$/, { timeout: 15_000 })
@@ -107,10 +104,8 @@ test('Settings: The Donald has his own caricature, four photos and a long red ti
   await page.getByRole('link', { name: 'Settings', exact: true }).click()
   await page.getByRole('tab', { name: 'Coach' }).click()
   await page.getByTestId('persona-trump').click()
-  await expect(page.getByTestId('parody-disclaimer')).toHaveText('Parody. Not affiliated with or endorsed by Donald J. Trump.')
-  const toon = page.getByRole('img', { name: /The Donald, parody caricature/ })
+  const toon = page.getByRole('img', { name: /The Donald, riding a bike/ })
   await expect(toon).toBeVisible()
-  await expect(toon.getByTestId('parody-badge')).toHaveText(/parody/i)
   await expect(toon.locator('[data-part="tie"]')).toHaveAttribute('fill', '#d7263d')
   const heads = [await toon.getAttribute('data-head')]
   for (let i = 0; i < 4; i++) {

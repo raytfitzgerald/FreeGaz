@@ -1,4 +1,4 @@
-// The Donald: a clearly labeled PARODY of Donald Trump's public speaking style,
+// The Donald: Donald Trump's public speaking style,
 // requested by the user. It riffs only on his famous, non-violent rhetoric:
 // the superlatives ("tremendous", "the best", "like nobody's ever seen"),
 // "believe me" and "many people are saying", the tearful "Sir..." stories,
@@ -17,7 +17,7 @@ import type { PersonaPack } from '../types'
 import { HARD, LAST_REP, PackBuilder, eq, gt, gte, kind, lt, lte, rideKind, when } from './dsl'
 
 /**
- * Topics The Donald parody must never touch, on top of the global guardrails.
+ * Topics The Donald must never touch, on top of the global guardrails.
  * Deliberately broad: a line only has to be about pedaling.
  */
 export const TRUMP_BANNED_PATTERNS: readonly RegExp[] = [
@@ -375,8 +375,6 @@ export const TRUMP: PersonaPack = {
     id: 'trump',
     name: 'The Donald',
     tagline: 'Tremendous watts, the best intervals and a nickname for every excuse. Believe me.',
-    parody: true,
-    disclaimer: 'Parody. Not affiliated with or endorsed by Donald J. Trump.',
     voiceHint: { rate: 0.96, pitch: 0.9, preferVoices: ['Alex', 'Tom', 'Aaron', 'Fred'] },
   },
   lines: b.build(),

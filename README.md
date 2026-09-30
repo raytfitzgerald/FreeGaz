@@ -7,8 +7,6 @@
 
 **A data-obsessed indoor cycling trainer for macOS.** It controls your smart trainer in ERG, level, slope or heart-rate mode, plays structured workouts and builds new ones the way zwofactory.com does. It runs a proper FTP test that saves your FTP, rides GPX routes FulGaz-style, and records every second locally as a FIT file. The optional coaches will roast you mid-interval if you ask them to.
 
-> FreeGaz is a personal hobby project. It is **not affiliated with, endorsed by, or connected to** FulGaz, Zwift, TrainerRoad, Wahoo, Garmin or Strava, or any other company whose products it can talk to. All product names are trademarks of their owners. The "Bibi" and "The Donald" coaching personas are clearly labeled parodies, not affiliated with or endorsed by Benjamin Netanyahu or Donald J. Trump.
-
 | Milestone | What you get | State |
 |---|---|---|
 | M0 Foundations | App shell, secure Electron setup, CI, DMG packaging | ✅ |
@@ -81,9 +79,9 @@ The code is tested thoroughly, against simulated devices (see [What has been ver
 **Coaching**
 - **Ten personas:**
   - Drill Sergeant, Roast Comic, Disappointed Dad, The Overlord, Hype Coach, Data Nerd, Zen and Professional;
-  - **Bibi**, a labeled parody of Netanyahu's podium style ("I have drawn a red line at 280 watts");
-  - **The Donald**, a labeled parody of Trump's rally style ("It's going to be a big, beautiful interval", "I'm putting a tariff on coasting").
-- **Caricatures for the two parodies.** A photo bobblehead on a little bike rides onto the ride screen with each line.
+  - **Bibi**, podium style ("I have drawn a red line at 280 watts");
+  - **The Donald**, rally style ("It's going to be a big, beautiful interval", "I'm putting a tariff on coasting").
+- **Caricatures for Bibi and The Donald.** A photo bobblehead on a little bike rides onto the ride screen with each line.
   - Bibi switches between three public photos, The Donald between four. The Donald's long red tie streams in the wind.
   - The head wiggles and the jaw flaps in time with the voice.
   - It stands still if macOS is set to reduce motion.

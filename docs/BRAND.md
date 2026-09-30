@@ -84,7 +84,6 @@ There are two themes: **Night** (the default) and **Track day** (light). Every t
 | `warn` | `#fdc357` | `#9e5200` | Caution: a stale sensor, an unfinished ride. |
 | `bad` | `#ff8a88` | `#be222a` | Errors and destructive actions. |
 | `scrim` | 64 % night | 50 % navy | Behind a dialog. |
-| `parody` / `on-parody` | `#fbbf24` / `#111d36` | same | The PARODY label only (10:1). |
 
 **Rules:**
 - **The accent means "you can act here".** Never use it for decoration or emphasis in running text.
@@ -166,7 +165,7 @@ Both are under the SIL Open Font License 1.1. They're bundled, so the app looks 
   - 120–150 ms for hover and press;
   - 200 ms for things arriving;
   - ease-out.
-- **The parody caricatures are the only characters that move.** They ride in, wiggle while talking and ride off.
+- **Bibi and The Donald are the only characters that move.** They ride in, wiggle while talking and ride off.
 - **Reduce Motion stops all of it.** With macOS's Reduce Motion on, the caricatures stand still and nothing slides.
 
 ## Voice and writing
@@ -179,12 +178,11 @@ The app talks like a good mechanic: specific, calm and brief. The coaches are th
 - **Errors say what happened and what to do next,** without apologising: "The trainer didn't answer. Check it's awake and not held by Zwift or the Wahoo app, then try again."
 - **Empty states say what will appear and how to add the first one.**
 - **No exclamation marks or emoji in the interface,** and no hype words (amazing, seamless, powerful). A little dry wit is fine in headings, like "Ready to suffer?". Keep it out of instructions and errors.
-- **Parody personas are labelled** "Parody", with their exact disclaimer, wherever they can be picked or seen.
 
 ## Imagery
 
 - **No stock photos, no illustrations of people, no generated art.** The interface is type, numbers and charts.
-- **The one exception is the parody caricatures:** photo heads on a cartoon bike.
+- **The one exception is Bibi and The Donald:** photo heads on a cartoon bike.
   - Only public-domain or openly licensed photos, approved file by file.
   - Cut to the head, never distorted.
   - Credited in `src/renderer/src/coach/toon/heads/ATTRIBUTION.md`.

@@ -22,8 +22,6 @@ const MetaSchema = z.object({
   id: z.string().regex(/^[a-z0-9][a-z0-9-]{1,39}$/, 'use 2–40 lowercase letters, digits and dashes'),
   name: z.string().trim().min(1).max(40),
   tagline: z.string().trim().max(140).default(''),
-  parody: z.boolean().optional(),
-  disclaimer: z.string().trim().min(1).max(300).optional(),
   voiceHint: VoiceHintSchema.optional(),
 })
 
@@ -85,7 +83,6 @@ export function validatePack(json: unknown): PackValidation {
   const errors: string[] = []
   const meta = envelope.data.meta
   if (packById(meta.id)) errors.push(`meta.id: "${meta.id}" belongs to a built-in persona; choose another id`)
-  if (meta.parody === true && meta.disclaimer === undefined) errors.push('meta.disclaimer: required when parody is true')
   for (const field of ['name', 'tagline'] as const) {
     const hit = guardrailMatch(meta[field])
     if (hit) errors.push(`meta.${field}: touches a banned topic (${hit.category}: "${hit.match}")`)

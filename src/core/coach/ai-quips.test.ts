@@ -37,7 +37,7 @@ describe('quipPackPrompt', () => {
     expect(p).not.toContain('parody')
   })
 
-  it('passes the ride name and the profanity setting through, parody included', () => {
+  it('passes the ride name and the profanity setting through', () => {
     const p = quipPackPrompt(BIBI.meta, { spice: 5, profanity: true }, { kind: 'workout', name: 'Battle of the Bulge', durationS: 3600, structure: null })
     expect(p).toContain('No language restrictions.')
     expect(p).toContain('called "Battle of the Bulge"')
@@ -107,7 +107,7 @@ describe('quipLinesFromPack', () => {
     expect(quipLinesFromPack(pack([{ trigger: 'idle_banter', text: 'What the fuck is this pace.' }]), opts).rejected.map((r) => r.reason)).toEqual(['profanity'])
   })
 
-  it('keeps parody lines the topic list used to drop, and still honors the profanity setting', () => {
+  it('keeps lines the topic list used to drop, and still honors the profanity setting', () => {
     const bibi = { persona: BIBI.meta, spice: 5, profanity: true }
     const { lines, rejected } = quipLinesFromPack(
       pack([

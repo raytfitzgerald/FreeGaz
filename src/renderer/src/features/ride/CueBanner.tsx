@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { MessageSquareText } from 'lucide-react'
 import { PRIORITY, packById } from '@core/persona'
-import { ParodyBadge } from '../../coach/ParodyBadge'
 import { useCoachTalk, type TalkLine } from '../../coach/talk'
 import { CoachToon } from '../../coach/toon/CoachToon'
 import { toonFor } from '../../coach/toon/heads'
@@ -90,12 +89,9 @@ function ToonBanner({ line, leaving }: { line: TalkLine; leaving: boolean }) {
         leaving={leaving}
         cadence={riderCadence}
         height={76}
-        label={`${name}, ${meta?.parody ? 'parody caricature, ' : ''}riding a bike`}
+        label={`${name}, riding a bike`}
       />
-      <p className="min-w-0 text-base font-medium">
-        {meta?.parody && <ParodyBadge className="mr-2 align-[2px]" />}
-        {line.text}
-      </p>
+      <p className="min-w-0 text-base font-medium">{line.text}</p>
     </div>
   )
 }

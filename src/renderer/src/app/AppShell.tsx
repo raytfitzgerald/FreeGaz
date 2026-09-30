@@ -35,9 +35,6 @@ export function AppShell() {
             </Link>
           ))}
         </nav>
-        <div className="px-4 py-3 text-[11px] leading-tight text-ink-faint">
-          Not affiliated with FulGaz, Zwift, TrainerRoad, Wahoo, Garmin or Strava.
-        </div>
       </aside>
       <main className="relative flex min-w-0 flex-1 flex-col">
         <div className="drag-region absolute inset-x-0 top-0 z-10 flex h-11 items-center justify-end px-4">

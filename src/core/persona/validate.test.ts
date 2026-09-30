@@ -43,13 +43,13 @@ describe('validatePack: happy path', () => {
     expect(engine.consider(sampleContext('idle_banter', 61_000))?.lineId).toBe('hi')
   })
 
-  it('accepts a parody with a disclaimer and a voice hint', () => {
+  it('accepts a voice hint', () => {
     const { pack, errors } = validatePack({
-      meta: { ...meta, parody: true, disclaimer: 'Parody. Not affiliated with anyone.', voiceHint: { rate: 1.1, pitch: 0.9, preferVoices: ['Alex'] } },
+      meta: { ...meta, voiceHint: { rate: 1.1, pitch: 0.9, preferVoices: ['Alex'] } },
       lines: goodLines,
     })
     expect(errors).toEqual([])
-    expect(pack?.meta.parody).toBe(true)
+    expect(pack?.meta.voiceHint?.preferVoices).toEqual(['Alex'])
   })
 })
 
@@ -60,11 +60,10 @@ describe('validatePack: sad paths', () => {
     expect(errors.length).toBeGreaterThan(0)
   })
 
-  it('rejects bad or reserved ids, parody without disclaimer, and banned names', () => {
+  it('rejects bad or reserved ids, and banned names', () => {
     const cases: [unknown, RegExp][] = [
       [{ ...meta, id: 'Bad Id!' }, /meta\.id/],
       [{ ...meta, id: 'zen' }, /built-in/],
-      [{ ...meta, parody: true }, /disclaimer/],
       [{ ...meta, name: 'Coach Jesus' }, /meta\.name: touches a banned topic \(religion/],
       [{ ...meta, tagline: 'Roasts your fat legs' }, /meta\.tagline: touches a banned topic \(body/],
       [{ ...meta, voiceHint: { rate: 50, pitch: 1, preferVoices: [] } }, /voiceHint\.rate/],

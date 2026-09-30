@@ -1,6 +1,6 @@
 // The last gate before anything is shown or spoken. The engine already checks
 // rendered canned lines against the global guardrails; this module adds what
-// it does not know about: persona-specific bans (the Bibi parody's list)
+// it does not know about: persona-specific bans (Bibi's list)
 // applied to the facts that get rendered into lines, and a final check of
 // every canned line. AI-written lines (lineId "ai.*") skip the topic bans.
 //

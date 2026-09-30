@@ -18,7 +18,7 @@ beforeEach(() => {
 afterEach(cleanup)
 
 describe('CoachSection', () => {
-  it('lists every persona with its style, and marks the parody', async () => {
+  it('lists every persona with its style', async () => {
     render(<CoachSection />)
     await flush()
     for (const p of PACKS) {
@@ -26,25 +26,15 @@ describe('CoachSection', () => {
       expect(card.textContent).toContain(p.meta.name)
       expect(card.textContent).toContain(p.meta.tagline)
     }
-    const bibi = screen.getByTestId('persona-bibi')
-    expect(within(bibi).getByTestId('parody-badge').textContent).toMatch(/parody/i)
-    expect(bibi.textContent).toContain('Parody. Not affiliated with or endorsed by Benjamin Netanyahu.')
-    const donald = screen.getByTestId('persona-trump')
-    expect(within(donald).getByTestId('parody-badge').textContent).toMatch(/parody/i)
-    expect(donald.textContent).toContain('Parody. Not affiliated with or endorsed by Donald J. Trump.')
-    // the two parodies, and nobody else
-    expect(screen.getAllByTestId('parody-badge')).toHaveLength(2)
   })
 
-  it('shows the disclaimer prominently once Bibi is picked', async () => {
+  it('selects Bibi when that card is picked', async () => {
     render(<CoachSection />)
     await flush()
-    expect(screen.queryByTestId('parody-disclaimer')).toBeNull()
     fireEvent.click(screen.getByTestId('persona-bibi'))
     await flush()
     expect(settingsStore.getState().coach.personaId).toBe('bibi')
     expect(screen.getByTestId('persona-bibi').getAttribute('aria-pressed')).toBe('true')
-    expect(screen.getByTestId('parody-disclaimer').textContent).toBe('Parody. Not affiliated with or endorsed by Benjamin Netanyahu.')
   })
 
   it('previews a sample line in the chosen persona', async () => {
@@ -61,8 +51,7 @@ describe('CoachSection', () => {
     expect(screen.queryByTestId('coach-toon')).toBeNull() // the drill sergeant is a monogram
     fireEvent.click(screen.getByTestId('persona-bibi'))
     await flush()
-    const toon = screen.getByRole('img', { name: /Bibi, parody caricature/ })
-    expect(within(toon).getByTestId('parody-badge').textContent).toMatch(/parody/i)
+    const toon = screen.getByRole('img', { name: /Bibi, riding a bike/ })
     const heads = [toon.dataset.head]
     for (let i = 0; i < 3; i++) {
       fireEvent.click(screen.getByTestId('coach-preview'))
@@ -79,8 +68,7 @@ describe('CoachSection', () => {
     await flush()
     fireEvent.click(screen.getByTestId('persona-trump'))
     await flush()
-    expect(screen.getByTestId('parody-disclaimer').textContent).toBe('Parody. Not affiliated with or endorsed by Donald J. Trump.')
-    const toon = screen.getByRole('img', { name: /The Donald, parody caricature/ })
+    const toon = screen.getByRole('img', { name: /The Donald, riding a bike/ })
     expect(toon.querySelector('[data-part="tie"]')?.getAttribute('fill')).toBe('#d7263d')
     const heads = [toon.dataset.head]
     for (let i = 0; i < 4; i++) {

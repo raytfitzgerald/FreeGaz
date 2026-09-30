@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { cn } from '../../ui/cn'
 import { useReducedMotion } from '../../ui/use-reduced-motion'
-import { ParodyBadge } from '../ParodyBadge'
 import type { ToonHead } from './heads'
 import { STILL_POSE, ToonMotion, headForLine, knee, type ToonPose } from './motion'
 
@@ -147,14 +146,12 @@ export interface CoachToonProps {
   cadence?: () => number | null
   /** Height in CSS px; the width follows. */
   height?: number
-  /** Show the PARODY badge under the toon (where there's room; the ride banner puts it by the text). */
-  badge?: boolean
   label: string
   className?: string
 }
 
 /** The coach caricature: a photo bobblehead riding a little bike, talking along with its lines. */
-export function CoachToon({ heads, setKey, tie = DEFAULT_TIE, lineKey, text, speaking, words = 0, enter = false, leaving = false, cadence, height = 96, badge = false, label, className }: CoachToonProps) {
+export function CoachToon({ heads, setKey, tie = DEFAULT_TIE, lineKey, text, speaking, words = 0, enter = false, leaving = false, cadence, height = 96, label, className }: CoachToonProps) {
   const reduced = useReducedMotion()
   const [motion] = useState(() => new ToonMotion({ enter }))
   const svgRef = useRef<SVGSVGElement>(null)
@@ -283,7 +280,6 @@ export function CoachToon({ heads, setKey, tie = DEFAULT_TIE, lineKey, text, spe
           </g>
         </g>
       </svg>
-      {badge && <ParodyBadge className="absolute -bottom-3 left-1/2 -translate-x-1/2" />}
     </div>
   )
 }

@@ -34,12 +34,6 @@ export function AboutSection() {
           Saira (the Saira Project Authors) and Atkinson Hyperlegible Next (the Atkinson Hyperlegible Next Project Authors), both under the SIL Open Font License 1.1.
         </div>
       </Field>
-      <Field label="Legal">
-        <div className="pt-2 text-xs leading-relaxed text-ink-faint">
-          FreeGaz is not affiliated with, endorsed by, or connected to FulGaz, Zwift, TrainerRoad, Wahoo, Garmin, Strava, Anthropic, OpenAI or Ollama. Product names are trademarks of their owners. Parody personas are labeled as such and are not endorsed by the people they
-          imitate.
-        </div>
-      </Field>
     </Section>
   )
 }

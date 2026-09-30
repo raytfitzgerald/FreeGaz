@@ -43,10 +43,6 @@
   --color-warn: #fdc357;
   --color-bad: #ff8a88;
   --color-scrim: #080e1ca3;
-
-  /* The PARODY label: the same amber and ink in both themes (10:1). */
-  --color-parody: #fbbf24;
-  --color-on-parody: #111d36;
 }
 
 /* Brand constants: the velodrome's own colours, identical in both themes.

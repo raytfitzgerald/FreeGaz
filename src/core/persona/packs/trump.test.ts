@@ -4,13 +4,12 @@ import { TRUMP, TRUMP_BANNED_PATTERNS } from './trump'
 
 const bannedHits = (text: string): string[] => TRUMP_BANNED_PATTERNS.filter((p) => p.test(text)).map((p) => `${p.source.slice(0, 40)}… → ${p.exec(text)?.[0] ?? ''}`)
 
-describe('The Donald parody', () => {
-  it('is labeled as a parody with the required disclaimer', () => {
+describe('The Donald', () => {
+  it('names itself and its style', () => {
     expect(TRUMP.meta).toMatchObject({
       id: 'trump',
       name: 'The Donald',
-      parody: true,
-      disclaimer: 'Parody. Not affiliated with or endorsed by Donald J. Trump.',
+      tagline: 'Tremendous watts, the best intervals and a nickname for every excuse. Believe me.',
     })
   })
 
@@ -50,7 +49,7 @@ describe('The Donald parody', () => {
     expect(count(/tariff/i)).toBeGreaterThanOrEqual(2)
   })
 
-  it('has banned patterns that catch what the parody must never say', () => {
+  it('has banned patterns that catch what it must never say', () => {
     const forbidden = [
       'Pray for more watts.',
       'God bless this interval.',

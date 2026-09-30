@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Check, Drama, Volume2 } from 'lucide-react'
+import { Check, Volume2 } from 'lucide-react'
 import { previewLine } from '@core/coach'
 import { PACKS, PROFESSIONAL, packById, type CoachLine, type CoachTrigger } from '@core/persona'
 import type { CoachPrefs, FuelingPrefs } from '@shared/settings'
@@ -133,18 +133,11 @@ export function CoachSection() {
                       {selected && <Check className="size-3.5 text-accent" aria-label="Selected" />}
                     </div>
                     <div className="mt-0.5 text-xs leading-snug text-ink-dim">{p.meta.tagline}</div>
-                    {p.meta.parody && p.meta.disclaimer && <div className="mt-1.5 text-[11px] leading-snug text-ink-faint">{p.meta.disclaimer}</div>}
                   </div>
                 </button>
               )
             })}
           </div>
-          {meta.parody && meta.disclaimer && (
-            <div role="note" data-testid="parody-disclaimer" className="mt-3 flex items-start gap-2.5 rounded-xl border border-warn/50 bg-warn/10 px-3.5 py-2.5 text-sm font-medium text-ink">
-              <Drama className="mt-0.5 size-4 shrink-0 text-warn" aria-hidden />
-              <span>{meta.disclaimer}</span>
-            </div>
-          )}
         </Field>
         <Field label="Sample" hint="A line from a typical moment of a ride, at your spice level.">
           <div className="flex items-center gap-3">
@@ -158,8 +151,7 @@ export function CoachSection() {
                 speaking={talk?.speaking ?? false}
                 words={talk?.words ?? 0}
                 height={112}
-                badge={meta.parody}
-                label={`${meta.name}, ${meta.parody ? 'parody caricature, ' : ''}riding a bike`}
+                label={`${meta.name}, riding a bike`}
               />
             ) : (
               <PersonaAvatar persona={meta} size="lg" />

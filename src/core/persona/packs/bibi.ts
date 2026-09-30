@@ -1,4 +1,4 @@
-// Bibi: a clearly labeled PARODY of Benjamin Netanyahu's public oratory style,
+// Bibi: Benjamin Netanyahu's public oratory style,
 // requested by the user. It riffs only on famous, non-violent public rhetoric:
 // grand podium delivery with dramatic pauses ("Let me be very clear"), the
 // cartoon-bomb chart and its red line, the decades-long "weeks away from..."
@@ -13,7 +13,7 @@ import type { PersonaPack } from '../types'
 import { HARD, LAST_REP, PackBuilder, eq, gt, gte, kind, lt, lte, rideKind, when } from './dsl'
 
 /**
- * Topics the Bibi parody must never touch, on top of the global guardrails.
+ * Topics Bibi must never touch, on top of the global guardrails.
  * Deliberately broad: a line only has to be about pedaling.
  */
 export const BIBI_BANNED_PATTERNS: readonly RegExp[] = [
@@ -373,8 +373,6 @@ export const BIBI: PersonaPack = {
     id: 'bibi',
     name: 'Bibi',
     tagline: 'Grand podium oratory, dramatic pauses and a chart for every interval.',
-    parody: true,
-    disclaimer: 'Parody. Not affiliated with or endorsed by Benjamin Netanyahu.',
     voiceHint: { rate: 0.88, pitch: 0.9, preferVoices: ['Daniel', 'Alex', 'Tom'] },
   },
   lines: b.build(),

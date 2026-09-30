@@ -12,7 +12,6 @@ import { cn } from '../../ui/cn'
 import { useReducedMotion } from '../../ui/use-reduced-motion'
 import { useNow } from '../../ui/useNow'
 import { avatarColors, monogram } from '../avatar'
-import { ParodyBadge } from '../ParodyBadge'
 import { useCoachTalk } from '../talk'
 import { CoachToon } from '../toon/CoachToon'
 import { toonFor } from '../toon/heads'
@@ -73,12 +72,11 @@ export function RideAlong() {
       <div className="flex items-center justify-between gap-3 px-4 pt-2">
         <div className="flex min-w-0 items-center gap-2">
           <span className="eyebrow text-ink-faint">Ride-along</span>
-          {meta.parody && <ParodyBadge />}
           <GapReadout name={meta.name} ftpW={ftpW} />
         </div>
         {controls}
       </div>
-      {mode === 'open' ? <Scene personaId={meta.id} name={meta.name} parody={!!meta.parody} coachOn={coachOn} muted={muted} ftpW={ftpW} /> : <div className="h-2" />}
+      {mode === 'open' ? <Scene personaId={meta.id} name={meta.name} coachOn={coachOn} muted={muted} ftpW={ftpW} /> : <div className="h-2" />}
     </section>
   )
 }
@@ -123,7 +121,7 @@ function advance(now: number, ftpW: number): void {
   race.state = stepRideAlong(race.state, dt, { watts: f.power3s ?? f.power, kmh: f.speedKmh }, coachPaceW(f.trainer.targetW, ftpW))
 }
 
-function Scene({ personaId, name, parody, coachOn, muted, ftpW }: { personaId: string; name: string; parody: boolean; coachOn: boolean; muted: boolean; ftpW: number }) {
+function Scene({ personaId, name, coachOn, muted, ftpW }: { personaId: string; name: string; coachOn: boolean; muted: boolean; ftpW: number }) {
   const reduced = useReducedMotion()
   const sceneRef = useRef<HTMLDivElement>(null)
   const coachRef = useRef<HTMLDivElement>(null)
@@ -207,7 +205,7 @@ function Scene({ personaId, name, parody, coachOn, muted, ftpW }: { personaId: s
               words={bubble?.words ?? 0}
               cadence={coachCadence}
               height={BIKE_H + 14}
-              label={`${name}, ${parody ? 'parody caricature, ' : ''}riding next to you`}
+              label={`${name}, riding next to you`}
             />
           ) : (
             <Cyclist jersey={colors.background} cadence={coachCadence} height={BIKE_H} label={`${name}, riding next to you`} head={<MonogramHead text={monogram(name)} {...colors} />} />

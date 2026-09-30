@@ -1,7 +1,6 @@
 import type { PersonaMeta } from '@core/persona'
 import { cn } from '../ui/cn'
 import { avatarColors, monogram } from './avatar'
-import { ParodyBadge } from './ParodyBadge'
 import { toonFor } from './toon/heads'
 
 const SIZES = {
@@ -9,18 +8,14 @@ const SIZES = {
   lg: 'size-14 text-lg',
 } as const
 
-/**
- * A persona's avatar: its caricature head when it has one, else a generated
- * monogram. Parody personas carry a visible PARODY badge wherever the avatar
- * appears.
- */
-export function PersonaAvatar({ persona, size = 'sm', className }: { persona: Pick<PersonaMeta, 'id' | 'name' | 'parody'>; size?: keyof typeof SIZES; className?: string }) {
+/** A persona's avatar: its caricature head when it has one, else a generated monogram. */
+export function PersonaAvatar({ persona, size = 'sm', className }: { persona: Pick<PersonaMeta, 'id' | 'name'>; size?: keyof typeof SIZES; className?: string }) {
   const head = toonFor(persona.id)?.heads[0]
   return (
     <div className={cn('relative shrink-0', className)}>
       <div
         role="img"
-        aria-label={`${persona.name} avatar${persona.parody ? ', parody' : ''}`}
+        aria-label={`${persona.name} avatar`}
         title={head?.credit}
         className={cn('relative flex select-none items-center justify-center overflow-hidden rounded-full font-display font-semibold tracking-wide', SIZES[size])}
         style={avatarColors(persona.id)}
@@ -35,7 +30,6 @@ export function PersonaAvatar({ persona, size = 'sm', className }: { persona: Pi
           monogram(persona.name)
         )}
       </div>
-      {persona.parody && <ParodyBadge className="absolute -bottom-1.5 left-1/2 -translate-x-1/2" />}
     </div>
   )
 }

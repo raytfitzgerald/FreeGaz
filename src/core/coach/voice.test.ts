@@ -26,13 +26,15 @@ describe('coach voice', () => {
     expect(v).toContain('no roasting')
   })
 
-  it('marks the parodies as parodies', () => {
-    expect(coachVoice(TRUMP, { spice: 3, profanity: 'clean' })).toContain('parody')
+  it('keeps The Donald on cycling and off the banned topics', () => {
+    const v = coachVoice(TRUMP, { spice: 3, profanity: 'clean' })
+    expect(v).toContain('keep to cycling and training')
+    expect(v).not.toContain('parody')
   })
 })
 
 describe('coach voice rules', () => {
-  it('always carries the house rules, and each parody its off-limits topics', () => {
+  it('always carries the house rules, and each persona its off-limits topics', () => {
     expect(coachVoice(ZEN, { spice: 5, profanity: 'unhinged' })).toContain("never the rider's body")
     expect(coachVoice(TRUMP, { spice: 3, profanity: 'clean' })).toContain('Never touch religion, race')
   })

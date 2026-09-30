@@ -1,11 +1,9 @@
 # Caricature photo credits
 
-The two parody coaches' caricatures use six photos from Wikimedia Commons.
+Bibi and The Donald's caricatures use six photos from Wikimedia Commons.
 
 - **Bibi** uses three photos.
 - **The Donald** uses four. His Oval Office head comes from the same photo as one of Bibi's.
-
-**Both personas are parodies.** They are not affiliated with or endorsed by Benjamin Netanyahu, Donald J. Trump, the White House, the U.S. Department of Defense, or the Government of India. Using these photos implies no endorsement by the people shown or by the agencies that took them.
 
 ## Bibi
 

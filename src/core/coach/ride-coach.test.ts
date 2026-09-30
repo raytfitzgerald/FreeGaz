@@ -112,7 +112,7 @@ describe('RideCoach', () => {
     expect(drive(s, { fromS: 1500.25, toS: 2200 }).length).toBeGreaterThan(0)
   })
 
-  it('never lets the Bibi parody say a banned name from the workout file', () => {
+  it('never lets Bibi say a banned name from the workout file', () => {
     const w = builtin('vo2max-5x4')
     w.name = 'Battle of the Bulge'
     for (const seg of w.segments) seg.label = 'Attack'

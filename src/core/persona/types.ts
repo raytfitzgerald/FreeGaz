@@ -179,9 +179,6 @@ export interface PersonaMeta {
   id: string
   name: string
   tagline: string
-  parody?: boolean
-  /** Required when parody is true; shown wherever the persona can be picked. */
-  disclaimer?: string
   voiceHint?: VoiceHint
 }
 

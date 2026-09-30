@@ -13,8 +13,8 @@ import { personaBannedPatterns, textAllowed } from './content'
 
 export const VOICE_EXAMPLES = 6
 
-/** What each parody's canned lines are kept off (CLAUDE.md), said to the model too. */
-const PARODY_OFF_LIMITS: Readonly<Record<string, string>> = {
+/** Topics a persona's canned lines stay off, said to the model too. */
+const OFF_LIMITS: Readonly<Record<string, string>> = {
   bibi: 'religion, ethnicity, land claims, war, hostages and trial allegations',
   trump: 'religion, race, immigration and borders, war and violence, elections and parties, courts and cases, women, age, health, looks, and other real people',
 }
@@ -63,10 +63,8 @@ export function coachVoice(pack: PersonaPack, opts: { spice: number; profanity: 
     personaInstruction({ name: meta.name, tagline: meta.tagline, spice: professional ? 1 : clampSpice(opts.spice), profanity: professional ? 'clean' : level }),
   ]
   if (professional) lines.push('Plain, professional coaching: no jokes, no roasting.')
-  if (meta.parody) {
-    const off = PARODY_OFF_LIMITS[meta.id]
-    lines.push(`This persona is a labelled parody of a public figure: copy the speaking style only, and keep to cycling and training.${off ? ` Never touch ${off}.` : ''}`)
-  }
+  const off = OFF_LIMITS[meta.id]
+  if (off) lines.push(`Copy the speaking style only, and keep to cycling and training. Never touch ${off}.`)
   const examples = voiceExamples(pack, opts)
   if (examples.length > 0) lines.push(`How ${meta.name} talks (style examples, not facts): ${examples.map((e) => `"${e}"`).join(' ')}`)
   lines.push(HOUSE_RULES, '[/Coach settings]')

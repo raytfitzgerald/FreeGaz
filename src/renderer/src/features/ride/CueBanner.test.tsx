@@ -43,21 +43,19 @@ describe('CueBanner', () => {
     expect(screen.queryByTestId('coach-toon')).toBeNull()
   })
 
-  it('lets Bibi say his own lines, as a labelled parody caricature', () => {
+  it('lets Bibi say his own lines', () => {
     render(<CueBanner />)
     say('Let me be very clear: this interval is historic.', 'bibi')
     const cue = screen.getByTestId('cue')
     expect(cue.textContent).toContain('Let me be very clear: this interval is historic.')
-    expect(screen.getByRole('img', { name: /Bibi, parody caricature/ })).toBeTruthy()
-    expect(screen.getByTestId('parody-badge').textContent).toMatch(/parody/i)
+    expect(screen.getByRole('img', { name: /Bibi, riding a bike/ })).toBeTruthy()
   })
 
   it('lets The Donald say his lines the same way, in his long red tie', () => {
     render(<CueBanner />)
     say('It is going to be a big, beautiful interval.', 'trump')
-    const toon = screen.getByRole('img', { name: /The Donald, parody caricature/ })
+    const toon = screen.getByRole('img', { name: /The Donald, riding a bike/ })
     expect(toon.querySelector('[data-part="tie"]')?.getAttribute('fill')).toBe('#d7263d')
-    expect(screen.getByTestId('parody-badge').textContent).toMatch(/parody/i)
   })
 
   it('moves to the next photo with every new line', () => {

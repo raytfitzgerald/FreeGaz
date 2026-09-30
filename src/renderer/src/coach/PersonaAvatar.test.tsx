@@ -10,24 +10,21 @@ describe('PersonaAvatar', () => {
     render(<PersonaAvatar persona={packById('drill-sergeant')!.meta} />)
     const avatar = screen.getByRole('img', { name: 'Drill Sergeant avatar' })
     expect(avatar.textContent).toBe('DS')
-    expect(screen.queryByTestId('parody-badge')).toBeNull()
   })
 
-  it('shows the Bibi photo head, credited, with the PARODY badge', () => {
+  it('shows the Bibi photo head, credited', () => {
     const { container } = render(<PersonaAvatar persona={packById('bibi')!.meta} />)
-    const avatar = screen.getByRole('img', { name: 'Bibi avatar, parody' })
+    const avatar = screen.getByRole('img', { name: 'Bibi avatar' })
     expect(avatar.getAttribute('title')).toMatch(/public domain/i)
     const layers = [...container.querySelectorAll('img')].map((i) => i.getAttribute('src') ?? '')
     expect(layers).toHaveLength(2)
     expect(layers[0]).toMatch(/head\.webp$/)
     expect(layers[1]).toMatch(/jaw\.webp$/)
-    expect(screen.getByTestId('parody-badge').textContent).toMatch(/parody/i)
   })
 
   it('shows The Donald photo head too', () => {
     const { container } = render(<PersonaAvatar persona={packById('trump')!.meta} />)
-    expect(screen.getByRole('img', { name: 'The Donald avatar, parody' }).getAttribute('title')).toMatch(/public domain/i)
+    expect(screen.getByRole('img', { name: 'The Donald avatar' }).getAttribute('title')).toMatch(/public domain/i)
     expect([...container.querySelectorAll('img')].map((i) => i.getAttribute('src') ?? '')[0]).toMatch(/trump-.*-head\.webp$/)
-    expect(screen.getByTestId('parody-badge')).toBeTruthy()
   })
 })

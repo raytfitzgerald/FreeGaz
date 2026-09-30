@@ -29,7 +29,7 @@ describe('previewLine', () => {
     expect(texts.size).toBeGreaterThan(3)
   })
 
-  it('keeps the Bibi parody inside its bans', () => {
+  it('keeps Bibi inside its bans', () => {
     const bans = personaBannedPatterns('bibi')
     for (let seed = 0; seed < 40; seed++) {
       const line = previewLine(BIBI, { spice: 5, profanity: true, rng: mulberry32(seed) })!

@@ -14,7 +14,7 @@ const line = (text: string, over: Partial<CoachLine> = {}): CoachLine => ({
 })
 
 describe('persona bans', () => {
-  it('adds the Bibi list for the Bibi parody only', () => {
+  it('adds the Bibi list for Bibi only', () => {
     expect(personaBannedPatterns('bibi')).toBe(BIBI_BANNED_PATTERNS)
     for (const id of ['drill-sergeant', 'roast-comic', 'professional', 'custom-thing']) expect(personaBannedPatterns(id)).toEqual([])
   })
