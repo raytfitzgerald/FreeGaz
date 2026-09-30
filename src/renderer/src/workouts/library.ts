@@ -151,10 +151,10 @@ export function parseWorkoutFile(fileName: string, text: string): ImportResult {
     return { workout: { ...r.workout, source: 'import', name: r.workout.name || fileName.replace(/\.[^.]+$/, '') }, warnings: r.warnings }
   }
   if (ext === '.txt') {
-    const r = parseIntervalsText(text)
+    // plain text has no name of its own: the file's name is the workout's
+    const r = parseIntervalsText(text, { name: fileName.replace(/\.[^.]+$/, '') })
     if (r.workout.segments.length === 0) throw new Error(r.errors[0] ? `Line ${r.errors[0].line}: ${r.errors[0].message}` : 'No workout steps found.')
-    const name = r.workout.name || fileName.replace(/\.[^.]+$/, '')
-    return { workout: { ...r.workout, name, source: 'import' }, warnings: r.errors.map((e) => `Line ${e.line}: ${e.message}`) }
+    return { workout: { ...r.workout, source: 'import' }, warnings: r.errors.map((e) => `Line ${e.line}: ${e.message}`) }
   }
   throw new Error(`FreeGaz can't read ${ext || 'this'} files. Use .zwo, .mrc, .erg or intervals.icu text (.txt).`)
 }
