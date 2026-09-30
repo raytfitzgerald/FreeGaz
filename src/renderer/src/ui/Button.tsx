@@ -4,11 +4,11 @@ import type { ButtonHTMLAttributes } from 'react'
 import { cn } from './cn'
 
 const button = cva(
-  'no-drag inline-flex select-none items-center justify-center gap-2 whitespace-nowrap rounded-lg font-medium transition-colors disabled:pointer-events-none disabled:opacity-40',
+  'no-drag inline-flex select-none items-center justify-center gap-2 whitespace-nowrap rounded-lg font-semibold transition-colors disabled:pointer-events-none disabled:opacity-40',
   {
     variants: {
       variant: {
-        primary: 'bg-accent text-white hover:bg-accent/90 active:bg-accent-dim',
+        primary: 'bg-accent text-on-accent hover:bg-accent/90 active:bg-accent-dim',
         secondary: 'border border-line-strong bg-panel-2 text-ink hover:bg-panel-3',
         ghost: 'text-ink-dim hover:bg-panel-2 hover:text-ink',
         danger: 'border border-bad/40 bg-bad/10 text-bad hover:bg-bad/20',

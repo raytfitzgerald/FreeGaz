@@ -153,7 +153,7 @@ function IntervalsFields({
 }) {
   const part = (which: 'on' | 'off', p: IntervalPart) => (
     <div className="rounded-xl border border-line bg-panel-2/60 px-3 py-1" data-testid={`inspector-${which}`}>
-      <div className="pt-1.5 text-[11px] font-medium uppercase tracking-wider text-ink-faint">{which === 'on' ? 'On (work)' : 'Off (recovery)'}</div>
+      <div className="pt-1.5 eyebrow text-ink-faint">{which === 'on' ? 'On (work)' : 'Off (recovery)'}</div>
       <PowerRow label="Power" target={p.power} ftpW={ftpW} onCommit={power(which)} testId={`inspector-${which}-power`} />
       <DurationRow value={p.durationS} onCommit={duration(which)} testId={`inspector-${which}-duration`} />
       <Row label="Cadence">

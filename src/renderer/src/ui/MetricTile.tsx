@@ -31,7 +31,7 @@ export function MetricTile({ label, value, unit, accent, sub, size = 'lg', class
   return (
     <div className={cn('flex flex-col rounded-2xl border border-line bg-panel px-5 py-4', className)} data-testid={testId}>
       <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-ink-faint" data-testid={testId ? `${testId}-label` : undefined}>
+        <div className="flex items-center gap-2 eyebrow text-ink-faint" data-testid={testId ? `${testId}-label` : undefined}>
           {accent && <span aria-hidden className="h-0.5 w-4 rounded-full" style={{ background: accent }} />}
           {label}
         </div>

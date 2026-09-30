@@ -187,7 +187,7 @@ function Laps({ r }: { r: RideSummary }) {
       <CardHeader title="Laps & intervals" />
       <CardBody>
         <table className="w-full text-sm">
-          <thead className="text-left text-[11px] uppercase tracking-wider text-ink-faint">
+          <thead className="text-left eyebrow text-ink-faint">
             <tr>
               <th className="pb-2">#</th>
               <th className="pb-2">Time</th>

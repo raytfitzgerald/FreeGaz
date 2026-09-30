@@ -1,49 +1,84 @@
 @import "tailwindcss";
 
-/* FreeGaz design tokens. Dark "pain cave" theme first; numbers use tabular
-   figures everywhere so HUD digits never jitter. Zone colours follow the usual
-   Coggan convention (grey/blue/green/yellow/orange/red/purple) and are always
-   paired with a zone label, so colour is never the only signal. */
+/* FreeGaz brand tokens ("Velodrome"). The full guidelines, with the reasons
+   behind every value, are in docs/BRAND.md; change a colour there and here
+   together. Night is the default theme, Track day (light) overrides below.
+   Numbers use tabular figures everywhere so HUD digits never jitter. Zone
+   colours follow the Coggan convention (grey/blue/green/yellow/orange/red/
+   purple) and are always paired with a zone label, so colour is never the
+   only signal. */
 @theme {
-  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, sans-serif;
-  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, sans-serif;
+  /* Atkinson Hyperlegible Next for everything read; Saira, set condensed,
+     for headings, labels and every number on the HUD. Both SIL OFL 1.1. */
+  --font-sans: "Atkinson Hyperlegible Next Variable", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-display: "Saira Variable", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-display--font-variation-settings: "wdth" 80;
+  --font-display--font-feature-settings: "tnum";
   --font-mono: "SF Mono", ui-monospace, Menlo, monospace;
 
-  --color-bg: #090b0f;
-  --color-panel: #10131a;
-  --color-panel-2: #161a23;
-  --color-panel-3: #1d2230;
-  --color-line: #252b3a;
-  --color-line-strong: #343c50;
-  --color-ink: #e9edf4;
-  --color-ink-dim: #a3acbb;
-  --color-ink-faint: #667085;
+  /* Tighter than Tailwind's defaults: the app is an instrument panel. */
+  --radius-sm: 0.1875rem;
+  --radius-md: 0.3125rem;
+  --radius-lg: 0.375rem;
+  --radius-xl: 0.5rem;
+  --radius-2xl: 0.625rem;
 
-  --color-accent: #ff3d81;
-  --color-accent-dim: #b02a5b;
-  --color-good: #22c55e;
-  --color-warn: #f59e0b;
-  --color-bad: #ef4444;
+  /* Night track: midnight blue, never black. Every text colour holds
+     4.5:1 on bg, panel, panel-2 and panel-3 (ink-faint's lowest is 5.0:1). */
+  --color-bg: #111d36;
+  --color-panel: #182740;
+  --color-panel-2: #1f2f49;
+  --color-panel-3: #293a54;
+  --color-line: #32425a;
+  --color-line-strong: #4c5d75;
+  --color-ink: #eff4fa;
+  --color-ink-dim: #bdccde;
+  --color-ink-faint: #9aadc4;
+
+  /* Côte d'Azur on night, Stayer Blue by day: anything you can press. */
+  --color-accent: #77c3ff;
+  --color-accent-dim: #4790d8;
+  --color-on-accent: #111d36;
+  --color-good: #6add88;
+  --color-warn: #fdc357;
+  --color-bad: #ff8a88;
+  --color-scrim: #080e1ca3;
+
+  /* The PARODY label: the same amber and ink in both themes (10:1). */
+  --color-parody: #fbbf24;
+  --color-on-parody: #111d36;
+}
+
+/* Brand constants: the velodrome's own colours, identical in both themes.
+   The logo, the track lines and the app icon use them; UI states never do. */
+@theme static {
+  --color-stayer: #1e59cd;
+  --color-sprinter: #e0383b;
+  --color-azure: #77c3ff;
+  --color-night: #111d36;
+  --color-board: #ebf1f7;
 }
 
 /* Data colours are read from JavaScript (charts, zone fills) as var(--color-…),
    which Tailwind's class scanner can't see, so this block is `static`: every
    variable is always emitted, used by a class or not. */
 @theme static {
-  /* Power zones (Coggan Z1-Z7), stepped for the dark surface and validated
-     with the dataviz six-check validator (adjacent CVD ΔE >= 8.8, normal-vision
-     ΔE >= 15.8). Z1 is deliberately neutral; zones are always also labeled and
-     height-encoded, so colour is never the only signal. */
-  --color-z1: #7b848f;
-  --color-z2: #2482eb;
-  --color-z3: #22a150;
-  --color-z4: #7f6c1a;
-  --color-z5: #dc7702;
-  --color-z6: #c03033;
-  --color-z7: #915dc5;
+  /* Power zones (Coggan Z1-Z7), stepped for the night panels (#182740 and
+     #1f2f49) and validated with the dataviz checker: adjacent CVD ΔE 8.8,
+     normal-vision ΔE 15.8, every zone >= 3.5:1 on both panels. Z1 is
+     deliberately neutral, and Z4 is a true yellow brighter than the band so
+     it stays apart from Z5's orange for colour-blind riders. Zones are
+     always also labeled and height-encoded. */
+  --color-z1: #7f8a99;
+  --color-z2: #2997fe;
+  --color-z3: #37b858;
+  --color-z4: #ead33f;
+  --color-z5: #e88826;
+  --color-z6: #f23c4f;
+  --color-z7: #a26ad5;
 
-  /* Metric series (one chart per metric; order power, HR, cadence, speed, W'bal
-     passes every gate on the dark surface). */
+  /* Metric series (one chart per metric; order power, HR, cadence, speed,
+     W'bal passes every gate on both night panels). */
   --color-power: #cf8020;
   --color-hr: #dc374f;
   --color-cadence: #348dd7;
@@ -53,31 +88,28 @@
 
 /* Route grade: a sequential one-hue ramp (OKLCH h 45) in six classes,
    < 1 % · 1-3 · 3-5 · 5-7 · 7-10 · 10 %+ (routes/grade.ts). Validated as an
-   ordinal ramp with the dataviz validator on panel #10131a and panel-2
-   #161a23: monotone lightness, adjacent ΔL >= 0.06, the low end at 2.35:1
-   and 2.20:1. Steeper is brighter on the dark surface; `.light` below has
-   the light-surface steps. Always shown with a legend and the grade as a
-   number, so colour is never the only signal. `static`: the charts pick a
-   class with var(--color-grade-${i}), which Tailwind's scanner can't see,
-   and it only emits theme variables it sees used. */
+   ordinal ramp on both night panels: monotone lightness, adjacent ΔL >= 0.06,
+   the low end above the 2:1 floor. Steeper is brighter on night; the light
+   theme below has its own steps (steeper is darker). Always shown with a
+   legend and the grade as a number. `static`: the charts pick a class with
+   var(--color-grade-${i}), which Tailwind's scanner can't see. */
 @theme static {
-  --color-grade-0: #6a4a3b;
-  --color-grade-1: #93573b;
-  --color-grade-2: #be6438;
-  --color-grade-3: #e67339;
-  --color-grade-4: #fe8f5b;
-  --color-grade-5: #feb898;
+  --color-grade-0: #8b5339;
+  --color-grade-1: #ac603d;
+  --color-grade-2: #ce6e40;
+  --color-grade-3: #ec7f4b;
+  --color-grade-4: #ff9e72;
+  --color-grade-5: #ffc2a3;
 }
 
-/* Light theme. The UI tokens are WCAG-checked for text: ink, ink-dim,
-   ink-faint, accent and the status colours are all >= 4.5:1 on the panels
-   and the page. Data colours are the light-surface steps, validated with the
-   dataviz checker on #ffffff and #f6f7f9: the series pass every gate; zones
-   pass lightness, CVD (worst adjacent ΔE 9.9) and the normal-vision floor.
-   Z1 stays deliberately neutral, and Z4's yellow is 2.2:1 against white
-   (any darker yellow collides with Z5 for colour-blind readers). Both are
-   covered because zones are always labeled and height-encoded, so colour is
-   never the only signal. The mini-HUD never sets data-theme and stays dark. */
+/* Track day (light): cool white boards, deep navy ink, Stayer Blue to press.
+   Every text colour holds 4.5:1 on bg, panel, panel-2 and panel-3. Data
+   colours are the light-surface steps, validated with the dataviz checker on
+   #fcfeff and #f2f6fb: the series pass every gate; zones pass lightness, CVD
+   (worst adjacent ΔE 9.9) and the normal-vision floor, with Z1 deliberately
+   neutral and Z4's yellow at 2.0:1 (any darker yellow collides with Z5 for
+   colour-blind readers), both covered by the zone labels and heights. The
+   mini-HUD never sets data-theme and stays on night. */
 /* `only` so a click can't hand the page back to macOS. Without it, a button
    (Tailwind sets appearance: button) adopts the system scheme on press, and
    on a Mac set to Dark the whole window follows. */
@@ -86,21 +118,23 @@
 }
 :root[data-theme='light'] {
   color-scheme: only light;
-  --color-bg: #f3f4f7;
-  --color-panel: #ffffff;
-  --color-panel-2: #f6f7f9;
-  --color-panel-3: #eceef2;
-  --color-line: #e3e6ec;
-  --color-line-strong: #cdd2db;
-  --color-ink: #0f172a;
-  --color-ink-dim: #475467;
-  --color-ink-faint: #5d6679;
+  --color-bg: #ebf1f7;
+  --color-panel: #fcfeff;
+  --color-panel-2: #f2f6fb;
+  --color-panel-3: #e3eaf2;
+  --color-line: #d8e1e9;
+  --color-line-strong: #aeb9c5;
+  --color-ink: #13213c;
+  --color-ink-dim: #44536c;
+  --color-ink-faint: #5a6a80;
 
-  --color-accent: #c41f61;
-  --color-accent-dim: #9c174c;
-  --color-good: #15803d;
-  --color-warn: #b45309;
-  --color-bad: #c81e1e;
+  --color-accent: #1e59cd;
+  --color-accent-dim: #1543a8;
+  --color-on-accent: #fcfeff;
+  --color-good: #067132;
+  --color-warn: #9e5200;
+  --color-bad: #be222a;
+  --color-scrim: #13213c80;
 
   --color-z1: #848d98;
   --color-z2: #1f6fca;
@@ -115,11 +149,7 @@
   --color-cadence: #1274bd;
   --color-speed: #0c8a5e;
   --color-wbal: #7347af;
-}
 
-/* The grade ramp stepped for a light surface (steeper is darker), validated
-   the same way on #fcfcfb and #ffffff (low end 2.19:1 and 2.25:1). */
-:root[data-theme='light'] {
   --color-grade-0: #caa594;
   --color-grade-1: #c88160;
   --color-grade-2: #bf5d2c;
@@ -175,6 +205,19 @@
 @utility tabular {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
+}
+
+/* Small uppercase labels over values and sections: Saira, a touch wider than
+   headings, tracked out. */
+@utility eyebrow {
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 88;
+  font-feature-settings: "tnum";
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
 }
 
 @utility drag-region {

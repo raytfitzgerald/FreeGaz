@@ -7,6 +7,7 @@ import { startTheme } from './app/theme'
 import { initRuntime, startAutoConnect } from './runtime/composition'
 import { startFanControl } from './runtime/fan'
 import { loadSettings } from './stores/settings'
+import './brand/fonts'
 import './styles.css'
 
 const bridge = ensureBridge()

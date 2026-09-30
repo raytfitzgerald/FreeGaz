@@ -159,7 +159,7 @@ function EffortTile() {
   const pos = lo !== null && hi !== null && p3 !== null ? Math.max(0, Math.min(1, (p3 - lo * 0.9) / (hi * 1.1 - lo * 0.9))) : null
   return (
     <div className="flex flex-col rounded-2xl border border-accent/50 bg-accent/5 px-5 py-4" data-testid="ftp-effort">
-      <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-ink-faint">
+      <div className="flex items-center gap-2 eyebrow text-ink-faint">
         <Trophy className="size-3.5 text-accent" /> {e.label}
       </div>
       <div className="mt-1 flex items-baseline gap-2">

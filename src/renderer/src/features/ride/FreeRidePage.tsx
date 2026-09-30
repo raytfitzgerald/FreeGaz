@@ -134,7 +134,7 @@ export function FreeRidePage() {
       <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
         <PowerHero />
         <div className="flex flex-col rounded-2xl border border-line bg-panel p-5" data-testid="target-panel">
-          <div className="text-xs font-medium uppercase tracking-wider text-ink-faint">
+          <div className="eyebrow text-ink-faint">
             {mode === 'erg' ? 'ERG target' : mode === 'resistance' ? 'Resistance level' : mode === 'sim' ? 'Gradient' : 'Target heart rate'}
           </div>
           <div className="flex flex-1 items-center justify-center gap-4 py-4">

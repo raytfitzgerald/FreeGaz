@@ -10,6 +10,10 @@ import { join } from 'node:path'
 const ALLOWED = new Set([
   'MIT', 'MIT-0', 'ISC', '0BSD', 'BSD-2-Clause', 'BSD-3-Clause', 'Apache-2.0', 'BlueOak-1.0.0',
   'CC0-1.0', 'CC-BY-4.0', 'Unlicense', 'Zlib', 'Python-2.0', 'WTFPL',
+  // Fonts: the SIL Open Font License lets them ship inside an app of any
+  // licence, as long as they aren't sold on their own. The brand faces (Saira,
+  // Atkinson Hyperlegible Next) use it; see docs/BRAND.md.
+  'OFL-1.1',
 ])
 // Weak, file-level copyleft: fine to ship unmodified in an MIT app, but flag it.
 const REVIEW = new Set(['MPL-2.0'])

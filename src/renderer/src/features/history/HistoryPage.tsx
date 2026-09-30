@@ -66,7 +66,7 @@ export function HistoryPage() {
       {rides && rides.length > 0 && (
         <div className="overflow-hidden rounded-2xl border border-line" data-testid="ride-list">
           <table className="w-full text-sm">
-            <thead className="bg-panel-2 text-left text-xs uppercase tracking-wider text-ink-faint">
+            <thead className="bg-panel-2 text-left eyebrow text-ink-faint">
               <tr>
                 <th className="px-4 py-2 font-medium">Ride</th>
                 <th className="px-4 py-2 font-medium">Date</th>

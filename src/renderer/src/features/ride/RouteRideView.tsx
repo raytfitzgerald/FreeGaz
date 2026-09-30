@@ -96,7 +96,7 @@ export function RouteRideView() {
 
       <div className="rounded-2xl border border-line bg-panel p-4" data-testid="route-strip">
         <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
-          <div className="text-xs font-medium uppercase tracking-wider text-ink-faint">
+          <div className="eyebrow text-ink-faint">
             {r.finished ? 'The last of the route' : `The next ${formatKm(Math.min(AHEAD_M, r.remainingM), 1, units)} ${distanceUnit(units)}`}
           </div>
           <GradeLegend />
@@ -121,7 +121,7 @@ export function RouteRideView() {
           <RouteOutline route={plan.route} rider={{ lat: r.lat, lon: r.lon }} ghost={r.ghost} height={200} title="Route outline with your position" testId="route-map" />
         </div>
         <div className="rounded-2xl border border-line bg-panel p-4">
-          <div className="mb-1 text-xs font-medium uppercase tracking-wider text-ink-faint">Whole route{r.laps > 1 ? ` · ${r.laps} laps` : ''}</div>
+          <div className="mb-1 eyebrow text-ink-faint">Whole route{r.laps > 1 ? ` · ${r.laps} laps` : ''}</div>
           <ElevationChart
             route={plan.route}
             laps={r.laps}
@@ -221,7 +221,7 @@ function GhostTile({ r, plan }: { r: RouteProgress; plan: RoutePlan }) {
   if (!g) {
     return (
       <div className="flex flex-col rounded-2xl border border-line bg-panel px-5 py-4" data-testid="ghost-gap">
-        <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-ink-faint">
+        <div className="flex items-center gap-2 eyebrow text-ink-faint">
           <Ghost className="size-3.5" aria-hidden /> Ghost
         </div>
         <div className="mt-2 flex items-center gap-1.5 text-sm text-ink-dim">
@@ -236,7 +236,7 @@ function GhostTile({ r, plan }: { r: RouteProgress; plan: RoutePlan }) {
   return (
     <div className="flex flex-col rounded-2xl border border-line bg-panel px-5 py-4" data-testid="ghost-gap">
       <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-ink-faint" title={plan.ghostLabel ?? undefined}>
+        <div className="flex items-center gap-2 eyebrow text-ink-faint" title={plan.ghostLabel ?? undefined}>
           <Ghost className="size-3.5" aria-hidden /> Ghost
         </div>
         <span className={cn('flex items-center gap-1 text-xs font-medium', ahead ? 'text-good' : 'text-warn')} data-testid="ghost-status">

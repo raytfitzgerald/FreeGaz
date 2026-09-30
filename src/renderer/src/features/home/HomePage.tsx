@@ -122,7 +122,7 @@ export function HomePage() {
           data-testid="suggested-workout"
         >
           <span>
-            <span className="text-xs font-medium uppercase tracking-wider text-ink-faint">Suggested next · </span>
+            <span className="eyebrow text-ink-faint">Suggested next · </span>
             <span className="font-semibold">{derived.suggested.name}</span>
             <span className="text-ink-dim"> · {derived.suggestion.reason}</span>
           </span>
@@ -192,7 +192,7 @@ export function HomePage() {
 function Stat({ label, value, sub, note, to, search }: { label: string; value: string; sub?: string; note?: string; to?: '/workouts' | '/fitness'; search?: { filter: string } }) {
   const body = (
     <>
-      <div className="text-xs font-medium uppercase tracking-wider text-ink-faint">{label}</div>
+      <div className="eyebrow text-ink-faint">{label}</div>
       <div className="tabular mt-1 font-display text-3xl font-bold">{value}</div>
       {sub && <div className="mt-1 text-sm text-ink-dim">{sub}</div>}
       {note && <div className="mt-2 text-xs text-ink-faint">{note}</div>}
@@ -214,7 +214,7 @@ function FormCard({ ctl, atl, tsb }: { ctl: number | null; atl: number | null; t
     tsb === null ? [Battery, 'No data yet', 'text-ink-faint'] : tsb > 5 ? [Battery, 'Fresh', 'text-good'] : tsb >= -10 ? [BatteryMedium, 'Neutral', 'text-ink-dim'] : tsb >= -30 ? [BatteryMedium, 'Training hard', 'text-warn'] : [BatteryLow, 'Very tired', 'text-bad']
   return (
     <Link to="/fitness" className="rounded-2xl border border-line bg-panel px-5 py-4 hover:bg-panel-2">
-      <div className="text-xs font-medium uppercase tracking-wider text-ink-faint">Form</div>
+      <div className="eyebrow text-ink-faint">Form</div>
       <div className="tabular mt-1 font-display text-3xl font-bold">{tsb === null ? '—' : `${tsb > 0 ? '+' : ''}${Math.round(tsb)}`}</div>
       <div className={cn('mt-1 flex items-center gap-1.5 text-sm', tone)}>
         <Icon className="size-4" /> {label}

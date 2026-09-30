@@ -1,4 +1,9 @@
-# FreeGaz
+<h1>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/brand/freegaz-wordmark-night.svg">
+    <img src="docs/brand/freegaz-wordmark.svg" alt="FreeGaz" width="300">
+  </picture>
+</h1>
 
 **A data-obsessed indoor cycling trainer for macOS.** It controls your smart trainer in ERG, level, slope or heart-rate mode, plays structured workouts and builds new ones the way zwofactory.com does. It runs a proper FTP test that saves your FTP, rides GPX routes FulGaz-style, and records every second locally as a FIT file. The optional coaches will roast you mid-interval if you ask them to.
 
@@ -228,8 +233,12 @@ Security defaults:
 - a sender check on every IPC call;
 - hardened Electron fuses.
 
+## Brand
+
+FreeGaz looks like a velodrome: Stayer Blue, midnight boards, four painted lines, and square race-number digits. The colours, type, logo and voice are in [docs/BRAND.md](docs/BRAND.md), and the logo files are in [docs/brand/](docs/brand/).
+
 ## License
 
 [MIT](LICENSE). CI checks every shipped dependency for MIT compatibility. Garmin's FIT SDK is used only in the test suite, as a reference decoder, because its license forbids redistribution. The built-in workouts and every coaching line are original.
 
-The caricature photos are not covered by the MIT license: five are U.S. government works in the public domain, and one is under the Government Open Data License – India. Credits, sources and a list of changes are in [`src/renderer/src/coach/toon/heads/ATTRIBUTION.md`](src/renderer/src/coach/toon/heads/ATTRIBUTION.md). The India photo is courtesy of the Prime Minister's Office and the Press Information Bureau, Government of India.
+The typefaces, Saira and Atkinson Hyperlegible Next, are under the SIL Open Font License 1.1. The caricature photos are not covered by the MIT license: five are U.S. government works in the public domain, and one is under the Government Open Data License – India. Credits, sources and a list of changes are in [`src/renderer/src/coach/toon/heads/ATTRIBUTION.md`](src/renderer/src/coach/toon/heads/ATTRIBUTION.md). The India photo is courtesy of the Prime Minister's Office and the Press Information Bureau, Government of India.
