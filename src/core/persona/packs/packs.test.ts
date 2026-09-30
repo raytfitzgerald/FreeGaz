@@ -67,11 +67,10 @@ describe('every canned line', () => {
     expect(bad).toEqual([])
   })
 
-  it('is flagged for profanity exactly when it swears, and only mildly', () => {
+  it('is flagged for profanity exactly when it swears', () => {
     const bad = ALL.flatMap(({ line }) => {
       const level = detectProfanity(line.text)
-      if (level === 'strong') return [`${line.id}: strong profanity`]
-      if ((level === 'mild') !== (line.profanity === true)) return [`${line.id}: profanity flag ${String(line.profanity)} but ${String(level)}`]
+      if ((level !== null) !== (line.profanity === true)) return [`${line.id}: profanity flag ${String(line.profanity)} but ${String(level)}`]
       return []
     })
     expect(bad).toEqual([])

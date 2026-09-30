@@ -327,6 +327,9 @@ b.add('idle_banter', [
   [5, 'Hell yeah! Keep those legs singing!', P],
 ])
 
+b.add('segment_start', [[5, '{targetW} watts! FUCK YES! LET\'S GO!', P]], [HARD])
+b.add('workout_complete', [[5, 'DONE! You absolute fucking legend! That was incredible!', P]])
+
 export const HYPE_COACH: PersonaPack = {
   meta: {
     id: 'hype-coach',
