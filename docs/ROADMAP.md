@@ -33,9 +33,9 @@ The build ran in milestones. Each one had to pass `npm run check` and `npm run e
 - **M8 Integrations + personas.**
   - Strava (loopback OAuth, upload outbox) and intervals.icu.
   - Spotify / Music controls.
-  - Nine coaching personas with voice, spice and guardrails.
+  - Coaching personas with voice, spice and guardrails. There are ten now, including The Donald, who was added later.
 - **M9 AI.** Claude, OpenAI and Ollama; debriefs, coach chat, the workout generator, and fresh coach lines.
-- **M10 Long tail.** PowerMatch, Headwind fan control, live RMSSD and DFA-α1, the app icon, a light theme, metric/imperial units, and Bibi's talking bobblehead caricature.
+- **M10 Long tail.** PowerMatch, Headwind fan control, live RMSSD and DFA-α1, the app icon, a light theme, metric/imperial units, and talking bobblehead caricatures for the two parodies.
 
 ## Next: needs a real KICKR and HR strap
 

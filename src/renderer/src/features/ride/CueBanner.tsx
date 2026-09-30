@@ -4,7 +4,7 @@ import { PRIORITY, packById } from '@core/persona'
 import { ParodyBadge } from '../../coach/ParodyBadge'
 import { useCoachTalk, type TalkLine } from '../../coach/talk'
 import { CoachToon } from '../../coach/toon/CoachToon'
-import { toonHeadsFor } from '../../coach/toon/heads'
+import { toonFor } from '../../coach/toon/heads'
 import { LEAVE_MS } from '../../coach/toon/motion'
 import { liveStore } from '../../stores/live'
 import { useRide } from '../../stores/ride'
@@ -26,7 +26,7 @@ export function CueBanner() {
   const showCue = cue !== null && now - cue.at < SHOW_MS
   const text = showCue ? cue.text : coach
   // safety prompts stay plain, whoever's pack they came from
-  const toonLine = !showCue && coach !== null && talk?.text === coach && talk.priority < PRIORITY.safety && toonHeadsFor(talk.personaId) ? talk : null
+  const toonLine = !showCue && coach !== null && talk?.text === coach && talk.priority < PRIORITY.safety && toonFor(talk.personaId) ? talk : null
   const stage = useToonStage(toonLine, text !== null)
   if (stage.line) return <ToonBanner line={stage.line} leaving={stage.leaving} />
   if (!text) return null
@@ -63,8 +63,8 @@ function useToonStage(line: TalkLine | null, otherText: boolean): { line: TalkLi
 function ToonBanner({ line, leaving }: { line: TalkLine; leaving: boolean }) {
   const speaking = useCoachTalk((s) => s.speaking)
   const words = useCoachTalk((s) => s.words)
-  const heads = toonHeadsFor(line.personaId)
-  if (!heads || !line.personaId) return null
+  const toon = toonFor(line.personaId)
+  if (!toon || !line.personaId) return null
   const meta = packById(line.personaId)?.meta
   const name = meta?.name ?? 'Coach'
   return (
@@ -75,8 +75,9 @@ function ToonBanner({ line, leaving }: { line: TalkLine; leaving: boolean }) {
       data-testid="cue"
     >
       <CoachToon
-        heads={heads}
+        heads={toon.heads}
         setKey={line.personaId}
+        tie={toon.tie}
         lineKey={line.id}
         text={line.text}
         speaking={speaking}

@@ -23,4 +23,11 @@ describe('PersonaAvatar', () => {
     expect(layers[1]).toMatch(/jaw\.webp$/)
     expect(screen.getByTestId('parody-badge').textContent).toMatch(/parody/i)
   })
+
+  it('shows The Donald photo head too', () => {
+    const { container } = render(<PersonaAvatar persona={packById('trump')!.meta} />)
+    expect(screen.getByRole('img', { name: 'The Donald avatar, parody' }).getAttribute('title')).toMatch(/public domain/i)
+    expect([...container.querySelectorAll('img')].map((i) => i.getAttribute('src') ?? '')[0]).toMatch(/trump-.*-head\.webp$/)
+    expect(screen.getByTestId('parody-badge')).toBeTruthy()
+  })
 })

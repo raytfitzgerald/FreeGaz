@@ -4,7 +4,7 @@ import { avatarColors, avatarHue, monogram } from './avatar'
 
 describe('monogram avatars', () => {
   it('uses initials, skipping a leading "The"', () => {
-    expect(PACKS.map((p) => monogram(p.meta.name))).toEqual(['DS', 'RC', 'DD', 'O', 'HC', 'DN', 'Z', 'P', 'B'])
+    expect(PACKS.map((p) => monogram(p.meta.name))).toEqual(['DS', 'RC', 'DD', 'O', 'HC', 'DN', 'Z', 'P', 'B', 'D'])
     expect(monogram('mean-spirited coach')).toBe('MS')
     expect(monogram('  ')).toBe('?')
   })

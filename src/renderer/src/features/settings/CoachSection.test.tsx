@@ -29,7 +29,11 @@ describe('CoachSection', () => {
     const bibi = screen.getByTestId('persona-bibi')
     expect(within(bibi).getByTestId('parody-badge').textContent).toMatch(/parody/i)
     expect(bibi.textContent).toContain('Parody. Not affiliated with or endorsed by Benjamin Netanyahu.')
-    expect(screen.getAllByTestId('parody-badge')).toHaveLength(1)
+    const donald = screen.getByTestId('persona-trump')
+    expect(within(donald).getByTestId('parody-badge').textContent).toMatch(/parody/i)
+    expect(donald.textContent).toContain('Parody. Not affiliated with or endorsed by Donald J. Trump.')
+    // the two parodies, and nobody else
+    expect(screen.getAllByTestId('parody-badge')).toHaveLength(2)
   })
 
   it('shows the disclaimer prominently once Bibi is picked', async () => {
@@ -67,6 +71,24 @@ describe('CoachSection', () => {
     }
     expect(heads).toEqual(['0', '1', '2', '0'])
     expect(screen.getByTestId('coach-sample').textContent).toMatch(/“.+”/)
+  })
+
+  it('gives The Donald his own caricature, with four photos and a long red tie', async () => {
+    resetHeadCycles()
+    render(<CoachSection />)
+    await flush()
+    fireEvent.click(screen.getByTestId('persona-trump'))
+    await flush()
+    expect(screen.getByTestId('parody-disclaimer').textContent).toBe('Parody. Not affiliated with or endorsed by Donald J. Trump.')
+    const toon = screen.getByRole('img', { name: /The Donald, parody caricature/ })
+    expect(toon.querySelector('[data-part="tie"]')?.getAttribute('fill')).toBe('#d7263d')
+    const heads = [toon.dataset.head]
+    for (let i = 0; i < 4; i++) {
+      fireEvent.click(screen.getByTestId('coach-preview'))
+      await flush()
+      heads.push(screen.getByTestId('coach-toon').dataset.head)
+    }
+    expect(heads).toEqual(['0', '1', '2', '3', '0'])
   })
 
   it('offers spice levels with labels, and hides the AI switch without an AI provider', async () => {
