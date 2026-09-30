@@ -30,8 +30,8 @@ export function partOfDay(h: number): string {
 export function heroWords(i: HeroInput): HeroWords {
   const eyebrow = `${DAYS[i.now.getDay()]} ${partOfDay(i.now.getHours())}`
   const n = i.ridesThisWeek
-  if (i.ridesEver === 0) return { eyebrow, title: 'The track is empty.', sub: 'Your first ride puts a rider on it. One lap each, every ride this week.' }
-  if (n === 0) return { eyebrow, title: 'Nobody on the track this week.', sub: 'Lap one is the hardest one. After that it gets company.' }
+  if (i.ridesEver === 0) return { eyebrow, title: "You're not on the track yet.", sub: 'Your first ride puts you on it. One rider for every ride this week.' }
+  if (n === 0) return { eyebrow, title: "You're not on the track this week.", sub: 'Lap one is the hardest one. After that, you have company.' }
   const laps = `${n} ride${n === 1 ? '' : 's'} on the track this week.`
   if (i.tsb !== null && i.tsb < -25) return { eyebrow, title: "You've earned an easy one.", sub: `${laps} Your form is ${Math.round(i.tsb)}: spin, don't sprint.` }
   if (i.tsb !== null && i.tsb > 5) return { eyebrow, title: 'Fresh legs. Spend them.', sub: `${laps} Form is +${Math.round(i.tsb)}, which is a polite way of saying go hard.` }

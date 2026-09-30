@@ -11,8 +11,8 @@ describe('heroWords', () => {
   })
 
   it('reads the week and the form', () => {
-    expect(heroWords({ now: tue(7), ridesThisWeek: 0, ridesEver: 0, tsb: null }).title).toBe('The track is empty.')
-    expect(heroWords({ now: tue(7), ridesThisWeek: 0, ridesEver: 12, tsb: 3 }).title).toBe('Nobody on the track this week.')
+    expect(heroWords({ now: tue(7), ridesThisWeek: 0, ridesEver: 0, tsb: null }).title).toBe("You're not on the track yet.")
+    expect(heroWords({ now: tue(7), ridesThisWeek: 0, ridesEver: 12, tsb: 3 }).title).toBe("You're not on the track this week.")
     expect(heroWords({ now: tue(7), ridesThisWeek: 2, ridesEver: 12, tsb: -30 }).title).toBe("You've earned an easy one.")
     expect(heroWords({ now: tue(7), ridesThisWeek: 1, ridesEver: 12, tsb: 9 })).toMatchObject({ title: 'Fresh legs. Spend them.', sub: expect.stringContaining('1 ride on the track') })
     expect(heroWords({ now: tue(7), ridesThisWeek: 5, ridesEver: 12, tsb: -5 }).title).toBe('The track is getting crowded.')

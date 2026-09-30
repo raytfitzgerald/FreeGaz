@@ -1,5 +1,6 @@
 // The velodrome's geometry (the brand mark's, in its own viewBox) and this
 // week's rides as riders on it.
+import type { ReactNode } from 'react'
 import type { RideSummary } from '@core/ride/types'
 import { formatDurationShort } from '../../ui/format'
 
@@ -34,6 +35,8 @@ export interface TrackRider {
   label: string
   /** Seconds per lap on screen. */
   lapS: number
+  /** Someone else's head (the rival coach); the rider's own otherwise. */
+  head?: ReactNode
 }
 
 const WEEKDAY = new Intl.DateTimeFormat(undefined, { weekday: 'long' })

@@ -13,11 +13,13 @@ FreeGaz is free. No subscription, no "Premium" tier, no annual plan with the can
 
 It's a data-obsessed indoor cycling trainer for macOS. It drives your smart trainer in ERG, level, slope or heart-rate mode, plays and builds structured workouts, runs an FTP test that actually saves your FTP, rides real routes, and records every second on your Mac as a FIT file. Your rides stay yours.
 
-<p align="center"><img src="docs/screenshots/workout.png" alt="A workout mid-ride: the coach bikes next to you on the ride-along, the big interval, target and power numbers, and the workout chart filling in as you go" width="900"></p>
+<p align="center"><img src="docs/screenshots/home.png" alt="Home: a velodrome seen from above with this week's rides lapping it, the Drill Sergeant shouting from the infield through a megaphone, and a headline that reads your week" width="900"></p>
 
 > FreeGaz is not affiliated with or endorsed by FulGaz, Zwift, TrainerRoad or Wahoo. Product names are trademarks of their owners.
 
 ## A quick tour
+
+**Home is a velodrome.** Every ride this week puts a rider on the boards (with your face, if you add a photo), and harder rides lap faster. Your coach stands in the infield with a megaphone, yelling at you to get on the bike. Haven't ridden yet this week? Another coach is already doing laps, and yours will make sure you hear about it.
 
 **Pick a ride and go.** One big button, four choices, no forty-tab dashboard to decode before your warm-up.
 
@@ -25,6 +27,8 @@ It's a data-obsessed indoor cycling trainer for macOS. It drives your smart trai
   <img src="docs/screenshots/ride-picker.png" alt="The Ride picker: ride for time, free ride, route or workout, with the trainer and heart-rate status on top" width="440">
   <img src="docs/screenshots/ride-for-time.png" alt="Ride for time: pick 20 to 90 minutes, a wattage from easy to sweet spot or your own pace, and start" width="440">
 </p>
+
+<p align="center"><img src="docs/screenshots/workout.png" alt="A workout mid-ride: the coach bikes next to you on the ride-along, the big interval, target and power numbers, and the workout chart filling in as you go" width="900"></p>
 
 **Your coach rides with you.** They pace at your target. Ease off and they ride away and tell you about it. Push and you drop them, which is the best feeling in indoor cycling.
 
@@ -47,7 +51,7 @@ It's a data-obsessed indoor cycling trainer for macOS. It drives your smart trai
 
 **Light mode, for the sunny garage.**
 
-<p align="center"><img src="docs/screenshots/ride-picker-light.png" alt="The Ride picker in the light theme" width="600"></p>
+<p align="center"><img src="docs/screenshots/home-light.png" alt="Home in the light theme" width="700"></p>
 
 ## Everything it does
 
@@ -108,7 +112,7 @@ It's a data-obsessed indoor cycling trainer for macOS. It drives your smart trai
 - **Optional AI.** "45 minutes of over-unders, finish with sprints" becomes a workout you can edit.
 
 **Coaching**
-- **Ten personas:**
+- **Ten personas**, each with a face (a cartoon, or for two of them, a photo caricature):
   - Drill Sergeant, Roast Comic, Disappointed Dad, The Overlord, Hype Coach, Data Nerd, Zen and Professional;
   - **Bibi**, podium style ("I have drawn a red line at 280 watts");
   - **The Donald**, rally style ("It's going to be a big, beautiful interval", "I'm putting a tariff on coasting").
@@ -128,7 +132,8 @@ It's a data-obsessed indoor cycling trainer for macOS. It drives your smart trai
 - **Ride detail:** power, cadence, HR, speed and W′ balance charts, laps, time in zones, RPE and notes, and an AI debrief.
 - **Fitness:** the PMC (fitness, fatigue, form), weekly load, the power curve against your 90-day best, and FTP history.
 - **Fitness overview.** A plain-English read of those numbers: where your fitness is, the six-week trend, and whether your FTP needs a test. With AI on, your coach writes it, and **Ask the coach** takes it straight into the chat for questions.
-- **Achievements and streaks.** The home dashboard shows your FTP with a retest nudge, form, this week and your latest ride.
+- **Home.** The velodrome of this week's rides (or a rival coach doing laps while you don't), your coach shouting from the infield, a suggested workout, your FTP with a retest nudge, form, this week, your latest ride, and achievements and streaks.
+- **You.** Add your name and a photo in **Settings → Athlete & FTP** and your own face rides the ride-along bike and laps the velodrome.
 - **FIT files:**
   - every ride is saved as a FIT file in `~/Documents/FreeGaz/Rides`;
   - import old Garmin or Wahoo FIT files so your fitness charts are complete;
