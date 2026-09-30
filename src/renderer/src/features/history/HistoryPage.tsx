@@ -9,8 +9,28 @@ import { Button } from '../../ui/Button'
 import { PageHeader } from '../../ui/PageHeader'
 import { cn } from '../../ui/cn'
 import { formatDate, formatDurationShort } from '../../ui/format'
+import { Segmented } from '../../ui/Segmented'
+import { RideCalendar } from './RideCalendar'
 
 const KIND_ICON = { free: Bike, workout: Gauge, route: Mountain, 'ftp-test': FlaskConical } as const
+
+type View = 'list' | 'calendar'
+const VIEW_KEY = 'freegaz.history.view'
+/** The last view picked, per Mac: a convenience, so storage failing just means the list. */
+function savedView(): View {
+  try {
+    return localStorage.getItem(VIEW_KEY) === 'calendar' ? 'calendar' : 'list'
+  } catch {
+    return 'list'
+  }
+}
+function saveView(v: View): void {
+  try {
+    localStorage.setItem(VIEW_KEY, v)
+  } catch {
+    // storage unavailable: the choice lasts until the page closes
+  }
+}
 
 export function HistoryPage() {
   const rides = useLiveQuery(() => db().rides.orderBy('startedAt').reverse().limit(500).toArray(), [])
@@ -18,6 +38,11 @@ export function HistoryPage() {
   const [busy, setBusy] = useState<string | null>(null)
   const [report, setReport] = useState<FitImportReport | null>(null)
   const [dragging, setDragging] = useState(false)
+  const [view, setView] = useState<View>(savedView)
+  const pick = (v: View) => {
+    setView(v)
+    saveView(v)
+  }
 
   const importFiles = async (list: FileList | File[]) => {
     const files = await Promise.all(Array.from(list).filter((f) => /\.fit$/i.test(f.name)).map(async (f) => ({ name: f.name, bytes: new Uint8Array(await f.arrayBuffer()) })))
@@ -50,6 +75,15 @@ export function HistoryPage() {
         subtitle="Every ride, every second, stored on this Mac."
         actions={
           <>
+            <Segmented
+              ariaLabel="History view"
+              value={view}
+              onChange={pick}
+              options={[
+                { value: 'list', label: 'List', hint: 'Every ride, newest first' },
+                { value: 'calendar', label: 'Calendar', hint: 'A month at a time' },
+              ]}
+            />
             <input ref={input} type="file" accept=".fit" multiple className="hidden" onChange={(e) => e.target.files && void importFiles(e.target.files)} />
             <Button size="sm" disabled={!!busy} onClick={() => input.current?.click()} title="Garmin, Wahoo or other apps' .fit files (or drop them here)">
               <FileUp className="size-3.5" /> {busy ?? 'Import FIT files'}
@@ -63,7 +97,8 @@ export function HistoryPage() {
           No rides yet. Go suffer and come back, or drop old .fit files here to bring your history with you.
         </div>
       )}
-      {rides && rides.length > 0 && (
+      {rides && rides.length > 0 && view === 'calendar' && <RideCalendar />}
+      {rides && rides.length > 0 && view === 'list' && (
         <div className="overflow-hidden rounded-2xl border border-line" data-testid="ride-list">
           <table className="w-full text-sm">
             <thead className="bg-panel-2 text-left eyebrow text-ink-faint">
