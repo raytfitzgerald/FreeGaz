@@ -105,13 +105,14 @@ test('Report a bug opens a pre-filled GitHub issue, with diagnostics the reporte
   await expect(page.getByTestId('bug-report')).toHaveCount(0)
 })
 
-test('Home opens on the velodrome hero: an empty track waits for the first ride', async () => {
+test('Home opens on the velodrome hero: before the first ride, a rival coach laps it and yours yells', async () => {
   const { page } = ctx
   await page.getByRole('link', { name: 'Home', exact: true }).click()
   const hero = page.getByTestId('home-hero')
-  await expect(hero.getByTestId('hero-title')).toHaveText('The track is empty.')
-  await expect(hero.getByRole('img', { name: 'The velodrome, empty' })).toBeVisible()
-  await expect(hero.getByTestId('velodrome-ghost')).toBeVisible()
+  await expect(hero.getByTestId('hero-title')).toHaveText("You're not on the track yet.")
+  await expect(hero.getByTestId('velodrome-rider')).toHaveCount(1)
+  await expect(hero.getByTestId('velodrome-coach')).toBeVisible()
+  await expect(hero.getByTestId('hero-coach')).toContainText('Drill Sergeant')
   await hero.getByTestId('hero-ride').click()
   await expect(page.getByTestId('ride-launcher')).toBeVisible()
 })

@@ -87,25 +87,26 @@ export function AthleteSection() {
       <Section title="Body & heart" description="Used for W/kg, heart-rate zones and the physics that turns watts into virtual speed.">
         <Field label="Weight">
           <div className="flex flex-wrap items-center gap-3">
-            <NumberInput
+            <DraftNumber
               value={weightShown}
-              onChange={(v) => v && void updateProfile({ weightKg: Math.round(storedWeightKg(v, units) * 100) / 100 })}
+              onCommit={(v) => v !== null && void updateProfile({ weightKg: Math.round(storedWeightKg(v, units) * 100) / 100 })}
               unit={weightUnit(units)}
               min={units === 'lb' ? 66 : 30}
               max={units === 'lb' ? 440 : 200}
               step={0.1}
+              aria-label="Weight"
             />
             <Segmented ariaLabel="Weight units" value={units} onChange={(v) => void patchSettings({ weightUnit: v })} options={WEIGHTS} />
           </div>
         </Field>
         <Field label="Threshold HR (LTHR)" hint="Your average HR over a hard 20-min test × 0.95 is a good estimate.">
-          <NumberInput value={profile?.lthr ?? null} onChange={(v) => void updateProfile({ lthr: v ?? undefined })} unit="bpm" min={100} max={220} />
+          <DraftNumber value={profile?.lthr ?? null} onCommit={(v) => void updateProfile({ lthr: v ?? undefined })} unit="bpm" min={100} max={220} aria-label="Threshold HR" />
         </Field>
         <Field label="Max HR">
-          <NumberInput value={profile?.maxHr ?? null} onChange={(v) => void updateProfile({ maxHr: v ?? undefined })} unit="bpm" min={120} max={230} />
+          <DraftNumber value={profile?.maxHr ?? null} onCommit={(v) => void updateProfile({ maxHr: v ?? undefined })} unit="bpm" min={120} max={230} aria-label="Max HR" />
         </Field>
         <Field label="Resting HR">
-          <NumberInput value={profile?.restHr ?? null} onChange={(v) => void updateProfile({ restHr: v ?? undefined })} unit="bpm" min={30} max={100} />
+          <DraftNumber value={profile?.restHr ?? null} onCommit={(v) => void updateProfile({ restHr: v ?? undefined })} unit="bpm" min={30} max={100} aria-label="Resting HR" />
         </Field>
       </Section>
     </>
@@ -164,5 +165,39 @@ function ProfileSection() {
         {error && <p className="mt-2 text-sm text-bad">{error}</p>}
       </Field>
     </Section>
+  )
+}
+
+/**
+ * A number field that saves when you press Enter or leave it, not on every
+ * keystroke: a half-typed "1" would otherwise be saved as your threshold HR.
+ * Out-of-range values are not saved and the field goes back to the stored one;
+ * clearing it clears the value.
+ */
+function DraftNumber({
+  value,
+  onCommit,
+  min,
+  max,
+  ...rest
+}: { value: number | null; onCommit: (v: number | null) => void; min: number; max: number; unit?: string; step?: number; 'aria-label': string }) {
+  const [draft, setDraft] = useState<number | null | undefined>(undefined)
+  const commit = () => {
+    if (draft === undefined) return
+    if (draft === null || (draft >= min && draft <= max)) {
+      if (draft !== value) onCommit(draft)
+    }
+    setDraft(undefined)
+  }
+  return (
+    <NumberInput
+      {...rest}
+      value={draft === undefined ? value : draft}
+      min={min}
+      max={max}
+      onChange={setDraft}
+      onBlur={commit}
+      onKeyDown={(e) => e.key === 'Enter' && commit()}
+    />
   )
 }

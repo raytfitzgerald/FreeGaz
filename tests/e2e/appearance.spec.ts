@@ -61,3 +61,23 @@ test('light mode survives changing units, speed and weight', async () => {
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
   expect(await app.evaluate(({ nativeTheme }) => nativeTheme.themeSource)).toBe('light')
 })
+
+test('Body & heart numbers can be edited, and stay edited', async () => {
+  const { page } = ctx
+  await page.getByRole('link', { name: 'Settings', exact: true }).click()
+  await page.getByRole('tab', { name: 'Athlete & FTP' }).click()
+  const lthr = page.getByRole('spinbutton', { name: 'Threshold HR' })
+  await lthr.fill('165')
+  await lthr.press('Enter')
+  await page.getByRole('spinbutton', { name: 'Max HR' }).fill('188')
+  await page.getByRole('spinbutton', { name: 'Resting HR' }).click() // leaving Max HR saves it
+  const weight = page.getByRole('spinbutton', { name: 'Weight' })
+  await weight.fill('72.5')
+  await weight.press('Tab')
+  // away and back: the saved values come back
+  await page.getByRole('tab', { name: 'Coach' }).click()
+  await page.getByRole('tab', { name: 'Athlete & FTP' }).click()
+  await expect(page.getByRole('spinbutton', { name: 'Threshold HR' })).toHaveValue('165')
+  await expect(page.getByRole('spinbutton', { name: 'Max HR' })).toHaveValue('188')
+  await expect(page.getByRole('spinbutton', { name: 'Weight' })).toHaveValue('72.5')
+})

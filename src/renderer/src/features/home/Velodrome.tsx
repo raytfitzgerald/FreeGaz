@@ -40,8 +40,10 @@ export function Velodrome({ riders, head, coach, className }: { riders: readonly
 
   const start = lanePoint(0, 150)
   return (
-    <svg ref={ref} viewBox="158 286 708 452" className={className} role="img" aria-label={riders.length === 0 ? 'The velodrome, empty' : `The velodrome, with ${riders.length} rider${riders.length === 1 ? '' : 's'}: one for each ride this week`}>
+    <svg ref={ref} viewBox="154 282 716 460" className={className} role="img" aria-label={riders.length === 0 ? 'The velodrome, empty' : `The velodrome, with ${riders.length} rider${riders.length === 1 ? '' : 's'}`}>
       <path d={`M${CX1} 413 L${CX2} 413 A99 99 0 0 1 ${CX2} 611 L${CX1} 611 A99 99 0 0 1 ${CX1} 413 Z`} fill="var(--color-stayer)" />
+      {/* a hairline round the outside of the boards, so they still read on the light theme's pale ground */}
+      <path d={oval(203)} fill="none" stroke="var(--color-line-strong)" strokeWidth={3} />
       <path d={oval(150)} fill="none" stroke="var(--color-board)" strokeWidth={104} />
       <path d={oval(114)} fill="none" stroke="var(--color-azure)" strokeWidth={20} />
       <path d={oval(136)} fill="none" stroke="var(--color-night)" strokeWidth={6} />
@@ -67,7 +69,7 @@ export function Velodrome({ riders, head, coach, className }: { riders: readonly
           <g key={r.id} data-rider data-testid="velodrome-rider">
             <title>{r.label}</title>
             <circle r={26} fill="var(--color-board)" stroke="var(--color-night)" strokeWidth={4} />
-            <g transform="scale(1.8)">{head}</g>
+            <g transform="scale(1.8)">{r.head ?? head}</g>
           </g>
         ))
       )}
