@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from '@tanstack/react-router'
-import { AlertTriangle, ArrowDown, ArrowUp, CheckCircle2, Minus, Plus } from 'lucide-react'
+import { AlertTriangle, ArrowDown, ArrowLeft, ArrowUp, CheckCircle2, Minus, Plus } from 'lucide-react'
 import type { Desired } from '@core/control/trainer-controller'
 import type { TrainerMode } from '@shared/live'
 import { getRuntime } from '../../runtime/composition'
@@ -18,6 +18,7 @@ import { RideAlong } from '../../coach/ride-along/RideAlong'
 import { CueBanner } from './CueBanner'
 import { FtpResultCard } from './FtpResultCard'
 import { SavedRideCard } from './SavedRideCard'
+import { chooseRide } from './setup'
 
 type Mode = Exclude<TrainerMode, 'idle'>
 
@@ -110,6 +111,11 @@ export function FreeRidePage() {
         subtitle="No plan, just pedals. Switch modes any time."
         actions={
           <>
+            {!recording && (
+              <Button variant="ghost" size="sm" onClick={() => chooseRide(null)} data-testid="change-ride">
+                <ArrowLeft className="size-3.5" /> Change ride type
+              </Button>
+            )}
             <NowPlaying />
             <Segmented ariaLabel="Trainer mode" value={mode} onChange={(m) => setState((s) => ({ ...s, mode: m }))} options={MODE_OPTIONS} />
           </>

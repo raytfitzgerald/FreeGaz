@@ -1,6 +1,7 @@
 import { Link, Outlet } from '@tanstack/react-router'
 import { Wordmark } from '../brand/Wordmark'
 import { NAV } from './nav'
+import { RideButton } from './RideButton'
 import { cn } from '../ui/cn'
 import { ChooserDialog } from '../features/devices/ChooserDialog'
 import { DeviceStatusBar } from '../features/devices/DeviceStatusBar'
@@ -18,6 +19,7 @@ export function AppShell() {
         <div className="px-5 pb-5 pt-1">
           <Wordmark className="h-9 w-auto text-ink" />
         </div>
+        <RideButton />
         <nav className="flex flex-1 flex-col gap-0.5 px-2" aria-label="Main">
           {NAV.map(({ to, label, icon: Icon }) => (
             <Link

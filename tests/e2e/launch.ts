@@ -1,4 +1,4 @@
-import { _electron as electron, type ElectronApplication, type Page } from '@playwright/test'
+import { _electron as electron, expect, type ElectronApplication, type Page } from '@playwright/test'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -53,4 +53,13 @@ export async function launchApp(opts: LaunchOptions = {}): Promise<Launched> {
       if (owned) rmSync(userData, { recursive: true, force: true })
     },
   }
+}
+
+/** Opens the Ride tab on a free ride: through the ride-type picker, or straight there if it's already chosen. */
+export async function openFreeRide(page: Page): Promise<void> {
+  await page.getByRole('link', { name: 'Ride', exact: true }).click()
+  const pick = page.getByTestId('ride-choice-free')
+  await expect(pick.or(page.getByRole('heading', { name: 'Just ride' }))).toBeVisible()
+  if (await pick.isVisible()) await pick.click()
+  await expect(page.getByRole('heading', { name: 'Just ride' })).toBeVisible()
 }

@@ -49,7 +49,7 @@ export function AthleteSection() {
               Save
             </Button>
             <Button asChild size="sm" variant="ghost">
-              <Link to="/ride">Take the FTP test →</Link>
+              <Link to="/workouts" search={{ filter: 'tests' }}>Take the FTP test →</Link>
             </Button>
           </div>
           {currentFtp && profile?.weightKg && (

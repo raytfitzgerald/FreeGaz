@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { launchApp, type Launched } from './launch'
+import { launchApp, openFreeRide, type Launched } from './launch'
 
 // The Bibi caricature: a bobblehead that swaps photos with each line and rides
 // onto the ride screen with his lines.
@@ -62,7 +62,7 @@ test('Settings: Bibi is a caricature that swaps photos with every sample', async
 test('ride: Bibi rides alongside and says his line, and stands still when the Mac asks for less motion', async () => {
   const { page } = ctx
   await page.emulateMedia({ reducedMotion: 'reduce' })
-  await page.getByRole('link', { name: 'Ride', exact: true }).click()
+  await openFreeRide(page)
   await page.getByTestId('start-ride').click()
   const along = page.getByTestId('ride-along')
   await expect(along.getByRole('img', { name: /Bibi, riding next to you/ })).toBeVisible()
