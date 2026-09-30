@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import type { InvokeRes } from '@shared/ipc/contract'
 import { Wordmark } from '../../brand/Wordmark'
 import { bridge } from '../../platform/bridge'
+import { Button } from '../../ui/Button'
+import { openBugReport } from '../support/open'
 import { Field, Section } from '../../ui/form'
 
 export function AboutSection() {
@@ -28,6 +30,11 @@ export function AboutSection() {
         <button type="button" className="pt-2 text-sm text-accent underline" onClick={() => void bridge().invoke('files.openUrl', { url: 'https://github.com/raytfitzgerald/FreeGaz' })}>
           github.com/raytfitzgerald/FreeGaz
         </button>
+      </Field>
+      <Field label="Found a bug?" hint="Opens a pre-filled GitHub issue, so it reaches the developer with the details that help.">
+        <Button size="sm" onClick={openBugReport} data-testid="about-report-bug">
+          Report a bug
+        </Button>
       </Field>
       <Field label="Type">
         <div className="pt-2 text-sm text-ink-dim">

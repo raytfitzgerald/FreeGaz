@@ -76,3 +76,29 @@ test('page is served from the app:// origin with a CSP', async () => {
   })
   expect(inlineRan).toEqual({ ran: false, violated: true })
 })
+
+test('Report a bug opens a pre-filled GitHub issue, with diagnostics the reporter can see', async () => {
+  const { page, app } = ctx
+  // catch the browser hand-off instead of opening one
+  await app.evaluate(({ shell }) => {
+    const g = globalThis as { __opened?: string[] }
+    g.__opened = []
+    shell.openExternal = async (url: string) => {
+      g.__opened!.push(url)
+    }
+  })
+  await page.getByTestId('report-bug').click()
+  await expect(page.getByTestId('bug-diagnostics')).toContainText('FreeGaz')
+  await page.getByTestId('bug-title').fill('Theme flips after a units change')
+  await page.getByTestId('bug-what').fill('Light mode turned dark.')
+  await page.getByTestId('bug-send').click()
+  await expect(page.getByRole('status').filter({ hasText: 'Opened on GitHub' })).toBeVisible()
+  const opened = await app.evaluate(() => (globalThis as { __opened?: string[] }).__opened ?? [])
+  expect(opened).toHaveLength(1)
+  const url = new URL(opened[0]!)
+  expect(url.origin + url.pathname).toBe('https://github.com/raytfitzgerald/FreeGaz/issues/new')
+  expect(url.searchParams.get('title')).toBe('Theme flips after a units change')
+  expect(url.searchParams.get('body')).toContain('Light mode turned dark.')
+  expect(url.searchParams.get('body')).toContain('### Diagnostics')
+  expect(url.searchParams.get('body')).not.toContain('/Users/')
+})

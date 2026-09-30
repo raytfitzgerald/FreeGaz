@@ -78,7 +78,15 @@ export const invoke = {
       sim: z.boolean(),
       /** Allow time warp > 1x (only ever honoured while all devices are simulated). */
       warp: z.number(),
+      /** macOS version and CPU, for bug reports. */
+      os: z.string(),
+      arch: z.string(),
     }),
+  },
+  /** Opens a pre-filled GitHub issue in the browser. Main builds the URL: the renderer can't point it anywhere else. */
+  'support.reportBug': {
+    req: z.object({ title: z.string().min(1).max(200), body: z.string().min(1).max(30_000) }),
+    res: z.object({ ok: z.boolean(), trimmed: z.boolean() }),
   },
 
   // ---- settings (main-owned JSON) ----
