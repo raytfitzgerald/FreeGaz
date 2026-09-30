@@ -22,6 +22,7 @@ export const INVOKE_CHANNELS = [
   'files.reveal',
   'files.saveAs',
   'files.openUrl',
+  'support.reportBug',
   'files.exportZwift',
   'music.status',
   'music.command',

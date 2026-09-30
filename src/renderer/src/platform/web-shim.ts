@@ -4,6 +4,7 @@
 // (file system, secrets, Strava, AI) are replaced by in-browser stand-ins.
 import type { EventChannel, EventMap, FreegazBridge, InvokeChannel, InvokeReq, InvokeRes } from '@shared/ipc/contract'
 import { AppSettingsSchema, DEFAULT_SETTINGS, mergeSettings, migrateStoredSettings, type AppSettings } from '@shared/settings'
+import { bugIssueUrl } from '@core/support/bug-report'
 
 const SETTINGS_KEY = 'freegaz.web.settings'
 const JOURNAL_PREFIX = 'freegaz.web.journal.'
@@ -72,7 +73,15 @@ export function createWebShim(): FreegazBridge {
       isTest: false,
       sim: true,
       warp: Number(new URLSearchParams(location.search).get('warp') ?? '1') || 1,
+      os: navigator.userAgent.match(/Mac OS X ([\d_]+)/)?.[1]?.replace(/_/g, '.') ?? 'unknown',
+      arch: 'browser',
     }),
+    // the browser build opens the issue itself
+    'support.reportBug': ({ title, body }) => {
+      const { url, trimmed } = bugIssueUrl(title, body)
+      window.open(url, '_blank', 'noopener')
+      return { ok: true, trimmed }
+    },
     'settings.get': () => settings,
     'settings.patch': (patch) => {
       settings = mergeSettings(settings, patch)
