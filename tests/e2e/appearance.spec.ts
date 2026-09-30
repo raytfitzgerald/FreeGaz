@@ -47,3 +47,17 @@ test('light mode survives changing a coach setting', async () => {
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
   expect(await app.evaluate(({ nativeTheme }) => nativeTheme.themeSource)).toBe('light')
 })
+
+test('light mode survives changing units, speed and weight', async () => {
+  const { page, app } = ctx
+  await page.getByRole('link', { name: 'Settings', exact: true }).click()
+  await page.getByRole('tab', { name: 'Appearance' }).click()
+  await page.getByRole('radio', { name: 'Light' }).click()
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
+  for (const option of ['Imperial', 'Metric', 'mph', 'lb', 'kg', 'km/h']) {
+    await page.getByRole('radio', { name: option, exact: true }).click()
+    await expect(page.getByRole('radio', { name: option, exact: true })).toHaveAttribute('data-state', 'on')
+  }
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
+  expect(await app.evaluate(({ nativeTheme }) => nativeTheme.themeSource)).toBe('light')
+})

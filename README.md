@@ -199,7 +199,7 @@ Everything stays on this Mac. Rides live in the app's database, plus a FIT file 
 
 | Command | What it does |
 |---|---|
-| `npm run dev` | Launch the app with hot reload |
+| `npm run dev` | Launch the app with hot reload (the main process restarts on its own changes) |
 | `npm run dev:web` | Run the UI alone in a browser with simulated devices (no Electron) |
 | `npm run check` | Typecheck + lint (with architecture boundaries) + unit and simulator tests |
 | `npm run e2e` | Build, then run the Playwright Electron end-to-end suite |

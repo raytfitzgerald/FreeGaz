@@ -15,7 +15,7 @@
     "node": ">=24"
   },
   "scripts": {
-    "dev": "electron-vite dev",
+    "dev": "electron-vite dev --watch",
     "dev:web": "vite --config vite.web.config.ts",
     "build": "electron-vite build",
     "typecheck": "tsc -p tsconfig.core.json && tsc -p tsconfig.node.json && tsc -p tsconfig.web.json",

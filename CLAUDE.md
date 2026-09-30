@@ -5,7 +5,7 @@ A macOS Electron + React/TypeScript indoor-cycling trainer (ERG/SIM control, wor
 ## Commands
 - `npm run check`: tsc (core/node/web projects), eslint with import boundaries, vitest. Must be green before any commit.
 - `npm run e2e`: builds, then runs the Playwright `_electron` specs in `tests/e2e`.
-- `npm run dev`: the app. `npm run dev:web`: renderer only, in a browser, with simulated devices.
+- `npm run dev`: the app; it rebuilds and restarts the main process when its code changes (`--watch`), so a `git pull` never leaves an old main process behind a new window. `npm run dev:web`: renderer only, in a browser, with simulated devices.
 - `npm run dist` then `npm run selftest:packaged`: builds the DMG and verifies it boots. Playwright can't drive the packaged app, because the fuses disable `--inspect`.
 
 ## Architecture rules (enforced)
