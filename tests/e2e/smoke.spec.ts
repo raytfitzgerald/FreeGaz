@@ -23,6 +23,13 @@ test('IPC ping round-trips through the typed bridge', async () => {
   expect(res.version).toMatch(/^\d+\.\d+\.\d+/)
 })
 
+test('test runs export into the throwaway profile, never the real Documents', async () => {
+  const info = await ctx.page.evaluate(() => window.freegaz.invoke('app.info', {}))
+  const { dir } = await ctx.page.evaluate(() => window.freegaz.invoke('files.exportDir', {}))
+  expect(info.documents.startsWith(ctx.userData)).toBe(true)
+  expect(dir.startsWith(ctx.userData)).toBe(true)
+})
+
 test('main rejects invalid IPC payloads', async () => {
   const err = await ctx.page.evaluate(async () => {
     try {

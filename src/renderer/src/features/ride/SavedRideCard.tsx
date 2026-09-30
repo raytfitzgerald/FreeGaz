@@ -1,4 +1,5 @@
 import { CheckCircle2, ExternalLink, FolderOpen, X } from 'lucide-react'
+import { uploadSkipText } from '@core/ride/upload-policy'
 import { bridge } from '../../platform/bridge'
 import { rideStore, useRide } from '../../stores/ride'
 import { Button } from '../../ui/Button'
@@ -54,6 +55,11 @@ export function SavedRideCard() {
         )}
         {s.simulated && <span className="text-accent">Simulated: not uploaded or counted in fitness.</span>}
       </div>
+      {uploadSkipText(saved.stravaSkip) && (
+        <p className="mt-2 text-sm text-ink-dim" data-testid="strava-skip">
+          {uploadSkipText(saved.stravaSkip)}
+        </p>
+      )}
       <div className="mt-3 flex flex-wrap gap-2">
         {saved.fitPath && (
           <Button size="sm" onClick={() => void bridge().invoke('files.reveal', { path: saved.fitPath! })}>
