@@ -98,24 +98,24 @@ export interface QuipFilterResult {
   rejected: { text: string; reason: QuipRejection }[]
 }
 
-function rejection(trigger: string, text: string, allowMild: boolean): QuipRejection | null {
+function rejection(trigger: string, text: string, allowProfanity: boolean): QuipRejection | null {
   if (!QUIP_TRIGGER_SET.has(trigger)) return 'trigger'
   if (text.length < 3 || text.length > MAX_LINE_CHARS) return 'length'
   if (!bracesBalanced(text) || placeholdersOf(text).some((k) => !isDataKey(k))) return 'placeholder'
   if (UNSPEAKABLE.test(text)) return 'unspeakable'
-  const level = detectProfanity(text)
-  if (level === 'strong' || (level === 'mild' && !allowMild)) return 'profanity'
+  if (detectProfanity(text) !== null && !allowProfanity) return 'profanity'
   return null
 }
 
 /**
  * The lines of an AI quip pack that may be used, as canned-style templates at
- * the ride's spice level. Topic bans do not apply; the profanity setting does.
+ * the ride's spice level. Topic bans do not apply; the profanity setting does,
+ * and it covers strong language as well as mild.
  */
 export function quipLinesFromPack(value: unknown, opts: { persona: PersonaMeta; spice: number; profanity: boolean }): QuipFilterResult {
   const parsed = QuipPackSchema.safeParse(value)
   if (!parsed.success) return { lines: [], rejected: [] }
-  const allowMild = opts.profanity
+  const allowProfanity = opts.profanity
   const spice = clampSpice(opts.spice)
   const lines: CoachLineTemplate[] = []
   const rejected: QuipFilterResult['rejected'] = []
@@ -125,7 +125,7 @@ export function quipLinesFromPack(value: unknown, opts: { persona: PersonaMeta; 
     const trigger = raw.trigger.trim().toLowerCase()
     const text = raw.text.replace(/\s+/g, ' ').trim()
     const dedupe = text.toLowerCase()
-    const reason = lines.length >= MAX_AI_LINES ? 'limit' : seen.has(dedupe) ? 'duplicate' : rejection(trigger, text, allowMild)
+    const reason = lines.length >= MAX_AI_LINES ? 'limit' : seen.has(dedupe) ? 'duplicate' : rejection(trigger, text, allowProfanity)
     if (reason) {
       rejected.push({ text, reason })
       continue
@@ -138,7 +138,7 @@ export function quipLinesFromPack(value: unknown, opts: { persona: PersonaMeta; 
       text,
       triggers: [trigger as CoachTrigger],
       spice,
-      ...(detectProfanity(text) === 'mild' ? { profanity: true } : {}),
+      ...(detectProfanity(text) !== null ? { profanity: true } : {}),
       // the prompt's segment_start means an interval start; never read one out at a warmup or recovery
       ...(trigger === 'segment_start' ? { criteria: [{ key: 'hard', op: '==', value: true }] as const } : {}),
       weight: AI_LINE_WEIGHT,

@@ -868,8 +868,8 @@ export function violatesGuardrails(text: string): GuardrailCategory | null {
   return guardrailMatch(text)?.category ?? null
 }
 
-// Profanity is a user setting, not a guardrail: mild words are allowed on lines
-// flagged `profanity: true` when the rider opts in; strong words never are.
+// Profanity is a user setting, not a guardrail. Mild and strong words are both
+// allowed when the rider opts in, and both are dropped when they have not.
 const MILD_PROFANITY = compile([
   'damn(?:s|ed|it)?',
   'dammit',
@@ -923,6 +923,14 @@ const STRONG_PROFANITY_WORDS = compile([
   'wtf',
   'stfu',
   'omfg',
+  'douche(?:bag|bags)?',
+  'asshats?',
+  'numbnuts',
+  'dickwads?',
+  'bellends?',
+  'knob(?:head|heads)?',
+  'tossers?',
+  'pillocks?',
 ])
 /** Censored forms ("f***", "sh*t") count as strong: the intent is the same. */
 const CENSORED_PROFANITY = /\b(?:f|sh)[*#@]+/i

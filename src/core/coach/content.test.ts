@@ -51,6 +51,7 @@ describe('gateLine', () => {
   it('holds a persona to its own bans', () => {
     expect(gateLine(line('History will judge this interval.'), { personaId: 'bibi', profanity: false })).not.toBeNull()
     expect(gateLine(line('A historic victory for the legs.'), { personaId: 'bibi', profanity: false })).toBeNull()
+    expect(gateLine(line('A historic victory for the legs.'), { personaId: 'bibi', profanity: true })).not.toBeNull()
     // lines from another pack (the supportive Professional tone) only answer to the global rules
     expect(gateLine(line('A historic victory for the legs.', { personaId: 'professional' }), { personaId: 'bibi', profanity: false })).not.toBeNull()
   })
@@ -58,9 +59,11 @@ describe('gateLine', () => {
   it('enforces the global guardrails and the profanity setting on every line', () => {
     const opts = { personaId: 'roast-comic', profanity: false }
     expect(gateLine(line('Pedal like your weight depends on it.', { personaId: 'roast-comic' }), opts)).toBeNull()
+    expect(gateLine(line('Pedal like your weight depends on it.', { personaId: 'roast-comic' }), { ...opts, profanity: true })).not.toBeNull()
     expect(gateLine(line('Hell of an interval.', { personaId: 'roast-comic' }), opts)).toBeNull()
     expect(gateLine(line('Hell of an interval.', { personaId: 'roast-comic' }), { ...opts, profanity: true })).not.toBeNull()
-    expect(gateLine(line('What the f*** was that.', { personaId: 'roast-comic' }), { ...opts, profanity: true })).toBeNull()
+    expect(gateLine(line('What the fuck was that.', { personaId: 'roast-comic' }), { ...opts, profanity: true })).not.toBeNull()
+    expect(gateLine(line('What the fuck was that.', { personaId: 'roast-comic' }), opts)).toBeNull()
   })
 
   it('lets AI-written lines through the topic bans, and still applies the profanity setting', () => {
@@ -69,6 +72,8 @@ describe('gateLine', () => {
     expect(gateLine(line('Pedal off that belly.', { lineId: 'ai.idle_banter.2', personaId: 'roast-comic' }), opts)).not.toBeNull()
     expect(gateLine(line('Damn, that cadence.', { lineId: 'ai.idle_banter.3' }), opts)).toBeNull()
     expect(gateLine(line('Damn, that cadence.', { lineId: 'ai.idle_banter.3' }), { ...opts, profanity: true })).not.toBeNull()
+    expect(gateLine(line('What the fuck was that pace.', { lineId: 'ai.idle_banter.4' }), { ...opts, profanity: true })).not.toBeNull()
+    expect(gateLine(line('What the fuck was that pace.', { lineId: 'ai.idle_banter.4' }), opts)).toBeNull()
   })
 
   it('never drops a safety line: it falls back to plain words', () => {

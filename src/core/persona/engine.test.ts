@@ -158,8 +158,10 @@ describe('spice and profanity', () => {
     expect(say('VO2 #3', false)).toBe('label')
     expect(say('Hell Hill', false)).toBe('plain')
     expect(say('Hell Hill', true)).toBe('label')
-    expect(say('Pray Hill', true)).toBe('plain')
-    expect(say('Shit Hill', true)).toBe('plain')
+    expect(say('Pray Hill', false)).toBe('plain')
+    expect(say('Pray Hill', true)).toBe('label')
+    expect(say('Shit Hill', false)).toBe('plain')
+    expect(say('Shit Hill', true)).toBe('label')
   })
 })
 

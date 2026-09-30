@@ -73,9 +73,7 @@ function lineProblems(line: ParsedLine): string[] {
   }
   const hit = guardrailMatch(line.text)
   if (hit) problems.push(`text: touches a banned topic (${hit.category}: "${hit.match}")`)
-  const profanity = detectProfanity(line.text)
-  if (profanity === 'strong') problems.push('text: strong profanity is never allowed')
-  else if (profanity === 'mild' && line.profanity !== true) problems.push('text: contains profanity; set "profanity": true')
+  if (detectProfanity(line.text) !== null && line.profanity !== true) problems.push('text: contains profanity; set "profanity": true')
   return problems
 }
 
