@@ -25,6 +25,14 @@ userData/
 !tests/fixtures/**/*.fit
 captures/
 
+# your own workouts and backups, if you ever save them into the checkout
+# (the library itself lives in the app's database, outside the repo)
+*.zwo
+*.mrc
+*.erg
+!src/**/fixtures/**
+FreeGaz backup *.zip
+
 # OS / editor
 .DS_Store
 .vscode/*
