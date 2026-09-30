@@ -28,6 +28,8 @@ function harness(opts: { coach?: Partial<CoachPrefs>; quips?: (req: QuipRequest)
   const results = new Set<(r: FtpOutcome) => void>()
   const shown: string[] = []
   const spoken: string[] = []
+  /** Whose line each shown one was (null: the app's own notice). */
+  const sources: (string | null)[] = []
   // a voice that finishes each line at once, so everything queued gets said
   const voice: Voice = {
     speak: (u, onEnd) => {
@@ -61,7 +63,10 @@ function harness(opts: { coach?: Partial<CoachPrefs>; quips?: (req: QuipRequest)
       },
     },
     voice,
-    show: (_s, text) => shown.push(text),
+    show: (_s, text, from) => {
+      shown.push(text)
+      sources.push(from?.personaId ?? null)
+    },
     onMute: (l) => {
       mutes.add(l)
       return () => mutes.delete(l)
@@ -104,6 +109,7 @@ function harness(opts: { coach?: Partial<CoachPrefs>; quips?: (req: QuipRequest)
   return {
     runtime,
     shown,
+    sources,
     spoken,
     ticks,
     startRide,
@@ -117,6 +123,16 @@ function harness(opts: { coach?: Partial<CoachPrefs>; quips?: (req: QuipRequest)
 const flush = () => new Promise<void>((r) => setTimeout(r, 0))
 
 describe('CoachRuntime', () => {
+  it("tells the screen whose line it is, and marks its own notices as nobody's", () => {
+    const h = harness()
+    h.startRide()
+    h.ride(1)
+    expect(h.sources).toEqual(['drill-sergeant'])
+    h.mute()
+    expect(h.shown.at(-1)).toBe(MUTED_TEXT)
+    expect(h.sources.at(-1)).toBeNull()
+  })
+
   it('shows and speaks the coach through the ride', () => {
     const h = harness()
     h.startRide()

@@ -21,6 +21,7 @@ import { rideStore } from '../stores/ride'
 import { settingsStore } from '../stores/settings'
 import { fetchQuipLines, type QuipSource } from './quips'
 import { SpeechQueue, type Voice } from './speech-queue'
+import { markLine, markSpeaking, markWord } from './talk'
 
 /** Dispatched on window by RideRunner for the C key and the phone's mute button. */
 export const MUTE_EVENT = 'freegaz:mute-coach'
@@ -42,8 +43,8 @@ export interface CoachRuntimeDeps {
   settings: { get(): AppSettings; subscribe(listener: (next: AppSettings, prev: AppSettings) => void): () => void }
   /** Speaks lines; null keeps the coach to text (automated tests, no speech engine). */
   voice: Voice | null
-  /** Puts a line on the ride screen. */
-  show(session: RideSession, text: string): void
+  /** Puts a line on the ride screen; `from` is the persona line behind it (absent for the app's own notices). */
+  show(session: RideSession, text: string, from?: Pick<CoachLine, 'personaId' | 'priority'>): void
   /** Mute toggles (the C key, the phone remote). */
   onMute(listener: () => void): () => void
   /** Valid FTP-test results, which arrive after the ride is saved. */
@@ -191,7 +192,7 @@ export class CoachRuntime {
     if (lines.length === 0) return
     let top = lines[0]!
     for (const l of lines) if (l.priority > top.priority) top = l
-    if (!ride.finished) this.deps.show(ride.session, top.text)
+    if (!ride.finished) this.deps.show(ride.session, top.text, top)
     if (!this.queue || !this.deps.settings.get().coach.voice) return
     const at = this.deps.clock.now()
     for (const l of lines) {
@@ -256,7 +257,7 @@ export function createCoachRuntime(
     subscribe: (l) => settingsStore.subscribe(l),
   }
   const voice: Voice = {
-    speak: (u, onEnd) => speak(u.text, { prefs: settings.get().coach, hint: packById(u.personaId)?.meta.voiceHint, onEnd }),
+    speak: (u, onEnd) => speak(u.text, { prefs: settings.get().coach, hint: packById(u.personaId)?.meta.voiceHint, onEnd, onWord: markWord }),
     cancel: stopSpeaking,
   }
   // Lower Spotify / Music while the coach talks; restore after a short silence
@@ -265,6 +266,7 @@ export function createCoachRuntime(
   let unduck: ReturnType<typeof setTimeout> | null = null
   const music = (action: 'duck' | 'unduck') => void bridge().invoke('music.command', { action }).catch(() => undefined)
   const onSpeaking = (busy: boolean) => {
+    markSpeaking(busy)
     if (busy) {
       if (unduck) clearTimeout(unduck)
       unduck = null
@@ -285,9 +287,11 @@ export function createCoachRuntime(
     onSpeaking,
     settings,
     voice: opts.speak && typeof speechSynthesis !== 'undefined' ? voice : null,
-    show: (session, text) => {
+    show: (session, text, from) => {
       if (session.currentState === 'finished') return
       session.setCoachLine(text)
+      // who said it, for the caricature on the ride screen
+      markLine(text, from?.personaId ?? null, from?.priority ?? PRIORITY.cue)
       // show it now rather than at the next once-a-second snapshot
       if (rideStore.getState().active) rideStore.setState({ snapshot: session.snapshot() })
     },

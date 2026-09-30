@@ -6,6 +6,9 @@ import type { CoachPrefs, FuelingPrefs } from '@shared/settings'
 import { listVoices, onVoicesChanged, resolveVoice, speak } from '../../audio/tts'
 import { PersonaAvatar } from '../../coach/PersonaAvatar'
 import { aiReady } from '../../coach/quips'
+import { watchdogMs } from '../../coach/speech-queue'
+import { CoachToon } from '../../coach/toon/CoachToon'
+import { toonHeadsFor } from '../../coach/toon/heads'
 import { patchSettings, useSettings } from '../../stores/settings'
 import { Button } from '../../ui/Button'
 import { cn } from '../../ui/cn'
@@ -58,6 +61,8 @@ export function CoachSection() {
   }, [])
 
   const [sample, setSample] = useState<{ personaId: string; line: CoachLine | null } | null>(null)
+  // the caricature says the sample: which line, and whether the voice is still going
+  const [talk, setTalk] = useState<{ key: string; speaking: boolean; words: number } | null>(null)
 
   const persona = packById(c.personaId) ?? PROFESSIONAL
   const meta = persona.meta
@@ -65,10 +70,20 @@ export function CoachSection() {
   const shown = sample?.personaId === meta.id ? sample : null
   const spice = SPICE[c.spice - 1] ?? SPICE[2]!
 
+  const heads = toonHeadsFor(meta.id)
+
   const preview = () => {
     const line = previewLine(persona, { spice: c.spice, profanity: c.profanity })
     setSample({ personaId: meta.id, line })
-    if (line) speak(line.speech, { prefs: c, hint: meta.voiceHint, interrupt: true })
+    if (!line) return
+    const key = `sample-${performance.now()}`
+    const update = (patch: (t: { key: string; speaking: boolean; words: number }) => Partial<{ speaking: boolean; words: number }>) =>
+      setTalk((t) => (t?.key === key ? { ...t, ...patch(t) } : t))
+    const done = () => update(() => ({ speaking: false }))
+    const spoke = speak(line.speech, { prefs: c, hint: meta.voiceHint, interrupt: true, onEnd: done, onWord: () => update((t) => ({ words: t.words + 1 })) })
+    setTalk({ key, speaking: spoke, words: 0 })
+    // some voices never say they're done
+    if (spoke) setTimeout(done, watchdogMs(line.speech))
   }
 
   return (
@@ -116,7 +131,21 @@ export function CoachSection() {
         </Field>
         <Field label="Sample" hint="A line from a typical moment of a ride, at your spice level.">
           <div className="flex items-center gap-3">
-            <PersonaAvatar persona={meta} size="lg" />
+            {heads ? (
+              <CoachToon
+                heads={heads}
+                setKey={meta.id}
+                lineKey={shown?.line && talk ? talk.key : null}
+                text={shown?.line?.text ?? ''}
+                speaking={talk?.speaking ?? false}
+                words={talk?.words ?? 0}
+                height={112}
+                badge={meta.parody}
+                label={`${meta.name}, ${meta.parody ? 'parody caricature, ' : ''}riding a bike`}
+              />
+            ) : (
+              <PersonaAvatar persona={meta} size="lg" />
+            )}
             <div className="min-w-0">
               <div className="font-semibold">{meta.name}</div>
               <div className="text-xs text-ink-dim">Voice: {c.voiceName ?? personaVoice?.name ?? 'system default'}</div>
