@@ -99,6 +99,8 @@ export interface FtpTestSpec {
 
 export type WorkoutSource = 'builtin' | 'user' | 'import' | 'ai'
 
+export type WorkoutFolder = 'custom' | 'plan'
+
 export interface Workout {
   id: string
   name: string
@@ -110,6 +112,8 @@ export interface Workout {
   source: WorkoutSource
   /** Set on FTP test workouts. */
   ftpTest?: FtpTestSpec
+  /** Where the rider files their own workout: Custom workouts (the default) or their Training plan. Built-ins ignore it. */
+  folder?: WorkoutFolder
   /** Epoch ms. */
   createdAt?: number
   updatedAt?: number

@@ -1,7 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useMemo, useRef, useState, type DragEvent } from 'react'
 import { Link, useSearch } from '@tanstack/react-router'
-import { FileUp, Gauge, Plus, Search, Star } from 'lucide-react'
+import { ArrowDown, ArrowUp, FileUp, FolderInput, Gauge, Plus, Search, Star } from 'lucide-react'
 import { WorkoutThumb } from '../../charts/WorkoutThumb'
 import { useFtp } from '../../db/use-athlete'
 import { Button } from '../../ui/Button'
@@ -9,11 +9,18 @@ import { Input, Select } from '../../ui/form'
 import { PageHeader } from '../../ui/PageHeader'
 import { cn } from '../../ui/cn'
 import { formatDurationShort } from '../../ui/format'
-import { IMPORT_EXTENSIONS, loadLibrary, parseWorkoutFile, saveWorkout, tagLabel, type LibraryEntry } from '../../workouts/library'
+import { IMPORT_EXTENSIONS, loadLibrary, moveToFolder, movePlanItem, parseWorkoutFile, saveWorkout, tagLabel, type LibraryEntry } from '../../workouts/library'
 import { profileBlocks } from '../../workouts/profile'
 import { WorkoutDetailDialog } from './WorkoutDetailDialog'
 
-type Filter = 'all' | 'favorites' | 'tests' | 'mine' | `tag:${string}`
+type Filter = 'all' | 'favorites' | 'tests' | `tag:${string}`
+type Tab = LibraryEntry['folder']
+
+const TABS: { id: Tab; label: string; empty: string }[] = [
+  { id: 'freegaz', label: 'FreeGaz workouts', empty: 'No workouts match. Try another filter.' },
+  { id: 'custom', label: 'Custom workouts', empty: 'Nothing here yet. Build one with New workout, copy a FreeGaz workout to the builder, or drop .zwo, .mrc or .erg files on this page.' },
+  { id: 'plan', label: 'Training plan', empty: 'Your training plan is empty. In the builder, set Folder to Training plan, or move one of your custom workouts here.' },
+]
 type Length = 'any' | 'short' | 'medium' | 'long'
 
 const LENGTHS: { id: Length; label: string; test: (s: number) => boolean }[] = [
@@ -28,7 +35,13 @@ export function WorkoutsPage() {
   const library = useLiveQuery(() => loadLibrary(ftpW), [ftpW])
   const search = useSearch({ from: '/workouts' })
   const initial = search.filter
-  const [filter, setFilter] = useState<Filter>(initial === 'tests' || initial === 'favorites' || initial === 'mine' ? initial : 'all')
+  // FreeGaz's own workouts first; ?filter=mine (older links) opens your custom ones
+  const [tab, setTab] = useState<Tab>(initial === 'mine' ? 'custom' : 'freegaz')
+  const [filter, setFilter] = useState<Filter>(initial === 'tests' || initial === 'favorites' ? initial : 'all')
+  const pickTab = (t: Tab) => {
+    setTab(t)
+    if (t !== 'freegaz' && filter === 'tests') setFilter('all')
+  }
   const [length, setLength] = useState<Length>('any')
   const [query, setQuery] = useState('')
   const [openId, setOpenId] = useState<string | null>(search.open ?? null)
@@ -38,23 +51,30 @@ export function WorkoutsPage() {
 
   const tags = useMemo(() => {
     const count = new Map<string, number>()
-    for (const e of library ?? []) for (const t of e.workout.tags) if (t !== 'test' && t !== 'ftp') count.set(t, (count.get(t) ?? 0) + 1)
+    for (const e of library ?? []) if (e.folder === tab) for (const t of e.workout.tags) if (t !== 'test' && t !== 'ftp') count.set(t, (count.get(t) ?? 0) + 1)
     return [...count.entries()].sort((a, b) => b[1] - a[1]).map(([t]) => t)
+  }, [library, tab])
+  const counts = useMemo(() => {
+    const c: Record<Tab, number> = { freegaz: 0, custom: 0, plan: 0 }
+    for (const e of library ?? []) c[e.folder]++
+    return c
   }, [library])
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase()
     const lengthTest = LENGTHS.find((l) => l.id === length)!.test
-    return (library ?? []).filter((e) => {
+    const inTab = (library ?? []).filter((e) => e.folder === tab)
+    // the plan is a sequence: in its own order
+    if (tab === 'plan') inTab.sort((a, b) => (a.planOrder ?? 0) - (b.planOrder ?? 0))
+    return inTab.filter((e) => {
       const w = e.workout
       if (filter === 'favorites' && !e.favorite) return false
       if (filter === 'tests' && !w.ftpTest) return false
-      if (filter === 'mine' && e.builtin) return false
       if (filter.startsWith('tag:') && !w.tags.includes(filter.slice(4))) return false
       if (!lengthTest(e.stats.durationS)) return false
       return !q || w.name.toLowerCase().includes(q) || (w.description ?? '').toLowerCase().includes(q) || w.tags.some((t) => t.includes(q))
     })
-  }, [library, filter, length, query])
+  }, [library, tab, filter, length, query])
 
   const importFiles = async (files: FileList | File[]) => {
     const done: string[] = []
@@ -73,7 +93,7 @@ export function WorkoutsPage() {
         ? { tone: 'bad', text: `${done.length ? `Imported ${done.join(', ')}. ` : ''}Couldn't import ${failed.join('; ')}` }
         : { tone: 'good', text: `Imported ${done.join(', ')}.` },
     )
-    if (done.length === 1 && failed.length === 0) setFilter('mine')
+    if (done.length > 0) pickTab('custom')
   }
 
   const onDrop = (e: DragEvent) => {
@@ -86,8 +106,7 @@ export function WorkoutsPage() {
   const chips: { id: Filter; label: string }[] = [
     { id: 'all', label: 'All' },
     { id: 'favorites', label: 'Favorites' },
-    { id: 'tests', label: 'FTP tests' },
-    { id: 'mine', label: 'Mine & imported' },
+    ...(tab === 'freegaz' ? [{ id: 'tests' as const, label: 'FTP tests' }] : []),
     ...tags.map((t) => ({ id: `tag:${t}` as const, label: tagLabel(t) })),
   ]
 
@@ -146,6 +165,26 @@ export function WorkoutsPage() {
         </div>
       )}
 
+      <div className="mb-4 flex gap-1 border-b border-line" role="tablist" aria-label="Workout folders">
+        {TABS.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            role="tab"
+            aria-selected={tab === t.id}
+            onClick={() => pickTab(t.id)}
+            className={cn(
+              'no-drag -mb-px flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-semibold transition-colors',
+              tab === t.id ? 'border-accent text-ink' : 'border-transparent text-ink-dim hover:text-ink',
+            )}
+            data-testid={`workout-tab-${t.id}`}
+          >
+            {t.label}
+            <span className="tabular rounded-full bg-panel-3 px-2 py-0.5 text-xs font-normal text-ink-dim">{counts[t.id]}</span>
+          </button>
+        ))}
+      </div>
+
       <div className="mb-5 flex flex-wrap items-center gap-2">
         <div className="relative mr-2 w-64">
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-faint" />
@@ -176,10 +215,18 @@ export function WorkoutsPage() {
         </div>
       </div>
 
-      {library && visible.length === 0 && <div className="py-16 text-center text-ink-faint">No workouts match. Try another filter.</div>}
+      {library && visible.length === 0 && (
+        <div className="mx-auto max-w-md py-16 text-center text-ink-faint">{counts[tab] === 0 ? TABS.find((t) => t.id === tab)!.empty : 'No workouts match. Try another filter.'}</div>
+      )}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" data-testid="workout-grid">
-        {visible.map((e) => (
-          <WorkoutCard key={e.workout.id} entry={e} ftpW={ftpW} onOpen={() => setOpenId(e.workout.id)} />
+        {visible.map((e, i) => (
+          <WorkoutCard
+            key={e.workout.id}
+            entry={e}
+            ftpW={ftpW}
+            onOpen={() => setOpenId(e.workout.id)}
+            plan={tab === 'plan' ? { n: i + 1, first: i === 0, last: i === visible.length - 1, unfiltered: visible.length === counts.plan } : undefined}
+          />
         ))}
       </div>
 
@@ -188,14 +235,25 @@ export function WorkoutsPage() {
   )
 }
 
-function WorkoutCard({ entry, ftpW, onOpen }: { entry: LibraryEntry; ftpW: number; onOpen: () => void }) {
+function WorkoutCard({
+  entry,
+  ftpW,
+  onOpen,
+  plan,
+}: {
+  entry: LibraryEntry
+  ftpW: number
+  onOpen: () => void
+  /** On the Training plan tab: its place, and whether it can move (only in the full, unfiltered plan). */
+  plan?: { n: number; first: boolean; last: boolean; unfiltered: boolean }
+}) {
   const { workout: w, stats } = entry
   const blocks = useMemo(() => profileBlocks(entry.timeline, ftpW), [entry.timeline, ftpW])
-  return (
+  const card = (
     <button
       type="button"
       onClick={onOpen}
-      className="group flex flex-col rounded-2xl border border-line bg-panel p-4 text-left transition-colors hover:border-line-strong hover:bg-panel-2"
+      className="group flex w-full flex-col rounded-2xl border border-line bg-panel p-4 text-left transition-colors hover:border-line-strong hover:bg-panel-2"
       data-testid="workout-card"
     >
       <div className="rounded-lg bg-panel-2 px-2 pt-2 group-hover:bg-panel-3">
@@ -227,5 +285,29 @@ function WorkoutCard({ entry, ftpW, onOpen }: { entry: LibraryEntry; ftpW: numbe
         ))}
       </div>
     </button>
+  )
+  if (!plan) return card
+  return (
+    <div className="relative" data-testid="plan-item">
+      <span className="absolute -left-2 -top-2 z-10 grid size-7 place-items-center rounded-full bg-accent font-display text-sm font-bold text-on-accent" aria-label={`Number ${plan.n} in your plan`}>
+        {plan.n}
+      </span>
+      {card}
+      <div className="absolute right-3 top-3 z-10 flex gap-1">
+        {plan.unfiltered && (
+          <>
+            <Button size="iconSm" variant="secondary" disabled={plan.first} onClick={() => void movePlanItem(w.id, -1)} aria-label={`Move ${w.name} earlier`}>
+              <ArrowUp className="size-3.5" />
+            </Button>
+            <Button size="iconSm" variant="secondary" disabled={plan.last} onClick={() => void movePlanItem(w.id, 1)} aria-label={`Move ${w.name} later`}>
+              <ArrowDown className="size-3.5" />
+            </Button>
+          </>
+        )}
+        <Button size="iconSm" variant="secondary" onClick={() => void moveToFolder(w.id, 'custom')} aria-label={`Move ${w.name} back to Custom workouts`} title="Back to Custom workouts">
+          <FolderInput className="size-3.5" />
+        </Button>
+      </div>
+    </div>
   )
 }

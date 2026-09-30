@@ -61,6 +61,9 @@ test('builds a workout from the palette, edits a duration, saves it and finds it
   await expect(page.getByTestId('builder-clean')).toBeVisible()
 
   await page.getByRole('link', { name: 'Workouts' }).click()
+  // FreeGaz's own workouts show first; yours are on Custom workouts
+  await expect(page.getByTestId('workout-tab-freegaz')).toHaveAttribute('aria-selected', 'true')
+  await page.getByTestId('workout-tab-custom').click()
   await page.getByPlaceholder('Search workouts').fill('E2E Over-Unders')
   const card = page.getByTestId('workout-card').filter({ hasText: 'E2E Over-Unders' })
   await expect(card).toHaveCount(1)
@@ -173,6 +176,31 @@ test('Ride it saves the workout and starts riding it', async () => {
   // Saved first, so leaving the builder asked nothing and the library has it.
   await expect(page.getByRole('dialog')).toHaveCount(0)
   await page.getByRole('link', { name: 'Workouts' }).click()
+  await page.getByTestId('workout-tab-custom').click()
   await page.getByPlaceholder('Search workouts').fill('E2E Ride It')
   await expect(page.getByTestId('workout-card').filter({ hasText: 'E2E Ride It' })).toHaveCount(1)
+})
+
+test('a workout can be filed in the Training plan from the builder, ordered there, and moved back', async () => {
+  const { page } = ctx
+  for (const name of ['E2E Plan One', 'E2E Plan Two']) {
+    await newWorkout(page)
+    await addBlocks(page, ['z2', 'z4'])
+    await page.getByTestId('builder-name').fill(name)
+    await page.getByTestId('builder-folder').selectOption('plan')
+    await page.getByTestId('builder-save').click()
+    await expect(page.getByTestId('builder-clean')).toBeVisible()
+  }
+  await page.getByRole('link', { name: 'Workouts' }).click()
+  await page.getByTestId('workout-tab-plan').click()
+  const items = page.getByTestId('plan-item')
+  await expect(items).toHaveCount(2)
+  await expect(items.nth(0)).toContainText('E2E Plan One')
+  await expect(items.nth(0).getByLabel('Number 1 in your plan')).toBeVisible()
+  await page.getByRole('button', { name: 'Move E2E Plan Two earlier' }).click()
+  await expect(items.nth(0)).toContainText('E2E Plan Two')
+  await page.getByRole('button', { name: 'Move E2E Plan One back to Custom workouts' }).click()
+  await expect(items).toHaveCount(1)
+  await page.getByTestId('workout-tab-custom').click()
+  await expect(page.getByTestId('workout-card').filter({ hasText: 'E2E Plan One' })).toHaveCount(1)
 })

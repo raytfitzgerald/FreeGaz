@@ -1,11 +1,11 @@
 import { useState, type ReactNode } from 'react'
 import { X } from 'lucide-react'
 import type { Workout } from '@core/workout/model'
-import { Input } from '../../ui/form'
+import { Input, Select } from '../../ui/form'
 import { tagLabel } from '../../workouts/library'
 import { addTags, withOptional } from './fields'
 
-type Meta = Pick<Workout, 'name' | 'author' | 'description' | 'tags'>
+type Meta = Pick<Workout, 'name' | 'author' | 'description' | 'tags' | 'folder'>
 
 const fieldLabel = 'mb-1 block text-[11px] font-medium leading-4 text-ink-faint'
 
@@ -34,14 +34,22 @@ export function MetaCard({ workout, onChange }: { workout: Workout; onChange: (n
           data-testid="builder-name"
         />
       </Labeled>
-      <Labeled label="Author">
-        <Input
-          value={workout.author ?? ''}
-          onChange={(e) => set('author', e.target.value === '' ? undefined : e.target.value, 'meta:author')}
-          placeholder="Optional"
-          data-testid="builder-author"
-        />
-      </Labeled>
+      <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] gap-3">
+        <Labeled label="Author">
+          <Input
+            value={workout.author ?? ''}
+            onChange={(e) => set('author', e.target.value === '' ? undefined : e.target.value, 'meta:author')}
+            placeholder="Optional"
+            data-testid="builder-author"
+          />
+        </Labeled>
+        <Labeled label="Folder">
+          <Select value={workout.folder ?? 'custom'} onChange={(e) => set('folder', e.target.value === 'plan' ? 'plan' : undefined)} data-testid="builder-folder">
+            <option value="custom">Custom workouts</option>
+            <option value="plan">Training plan</option>
+          </Select>
+        </Labeled>
+      </div>
       <Labeled label="Description">
         <textarea
           value={workout.description ?? ''}

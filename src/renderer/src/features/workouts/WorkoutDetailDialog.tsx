@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import { AlertTriangle, Bike, Copy, Download, PencilLine, Star, Trash2 } from 'lucide-react'
+import { AlertTriangle, Bike, Copy, Download, FolderInput, PencilLine, Star, Trash2 } from 'lucide-react'
 import { WorkoutChart } from '../../charts/WorkoutChart'
 import { useDevices } from '../../stores/devices'
 import { useRide } from '../../stores/ride'
@@ -8,7 +8,7 @@ import { Button } from '../../ui/Button'
 import { Dialog } from '../../ui/Dialog'
 import { formatDuration } from '../../ui/format'
 import { POWER_ZONE_LABELS, zoneVar } from '../../ui/zones'
-import { copyOf, deleteWorkout, EXPORT_FORMATS, exportToZwift, exportWorkout, saveWorkout, setFavorite, tagLabel, type ExportFormat, type LibraryEntry } from '../../workouts/library'
+import { copyOf, deleteWorkout, moveToFolder, EXPORT_FORMATS, exportToZwift, exportWorkout, saveWorkout, setFavorite, tagLabel, type ExportFormat, type LibraryEntry } from '../../workouts/library'
 import { profileBlocks } from '../../workouts/profile'
 import { startWorkout } from './start'
 
@@ -126,6 +126,15 @@ export function WorkoutDetailDialog({
             {entry.builtin ? <Copy className="size-4" /> : <PencilLine className="size-4" />}
             {entry.builtin ? 'Copy to builder' : 'Edit'}
           </Button>
+          {!entry.builtin && (
+            <Button
+              disabled={busy}
+              onClick={() => void run(async () => moveToFolder(w.id, entry.folder === 'plan' ? 'custom' : 'plan').then(() => onNotice({ tone: 'good', text: entry.folder === 'plan' ? `Moved ${w.name} to Custom workouts.` : `Added ${w.name} to your training plan.` })))}
+              data-testid="move-folder"
+            >
+              <FolderInput className="size-4" /> {entry.folder === 'plan' ? 'Move to Custom workouts' : 'Add to training plan'}
+            </Button>
+          )}
           <div className="flex items-center">
             <select
               value={format}

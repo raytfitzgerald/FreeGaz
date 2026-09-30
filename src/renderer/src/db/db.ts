@@ -14,6 +14,8 @@ export interface StoredWorkout {
   durationS: number
   tss: number | null
   favorite: boolean
+  /** Position in the Training plan (1, 2, 3…), for workouts filed there. */
+  planOrder?: number
   json: Workout
   createdAt: number
   updatedAt: number
