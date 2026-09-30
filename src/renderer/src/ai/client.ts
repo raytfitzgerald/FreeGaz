@@ -1,16 +1,32 @@
 // Renderer-side AI helpers. All calls go through main (keys never live here).
+import { coachVoice } from '@core/coach'
 import type { AiMessage } from '@core/ai/types'
+import type { FitnessFacts } from '@core/metrics'
+import { PROFESSIONAL, packById } from '@core/persona'
 import type { RideSummary } from '@core/ride/types'
-import { pmcSeries, powerCurve, realRides } from '../db/fitness'
-import { ftpHistory } from '../db/athlete-repo'
+import { pmcSeries, powerCurve, realRides, weeklyLoad } from '../db/fitness'
+import { currentFtp, ftpHistory } from '../db/athlete-repo'
 import { bridge } from '../platform/bridge'
+import { settingsStore } from '../stores/settings'
+
+/** The [Coach settings] block for the rider's coach as set right now (persona, spice, language). */
+export function coachVoiceNow(): string {
+  const c = settingsStore.getState().coach
+  return coachVoice(packById(c.personaId) ?? PROFESSIONAL, { spice: c.spice, profanity: c.profanity })
+}
+
+/** Settings that change what the coach would write, for telling when a cached text is stale. */
+export function coachVoiceKey(): string {
+  const c = settingsStore.getState().coach
+  return `${c.personaId}/${c.spice}/${c.profanity}`
+}
 
 export interface StreamHandle {
   done: Promise<{ text: string | null; error: string | null; code: string | null; model: string | null }>
   cancel(): void
 }
 
-export function streamAi(purpose: 'debrief' | 'chat', messages: AiMessage[], onDelta: (text: string) => void): StreamHandle {
+export function streamAi(purpose: 'debrief' | 'chat' | 'fitness-summary', messages: AiMessage[], onDelta: (text: string) => void): StreamHandle {
   const streamId = `s${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`
   let offDelta = () => {}
   let offEnd = () => {}
@@ -78,5 +94,37 @@ export async function trainingContext(): Promise<string> {
     eftp: curve.eftp.ftpW ? Math.round(curve.eftp.ftpW) : null,
     best90d: Object.fromEntries(curve.last90.filter((p) => [5, 60, 300, 1200, 3600].includes(p.durationS)).map((p) => [`${p.durationS}s`, Math.round(p.watts)])),
     rides: rides.slice(-20).map(rideFacts),
+  })
+}
+
+/** The numbers behind the Fitness page's overview (locally recorded, non-simulated rides only). */
+export async function fitnessFacts(): Promise<FitnessFacts> {
+  const [pmc, weeks, recent, curve, ftp] = await Promise.all([pmcSeries(42), weeklyLoad(5), realRides(Date.now() - 28 * 86_400_000), powerCurve(), currentFtp()])
+  const now = pmc.at(-1)
+  const before = pmc.length > 42 ? pmc[0] : undefined
+  return {
+    ctl: now ? now.ctl : null,
+    atl: now ? now.atl : null,
+    tsb: now ? now.tsb : null,
+    ctl42dAgo: before ? before.ctl : null,
+    weeklyTss: weeks.map((w) => Math.round(w.tss)),
+    rides28d: recent.length,
+    ftpW: ftp?.ftpW ?? null,
+    eftpW: curve.eftp.ftpW ? Math.round(curve.eftp.ftpW) : null,
+  }
+}
+
+/** What the AI fitness overview is written from: the facts, plus FTP history and best efforts. */
+export async function fitnessContext(facts: FitnessFacts): Promise<string> {
+  const [curve, ftp] = await Promise.all([powerCurve(), ftpHistory()])
+  return JSON.stringify({
+    today: new Date().toISOString().slice(0, 10),
+    ...facts,
+    ctl: r1(facts.ctl),
+    atl: r1(facts.atl),
+    tsb: r1(facts.tsb),
+    ctl42dAgo: r1(facts.ctl42dAgo),
+    ftpHistory: ftp.slice(-8).map((f) => ({ date: new Date(f.date).toISOString().slice(0, 10), ftpW: f.ftpW, source: f.source })),
+    best90d: Object.fromEntries(curve.last90.filter((p) => [5, 60, 300, 1200, 3600].includes(p.durationS)).map((p) => [`${p.durationS}s`, Math.round(p.watts)])),
   })
 }

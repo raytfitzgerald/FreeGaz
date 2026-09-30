@@ -12,7 +12,7 @@ import { DEFAULT_MODEL } from './provider'
 
 export interface AiConfig {
   provider: AiProviderId | null
-  /** Model per provider (defaults: Claude Opus 5.5; others chosen from the live list). */
+  /** Model per provider (defaults: Claude Opus 5.5; the others are chosen from the live list). */
   models: Partial<Record<AiProviderId, string>>
   ollamaHost?: string
 }
@@ -25,6 +25,8 @@ export interface AiConfigStore {
 }
 
 export type ProviderFactory = (id: AiProviderId, cfg: ProviderConfig) => AiProvider
+
+const PROVIDER_NAME: Record<AiProviderId, string> = { anthropic: 'Anthropic', openai: 'OpenAI', grok: 'xAI (Grok)', ollama: 'Ollama' }
 
 const BREAKER_THRESHOLD = 3
 const BREAKER_COOLDOWN_MS = 5 * 60_000
@@ -45,7 +47,7 @@ export class AiService {
   status() {
     const c = this.store.getConfig()
     const provider = c.provider
-    const keys = { anthropic: !!this.store.getKey('anthropic'), openai: !!this.store.getKey('openai') }
+    const keys = { anthropic: !!this.store.getKey('anthropic'), openai: !!this.store.getKey('openai'), grok: !!this.store.getKey('grok') }
     const configured = provider === 'ollama' ? true : provider ? keys[provider] : false
     return {
       provider,
@@ -135,7 +137,7 @@ export class AiService {
   private provider(id: AiProviderId): AiProvider {
     const c = this.store.getConfig()
     const key = id === 'ollama' ? undefined : (this.store.getKey(id) ?? undefined)
-    if (id !== 'ollama' && !key) throw new AiError(`No ${id === 'anthropic' ? 'Anthropic' : 'OpenAI'} API key configured`, 'not-configured')
+    if (id !== 'ollama' && !key) throw new AiError(`No ${PROVIDER_NAME[id]} API key configured`, 'not-configured')
     return this.factory(id, { apiKey: key, baseUrl: id === 'ollama' ? c.ollamaHost : undefined })
   }
 

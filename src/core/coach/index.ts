@@ -47,3 +47,4 @@ export {
   type RideAlongMood,
   type RideAlongState,
 } from './ride-along'
+export { VOICE_EXAMPLES, coachVoice, voiceExamples } from './voice'

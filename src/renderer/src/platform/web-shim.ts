@@ -180,8 +180,8 @@ export function createWebShim(): FreegazBridge {
     'uploads.list': () => ({ items: [] }),
     'uploads.retry': () => ({ ok: false }),
     // AI runs in main (keys never touch the renderer); the browser build uses offline personas only.
-    'ai.status': () => ({ provider: null, configured: false, model: null, keys: { anthropic: false, openai: false }, breakerOpen: false }),
-    'ai.configure': () => ({ provider: null, configured: false, model: null, keys: { anthropic: false, openai: false }, breakerOpen: false }),
+    'ai.status': () => ({ provider: null, configured: false, model: null, keys: { anthropic: false, openai: false, grok: false }, breakerOpen: false }),
+    'ai.configure': () => ({ provider: null, configured: false, model: null, keys: { anthropic: false, openai: false, grok: false }, breakerOpen: false }),
     'ai.models': () => ({ models: [], error: 'AI needs the desktop app' }),
     'ai.complete': () => ({ ok: false, error: 'AI needs the desktop app', code: 'not-configured' }),
     'ai.structured': () => ({ ok: false, error: 'AI needs the desktop app', code: 'not-configured' }),

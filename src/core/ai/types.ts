@@ -1,10 +1,10 @@
 // Provider-neutral AI request types. Providers live in the main process
 // (src/main/ai/providers); API keys never reach the renderer.
 
-export type AiProviderId = 'anthropic' | 'openai' | 'ollama'
+export type AiProviderId = 'anthropic' | 'openai' | 'grok' | 'ollama'
 
 /** What the call is for; drives model choice, effort, timeout and budget. */
-export type AiPurpose = 'quip-pack' | 'live-line' | 'debrief' | 'workout' | 'chat' | 'ride-title'
+export type AiPurpose = 'quip-pack' | 'live-line' | 'debrief' | 'workout' | 'chat' | 'ride-title' | 'fitness-summary'
 
 export interface AiMessage {
   role: 'user' | 'assistant'
@@ -49,4 +49,5 @@ export const PURPOSE_DEFAULTS: Record<AiPurpose, { timeoutMs: number; maxTokens:
   workout: { timeoutMs: 120_000, maxTokens: 16_000, effort: 'medium' },
   chat: { timeoutMs: 180_000, maxTokens: 16_000, effort: 'medium' },
   'ride-title': { timeoutMs: 20_000, maxTokens: 1500, effort: 'low' },
+  'fitness-summary': { timeoutMs: 90_000, maxTokens: 4000, effort: 'low' },
 }

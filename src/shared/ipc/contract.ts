@@ -47,12 +47,12 @@ const RemoteStatusSchema = z.object({
   allowControl: z.boolean(),
   clients: z.array(z.object({ id: z.string(), address: z.string(), connectedAt: z.number() })),
 })
-const AiProviderSchema = z.enum(['anthropic', 'openai', 'ollama'])
+const AiProviderSchema = z.enum(['anthropic', 'openai', 'grok', 'ollama'])
 const AiStatusSchema = z.object({
   provider: AiProviderSchema.nullable(),
   configured: z.boolean(),
   model: z.string().nullable(),
-  keys: z.object({ anthropic: z.boolean(), openai: z.boolean() }),
+  keys: z.object({ anthropic: z.boolean(), openai: z.boolean(), grok: z.boolean() }),
   ollamaHost: z.string().optional(),
   breakerOpen: z.boolean(),
 })
@@ -191,7 +191,7 @@ export const invoke = {
   'ai.stream.start': {
     req: z.object({
       streamId: z.string().min(6).max(64),
-      purpose: z.enum(['debrief', 'chat']),
+      purpose: z.enum(['debrief', 'chat', 'fitness-summary']),
       messages: z.array(z.object({ role: z.enum(['user', 'assistant']), content: z.string().max(60_000) })).min(1).max(60),
     }),
     res: Ok,

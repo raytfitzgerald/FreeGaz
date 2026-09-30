@@ -10,6 +10,7 @@ import { PageHeader } from '../../ui/PageHeader'
 import { formatDuration } from '../../ui/format'
 import { useNow } from '../../ui/useNow'
 import { cssVar } from '../../ui/zones'
+import { FitnessOverviewCard } from './FitnessOverviewCard'
 
 /** Categorical slots 1-3 (validated all-pairs in both modes). */
 const SLOT = ['--color-cadence', '--color-power', '--color-speed'] as const
@@ -34,6 +35,7 @@ export function FitnessPage() {
       </div>
 
       <div className="space-y-4">
+        <FitnessOverviewCard rideCount={rideCount} />
         <Card>
           <CardHeader title="Training load" subtitle="Fitness is your 42-day average load, fatigue the 7-day; form = fitness − fatigue." />
           <CardBody>{pmc && pmc.length > 1 ? <PmcChart rows={pmc} /> : <Empty />}</CardBody>

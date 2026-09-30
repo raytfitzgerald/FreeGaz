@@ -1,10 +1,10 @@
 import type { WebContents } from 'electron'
-import { CHAT_SYSTEM, DEBRIEF_SYSTEM, LIVE_LINE_SYSTEM, QUIP_PACK_SYSTEM, RIDE_TITLE_SYSTEM, WORKOUT_SYSTEM } from '@core/ai/prompts'
+import { CHAT_SYSTEM, DEBRIEF_SYSTEM, FITNESS_SUMMARY_SYSTEM, LIVE_LINE_SYSTEM, QUIP_PACK_SYSTEM, RIDE_TITLE_SYSTEM, WORKOUT_SYSTEM } from '@core/ai/prompts'
 import { AiError, type AiProviderId, type AiPurpose } from '@core/ai/types'
 import type { SecretStore } from '../secrets/secret-store'
 import { AnthropicProvider } from '../ai/providers/anthropic'
 import { OllamaProvider } from '../ai/providers/ollama'
-import { OpenAiProvider } from '../ai/providers/openai'
+import { GROK, OpenAiProvider } from '../ai/providers/openai'
 import { AiService, type AiConfig, type AiConfigStore } from '../ai/service'
 import { emit, handle } from './register'
 
@@ -15,6 +15,7 @@ const SYSTEM: Record<AiPurpose, string> = {
   workout: WORKOUT_SYSTEM,
   chat: CHAT_SYSTEM,
   'ride-title': RIDE_TITLE_SYSTEM,
+  'fitness-summary': FITNESS_SUMMARY_SYSTEM,
 }
 
 function configStore(secrets: SecretStore): AiConfigStore {
@@ -30,7 +31,7 @@ const describe = (e: unknown) => (e instanceof AiError ? { error: e.message, cod
 
 export function registerAiHandlers(deps: { secrets: SecretStore }): AiService {
   const service = new AiService(configStore(deps.secrets), (id: AiProviderId, cfg) =>
-    id === 'anthropic' ? new AnthropicProvider(cfg) : id === 'openai' ? new OpenAiProvider(cfg) : new OllamaProvider(cfg),
+    id === 'anthropic' ? new AnthropicProvider(cfg) : id === 'openai' ? new OpenAiProvider(cfg) : id === 'grok' ? new OpenAiProvider(cfg, GROK) : new OllamaProvider(cfg),
   )
   const streams = new Map<string, AbortController>()
 
