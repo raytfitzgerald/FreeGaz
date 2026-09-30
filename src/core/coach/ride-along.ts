@@ -1,7 +1,7 @@
 // The ride-along race: a cartoon coach on a bike next to the rider, pacing at
 // the workout's target (or an easy endurance pace on a free ride). Push more
 // watts than the coach and you pull away; ease off and the coach rides off
-// ahead and shouts about it. Nothing here is physics, just a feel: speeds
+// ahead. Nothing here is physics, just a feel: speeds
 // scale with the cube root of power, like on a real flat road.
 
 /** The gap is held within this many metres either way, so both stay on screen. */
@@ -34,11 +34,12 @@ export function speedForPower(watts: number): number {
 }
 
 /**
- * Moves the race on by dtS seconds. Missing power counts as coasting (not
- * zero effort for the chart, just no pedalling on screen). The rider's speed
- * comes from the trainer when it reports one.
+ * Moves the race on by dtS seconds. The rider's speed comes from the trainer
+ * when it reports one. With neither power nor speed (a sensor dropout) the
+ * race holds: missing is not zero, so the coach doesn't ride off.
  */
 export function stepRideAlong(s: RideAlongState, dtS: number, rider: { watts: number | null; kmh: number | null }, coachW: number): RideAlongState {
+  if (rider.watts === null && rider.kmh === null) return s
   const dt = Math.min(Math.max(dtS, 0), 0.5)
   const riderKmh = rider.kmh !== null && rider.kmh > 0 ? rider.kmh : speedForPower(rider.watts ?? 0)
   const riderW = rider.watts ?? 0
@@ -55,16 +56,17 @@ export function rideAlongMood(gapM: number): RideAlongMood {
   return gapM > 0 ? 'coach-ahead' : 'rider-ahead'
 }
 
-/** "Coach 12 m ahead", "You're 8 m clear", "Side by side". */
-export function gapLabel(gapM: number, coachName: string): string {
-  const m = Math.round(Math.abs(gapM))
+/** "Coach 12 m ahead", "You're 8 m clear", "Side by side"; in feet for imperial units. */
+export function gapLabel(gapM: number, coachName: string, units: 'metric' | 'imperial' = 'metric'): string {
+  const far = Math.abs(gapM) >= MAX_GAP_M
+  const shown = units === 'imperial' ? `${Math.round(Math.abs(gapM) / 0.3048)} ft` : `${Math.round(Math.abs(gapM))} m`
   switch (rideAlongMood(gapM)) {
     case 'together':
       return 'Side by side'
     case 'coach-ahead':
-      return `${coachName} ${m >= MAX_GAP_M ? 'is waiting up the road' : `${m} m ahead`}`
+      return `${coachName} ${far ? 'is waiting up the road' : `${shown} ahead`}`
     case 'rider-ahead':
-      return m >= MAX_GAP_M ? `You dropped ${coachName}` : `You're ${m} m clear`
+      return far ? `You dropped ${coachName}` : `You're ${shown} clear`
   }
 }
 

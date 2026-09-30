@@ -24,8 +24,13 @@ describe('ride-along', () => {
   })
 
   it('keeps the gap on screen', () => {
-    expect(ride(600, { watts: null, kmh: null }, 250).gapM).toBe(MAX_GAP_M)
+    expect(ride(600, { watts: 0, kmh: null }, 250).gapM).toBe(MAX_GAP_M)
     expect(ride(600, { watts: 1000, kmh: null }, 100).gapM).toBe(-MAX_GAP_M)
+  })
+
+  it('holds still through a sensor dropout (missing is not zero)', () => {
+    const s = { gapM: -5, roadM: 12 }
+    expect(stepRideAlong(s, 0.25, { watts: null, kmh: null }, 250)).toBe(s)
   })
 
   it('scrolls the road at the rider speed', () => {
@@ -37,6 +42,7 @@ describe('ride-along', () => {
     expect(rideAlongMood(1)).toBe('together')
     expect(gapLabel(12.4, 'Zen')).toBe('Zen 12 m ahead')
     expect(gapLabel(-8, 'Zen')).toBe("You're 8 m clear")
+    expect(gapLabel(10, 'Zen', 'imperial')).toBe('Zen 33 ft ahead')
     expect(gapLabel(MAX_GAP_M, 'Zen')).toBe('Zen is waiting up the road')
     expect(gapLabel(-MAX_GAP_M, 'Zen')).toBe('You dropped Zen')
   })

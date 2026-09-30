@@ -20,7 +20,7 @@ const SUGGESTIONS = [
   'Why did my HR drift so much last ride?',
 ]
 const DATA_PREFIX = 'My training data (JSON):\n'
-const SPICE = ['gentle', 'cheeky', 'snarky', 'savage', 'unhinged']
+const SPICE = ['gentle', 'cheeky', 'snarky', 'savage', 'feral']
 
 /** A chat turn as stored. `shared` marks a context handoff, shown as a card rather than the raw prompt. */
 interface ChatMessage extends AiMessage {

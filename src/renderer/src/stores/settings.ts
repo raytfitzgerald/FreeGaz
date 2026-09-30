@@ -16,9 +16,17 @@ export async function loadSettings(): Promise<AppSettings> {
   return s
 }
 
-/** The quick km/h ↔ mph flip on the ride speed tile. */
-export function toggleSpeedUnit(): Promise<AppSettings> {
-  return patchSettings({ speedUnit: settingsStore.getState().speedUnit === 'mph' ? 'kmh' : 'mph' })
+let pendingSpeed: AppSettings['speedUnit'] | null = null
+
+/** The quick km/h ↔ mph flip on the ride speed tile. Flips from the last click, so a double click lands back where it started. */
+export async function toggleSpeedUnit(): Promise<AppSettings> {
+  const speedUnit = (pendingSpeed ?? settingsStore.getState().speedUnit) === 'mph' ? 'kmh' : 'mph'
+  pendingSpeed = speedUnit
+  try {
+    return await patchSettings({ speedUnit })
+  } finally {
+    if (pendingSpeed === speedUnit) pendingSpeed = null
+  }
 }
 
 export async function patchSettings(patch: AppSettingsPatch): Promise<AppSettings> {

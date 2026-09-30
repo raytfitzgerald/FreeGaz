@@ -51,17 +51,16 @@ export function RecordingBar({ plan, startLabel = 'Start recording' }: { plan?: 
       <Stat label="Work" value={`${kj} kJ`} />
       {wbal !== null && <Stat label="W′bal" value={`${wbal} %`} />}
       <div className="ml-auto flex items-center gap-2">
-        {coachOn && (
+        {coachOn && !saving && state !== 'finished' && (
           <Button
             size="sm"
             onClick={() => rt.rides.command({ type: 'muteCoach' })}
             aria-pressed={muted}
-            aria-label={muted ? 'Unmute coach' : 'Mute coach'}
-            title={muted ? 'Unmute the coach (C)' : 'Mute the coach for this ride (C)'}
+            title={muted ? 'Muted for this ride. Press again, or C, to unmute.' : 'Mute the coach for this ride (C)'}
             data-testid="mute-coach"
           >
             {muted ? <VolumeX className="size-3.5" /> : <Volume2 className="size-3.5" />}
-            {muted ? 'Muted' : 'Coach'}
+            Mute
           </Button>
         )}
         <Button size="sm" onClick={() => rt.rides.command({ type: 'lap' })} title="Lap (L)">

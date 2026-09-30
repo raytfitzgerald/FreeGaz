@@ -20,7 +20,7 @@ const SPICE: readonly { label: string; hint: string }[] = [
   { label: 'Cheeky', hint: 'Light teasing.' },
   { label: 'Snarky', hint: 'A proper roast, still friendly.' },
   { label: 'Savage', hint: 'No mercy for your excuses.' },
-  { label: 'Unhinged', hint: 'Everything the persona has.' },
+  { label: 'Feral', hint: 'Everything the persona has.' },
 ]
 const PROFANITY: SegmentedOption<CoachPrefs['profanity']>[] = [
   { value: 'clean', label: 'Clean', hint: 'No swearing at all.' },

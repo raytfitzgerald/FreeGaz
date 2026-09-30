@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { AppSettingsPatchSchema, AppSettingsSchema, DEFAULT_SETTINGS, migrateStoredSettings } from './settings'
+import { AppSettingsPatchSchema, AppSettingsSchema, DEFAULT_SETTINGS, mergeSettings, migrateStoredSettings } from './settings'
 
 describe('AppSettingsPatchSchema', () => {
   it('keeps absent keys absent, so a patch never resets other settings', () => {
@@ -56,5 +56,26 @@ describe('speed and weight units', () => {
   it('leaves non-objects for the schema to reject', () => {
     expect(migrateStoredSettings(null)).toBeNull()
     expect(migrateStoredSettings([1])).toEqual([1])
+  })
+})
+
+describe('mergeSettings', () => {
+  const current = AppSettingsSchema.parse({ units: 'imperial', coach: { personaId: 'zen', profanity: 'mild' } })
+
+  it('ignores keys sent as undefined', () => {
+    const patch = AppSettingsPatchSchema.parse({ units: undefined })
+    expect(mergeSettings(current, patch).units).toBe('imperial')
+  })
+
+  it('merges a partial nested object without resetting its other fields', () => {
+    const patch = AppSettingsPatchSchema.parse({ coach: { rideAlong: 'off' } })
+    expect(patch).toEqual({ coach: { rideAlong: 'off' } })
+    const next = mergeSettings(current, patch)
+    expect(next.coach).toMatchObject({ rideAlong: 'off', personaId: 'zen', profanity: 'mild' })
+  })
+
+  it('still replaces arrays wholesale', () => {
+    const next = mergeSettings(current, { rememberedDevices: [] })
+    expect(next.rememberedDevices).toEqual([])
   })
 })

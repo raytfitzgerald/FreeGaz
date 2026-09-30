@@ -1,6 +1,6 @@
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { AppSettingsSchema, DEFAULT_SETTINGS, migrateStoredSettings, type AppSettings, type AppSettingsPatch } from '@shared/settings'
+import { AppSettingsSchema, DEFAULT_SETTINGS, mergeSettings, migrateStoredSettings, type AppSettings, type AppSettingsPatch } from '@shared/settings'
 
 /**
  * Atomic JSON settings file. Reads once at startup (falling back to defaults
@@ -34,7 +34,7 @@ export class SettingsStore {
   }
 
   patch(patch: AppSettingsPatch): AppSettings {
-    const next = AppSettingsSchema.parse({ ...this.current, ...patch })
+    const next = mergeSettings(this.current, patch)
     this.current = next
     this.persist()
     for (const l of this.listeners) l(this.get())

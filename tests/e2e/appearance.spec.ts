@@ -40,7 +40,7 @@ test('light mode survives changing a coach setting', async () => {
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
 
   await page.getByRole('tab', { name: 'Coach' }).click()
-  for (const level of ['1 Gentle', '5 Unhinged']) {
+  for (const level of ['1 Gentle', '5 Feral']) {
     await page.getByRole('radio', { name: level }).click()
     await expect(page.getByRole('radio', { name: level })).toHaveAttribute('data-state', 'on')
   }

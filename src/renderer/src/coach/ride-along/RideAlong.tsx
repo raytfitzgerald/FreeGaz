@@ -10,6 +10,7 @@ import { patchSettings, settingsStore, useSettings } from '../../stores/settings
 import { Button } from '../../ui/Button'
 import { cn } from '../../ui/cn'
 import { useReducedMotion } from '../../ui/use-reduced-motion'
+import { useNow } from '../../ui/useNow'
 import { avatarColors, monogram } from '../avatar'
 import { ParodyBadge } from '../ParodyBadge'
 import { useCoachTalk } from '../talk'
@@ -21,11 +22,11 @@ import { Cyclist, MonogramHead } from './Cyclist'
 // the target. Ease off and they ride away and shout; push and you drop them.
 // Coach lines land in a speech bubble here instead of the cue banner.
 
-const SCENE_H = 190
+const SCENE_H = 168
 const BIKE_H = 104
 /** Where the rider sits across the scene, and how far the coach can roam either side (fractions of the width). */
-const RIDER_X = 0.3
-const ROAM = 0.28
+const RIDER_X = 0.32
+const ROAM = 0.25
 const BUBBLE_MS = 9_000
 const COACH_RPM = 88
 const coachCadence = () => COACH_RPM
@@ -39,7 +40,8 @@ export function RideAlong() {
   const coachOn = useSettings((s) => s.coach.enabled)
   const personaId = useSettings((s) => s.coach.personaId)
   const muted = useCoachTalk((s) => s.muted)
-  const active = useRide((s) => s.active)
+  // mute works while a ride is on and not yet being saved
+  const riding = useRide((s) => s.active && !s.saving && s.snapshot?.state !== 'finished')
   const { ftpW } = useFtp()
   if (mode === 'off') return null
   const meta = (packById(personaId) ?? PROFESSIONAL).meta
@@ -47,10 +49,10 @@ export function RideAlong() {
 
   const controls = (
     <div className="flex items-center gap-1">
-      {coachOn && active && (
-        <Button size="sm" variant="ghost" onClick={toggleMute} aria-pressed={muted} title="Mute the coach for this ride (C)" data-testid="ride-along-mute">
+      {coachOn && riding && (
+        <Button size="sm" variant="ghost" onClick={toggleMute} aria-pressed={muted} title={muted ? 'Muted for this ride. Press again, or C, to unmute.' : 'Mute the coach for this ride (C)'} data-testid="ride-along-mute">
           {muted ? <VolumeX className="size-3.5" /> : <Volume2 className="size-3.5" />}
-          {muted ? 'Unmute coach' : 'Mute coach'}
+          Mute coach
         </Button>
       )}
       <Button
@@ -83,14 +85,15 @@ export function RideAlong() {
 
 /** The gap in words, updated a few times a second from the race below (or from its own loop when folded). */
 function GapReadout({ name, ftpW }: { name: string; ftpW: number }) {
-  const [label, setLabel] = useState(() => gapLabel(race.state.gapM, name))
+  const units = useSettings((s) => s.units)
+  const [label, setLabel] = useState(() => gapLabel(race.state.gapM, name, units))
   useEffect(() => {
     const id = setInterval(() => {
       advance(performance.now(), ftpW)
-      setLabel(gapLabel(race.state.gapM, name))
+      setLabel(gapLabel(race.state.gapM, name, units))
     }, 500)
     return () => clearInterval(id)
-  }, [name, ftpW])
+  }, [name, ftpW, units])
   return (
     <span className="truncate text-sm text-ink-dim" aria-live="off" data-testid="ride-along-gap">
       {label}
@@ -182,7 +185,8 @@ function Scene({ personaId, name, parody, coachOn, muted, ftpW }: { personaId: s
             <div
               key={bubble.id}
               className={cn(
-                'absolute bottom-full left-1/2 mb-1 line-clamp-3 w-max max-w-[min(20rem,55vw)] -translate-x-1/4 rounded-xl border border-line-strong bg-panel-2 px-3 py-1.5 text-sm font-medium leading-snug shadow',
+                // beside the head, where there is always room: the coach never roams past the middle of the scene
+                'absolute bottom-[42%] left-[82%] line-clamp-4 w-max max-w-[min(18rem,40vw)] rounded-xl rounded-bl-sm border border-line-strong bg-panel-2 px-3 py-1.5 text-sm font-medium leading-snug shadow',
                 muted && 'text-ink-faint',
               )}
               role="status"
@@ -224,19 +228,15 @@ function Scene({ personaId, name, parody, coachOn, muted, ftpW }: { personaId: s
   )
 }
 
-/** The coach's latest line, for a few seconds. Safety prompts stay in the cue banner. */
+/** The coach's latest line, for a few seconds after it was said. Safety prompts stay in the cue banner. */
 function useBubble(personaId: string, coachOn: boolean) {
   const line = useCoachTalk((s) => s.line)
   const speaking = useCoachTalk((s) => s.speaking)
   const words = useCoachTalk((s) => s.words)
-  const [expired, setExpired] = useState<number | null>(null)
+  const now = useNow(1000)
   const current = coachOn && line && line.personaId !== null && line.priority < PRIORITY.safety ? line : null
-  useEffect(() => {
-    if (!current) return
-    const id = setTimeout(() => setExpired(current.id), BUBBLE_MS)
-    return () => clearTimeout(id)
-  }, [current])
-  if (!current || expired === current.id) return null
+  // an old line (from before the panel was opened, or the last ride) never comes back
+  if (!current || now - current.at >= BUBBLE_MS) return null
   // lines said while the rider switched persona still show, but the jaw only moves for its owner
   return { id: current.id, text: current.text, speaking: speaking && current.personaId === personaId, words }
 }

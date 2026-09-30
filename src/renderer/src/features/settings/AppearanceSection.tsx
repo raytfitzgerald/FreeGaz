@@ -40,7 +40,7 @@ export function AppearanceSection() {
       <Field label="Units" hint="Distance, elevation and temperature. Changing this also sets speed and weight to match. Power stays in watts, and W/kg stays W/kg.">
         <Segmented ariaLabel="Units" value={units} onChange={(v) => void patchSettings({ units: v, ...unitPreset(v) })} options={UNITS} />
       </Field>
-      <Field label="Speed" hint="On the HUD, the mini-HUD, routes and ride history. Click the unit on the speed tile to switch mid-ride.">
+      <Field label="Speed" hint="On the HUD, routes and ride history. Click the unit on the speed tile to switch mid-ride.">
         <Segmented ariaLabel="Speed units" value={speedUnit} onChange={(v) => void patchSettings({ speedUnit: v })} options={SPEEDS} />
       </Field>
       <Field label="Weight" hint="Your weight and the bike's. You can also switch it next to the weight field.">

@@ -3,7 +3,7 @@
 // can be checked without Electron. Services that need the main process
 // (file system, secrets, Strava, AI) are replaced by in-browser stand-ins.
 import type { EventChannel, EventMap, FreegazBridge, InvokeChannel, InvokeReq, InvokeRes } from '@shared/ipc/contract'
-import { AppSettingsSchema, DEFAULT_SETTINGS, migrateStoredSettings, type AppSettings } from '@shared/settings'
+import { AppSettingsSchema, DEFAULT_SETTINGS, mergeSettings, migrateStoredSettings, type AppSettings } from '@shared/settings'
 
 const SETTINGS_KEY = 'freegaz.web.settings'
 const JOURNAL_PREFIX = 'freegaz.web.journal.'
@@ -75,7 +75,7 @@ export function createWebShim(): FreegazBridge {
     }),
     'settings.get': () => settings,
     'settings.patch': (patch) => {
-      settings = AppSettingsSchema.parse({ ...settings, ...patch })
+      settings = mergeSettings(settings, patch)
       try {
         localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings))
       } catch {

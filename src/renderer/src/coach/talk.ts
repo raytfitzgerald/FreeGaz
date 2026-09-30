@@ -10,6 +10,8 @@ export interface TalkLine {
   /** The pack that produced it; null for the app's own notices (mute, unmute). */
   personaId: string | null
   priority: number
+  /** Date.now() when it was shown. */
+  at: number
 }
 
 interface CoachTalkState {
@@ -26,7 +28,7 @@ export const coachTalkStore = createStore<CoachTalkState>(() => ({ line: null, s
 let nextId = 1
 
 export function markLine(text: string, personaId: string | null, priority: number): void {
-  coachTalkStore.setState({ line: { id: nextId++, text, personaId, priority } })
+  coachTalkStore.setState({ line: { id: nextId++, text, personaId, priority, at: Date.now() } })
 }
 
 export function markSpeaking(speaking: boolean): void {
