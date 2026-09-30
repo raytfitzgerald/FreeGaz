@@ -1,5 +1,6 @@
 // Owns the active RideSession inside the renderer: wiring it to the engine
 // tick, the journal (via main), keep-awake, commands and persistence.
+import { maskLanguage } from '@core/persona'
 import { decideFtpUpdate, FTP_SOURCE } from '@core/ride/ftp-update'
 import { FuelingTimer } from '@core/ride/fueling'
 import type { RidePlan } from '@core/ride/plan'
@@ -106,7 +107,8 @@ export class RideRunner {
     this.actualSeen = 0
     this.actualRev = -1
     this.offSession = session.on((e) => {
-      if (e.type === 'cue') rideStore.setState({ cue: { text: e.text, at: Date.now() } })
+      // workout cues can swear: bleeped to the rider's language setting
+      if (e.type === 'cue') rideStore.setState({ cue: { text: maskLanguage(e.text, settingsStore.getState().coach.profanity), at: Date.now() } })
       if (e.type === 'journal-error') rideStore.setState({ error: `Ride journal: ${e.message}` })
       if (e.type === 'rescue') rideStore.setState({ rescue: { ...e.offer, at: Date.now() } })
       if (e.type === 'plan-finished') rideStore.setState({ planFinished: true })

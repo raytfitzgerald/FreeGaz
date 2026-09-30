@@ -944,6 +944,22 @@ export function detectProfanity(text: string): ProfanityLevel | null {
   return null
 }
 
+const MILD_GLOBAL = new RegExp(MILD_PROFANITY.source, 'gi')
+const STRONG_GLOBAL = new RegExp(STRONG_PROFANITY_WORDS.source, 'gi')
+const bleep = (word: string) => word[0] + word.slice(1).replace(/[a-z]/gi, '*')
+
+/**
+ * Text the rider didn't pick a coach for (workout cues, say), bleeped to fit
+ * their language setting: "fucking" becomes "f******" on Clean and Mild,
+ * "damn" becomes "d***" on Clean, and Unhinged leaves everything as written.
+ */
+export function maskLanguage(text: string, setting: 'clean' | 'mild' | 'unhinged'): string {
+  if (setting === 'unhinged') return text
+  let out = text.replace(STRONG_GLOBAL, bleep)
+  if (setting === 'clean') out = out.replace(MILD_GLOBAL, bleep)
+  return out
+}
+
 /** Does the text's language fit the rider's setting (Clean, Mild or Unhinged). */
 export function languageAllowed(text: string, setting: 'clean' | 'mild' | 'unhinged'): boolean {
   if (setting === 'unhinged') return true

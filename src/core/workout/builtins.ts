@@ -592,6 +592,292 @@ Cool-down
   > 0s Done. I'm almost impressed. Almost.
   > 5m Same time next week? I'll bring new material.`,
   },
+  // For adults, with a sense of humour: the charts are the jokes, and the cues
+  // swear (the ride screen masks them to match the rider's language setting).
+  {
+    slug: 'the-bird',
+    name: 'The Bird',
+    tags: ['vo2max',  'fun'],
+    description:
+      'Open the power chart and look at it: four knuckles at threshold and one tall, proud middle finger at 150 % FTP. Ride it for everyone who ever charged you a monthly fee to pedal in your own garage.',
+    text: `Warm-up
+- 10m warmup 45-70%
+  > 0s Warm up those fingers, you magnificent bastard.
+  > 8m Almost time to tell the world how you really feel.
+- 3m 55%
+
+- Thumb 3m 80%
+  > 0s Thumb first. Nobody notices the thumb. Keep it steady.
+- Between fingers 30s 50%
+- Index finger 3m 100%
+- Between fingers 30s 50%
+
+The finger
+- 45s 130%
+  > 0s Here it comes. Raise the fucking finger.
+- 1m30s 150%
+  > 0s Fingertip. 150 %. Point it straight at your problems.
+- 45s 130%
+
+- Between fingers 30s 50%
+- Ring finger 3m 100%
+- Between fingers 30s 50%
+- Pinky 2m 90%
+  > 0s Pinky out, classy as hell. You just flipped off an entire subscription economy.
+- 6m 50%
+  > 0s Hold that pose. Admire your work in the chart.
+
+Cool-down
+- 7m cooldown 60-40%
+  > 0s Done. That was the most honest ride of your life.`,
+  },
+  {
+    slug: 'both-barrels',
+    name: 'Both Barrels',
+    tags: ['vo2max',  'fun'],
+    description:
+      'Two hands, two middle fingers, and the second one is taller because you meant it more. A VO2max session disguised as a very rude chart.',
+    text: `Warm-up
+- 10m warmup 45-70%
+  > 0s One bird is a gesture. Two birds is a lifestyle.
+- 3m 55%
+
+- Thumb 3m 80%
+  > 0s Left hand. The polite one. Relatively.
+- Between fingers 30s 50%
+- Index finger 3m 100%
+- Between fingers 30s 50%
+
+The finger
+- 45s 130%
+  > 0s First finger up. Aim it at your alarm clock.
+- 1m30s 145%
+  > 0s Hold it. 145 %. Your neighbours can feel this.
+- 45s 130%
+
+- Between fingers 30s 50%
+- Ring finger 3m 100%
+- Between fingers 30s 50%
+- Pinky 2m 90%
+  > 0s One down. The other hand is jealous.
+- 6m 50%
+  > 0s Shake it out. Reload.
+- Thumb 3m 80%
+  > 0s Right hand. The one that means it.
+- Between fingers 30s 50%
+- Index finger 3m 100%
+- Between fingers 30s 50%
+
+The finger
+- 45s 130%
+  > 0s Second finger. Taller, angrier, better.
+- 1m30s 160%
+  > 0s 160 %. This one is for whoever invented the Tuesday meeting. Fuck them in particular.
+- 45s 130%
+
+- Between fingers 30s 50%
+- Ring finger 3m 100%
+- Between fingers 30s 50%
+- Pinky 2m 90%
+  > 0s That's two. Frame this chart.
+- 6m 50%
+
+Cool-down
+- 7m cooldown 60-40%
+  > 0s Both barrels emptied. You are free now.`,
+  },
+  {
+    slug: 'mount-stupid',
+    name: 'Mount Stupid',
+    tags: ['threshold',  'fun'],
+    description:
+      'The Dunning-Kruger curve as a workout: a fast climb to peak confidence, a crash into the valley of despair, then the long slope of actually knowing what you are doing. Accurate to within a few watts.',
+    text: `Peak of confidence
+- 5m warmup 50-65%
+  > 0s You have ridden a bike before. How hard can this be?
+- 3m ramp 70-120%
+  > 0s Climbing Mount Stupid. You are a natural. Everyone says so.
+- 2m 120%
+  > 0s Top of the mountain. You should start a cycling podcast.
+
+- Valley of despair 12m 45%
+  > 0s Oh no. Oh shit. It turns out you knew nothing.
+  > 6m Rock bottom. Great view of your own ignorance from down here.
+- Slope of enlightenment 20m ramp 60-95%
+  > 0s Slowly, painfully, you start to understand things.
+  > 10m Look at you, learning. Humility is a hell of a drug.
+- Plateau of sustainability 12m 92%
+  > 0s Welcome to competence. It is less fun than Mount Stupid, but it pays better.
+- Cool-down 6m cooldown 60-40%
+  > 0s Congratulations, you are now wise enough to know how little you know.`,
+  },
+  {
+    slug: 'stairway-to-hell',
+    name: 'Stairway to Hell',
+    tags: ['threshold',  'fun'],
+    description:
+      'Nine steps up, 3 minutes each, from easy to well past threshold, and then the stairs simply end. There is no landing.',
+    text: `- Warm-up 8m warmup 45-65%
+  > 0s Welcome to the stairwell. The elevator is out of order. Forever.
+- Step 1 3m 60%
+  > 0s Step one. This is fine.
+- Step 2 3m 66%
+- Step 3 3m 72%
+  > 0s Nice and easy. Suspiciously easy.
+- Step 4 3m 78%
+- Step 5 3m 84%
+  > 0s Halfway up. It is getting warm in here. Wonder why.
+- Step 6 3m 90%
+- Step 7 3m 96%
+  > 0s Is that sulfur? That smells like sulfur.
+- Step 8 3m 102%
+  > 0s Threshold. The devil is holding the door open for you.
+- Step 9 3m 110%
+  > 0s Top step. There is no landing. Just keep fucking climbing.
+- The fall 7m 45%
+  > 0s And... you fall. All the way down. Nobody catches you.
+- Cool-down 8m cooldown 60-40%
+  > 0s You survived hell. It was mostly stairs.`,
+  },
+  {
+    slug: 'shit-show',
+    name: 'Shit Show',
+    tags: ['vo2max',  'anaerobic',  'fun'],
+    description:
+      'Intervals picked by a raccoon that got into the energy drinks: odd lengths, random targets, no pattern and no mercy. Great for the days real life feels like this anyway.',
+    text: `Warm-up
+- 10m warmup 45-70%
+  > 0s Nothing about the next half hour makes sense. Just roll with it.
+
+The shit show
+- 47s 118%
+  > 0s Forty-seven seconds. Why 47? Nobody fucking knows.
+- 2m13s 62%
+- 19s 160%
+  > 0s SPRINT. No reason. Go.
+- 1m41s 88%
+- 3m 105%
+  > 0s A normal interval. Enjoy it, it won't happen again.
+- 1m 55%
+- 1m37s 125%
+  > 0s The raccoon has chosen violence.
+- 58s 70%
+- 23s 150%
+- 2m7s 60%
+- 4m11s 96%
+  > 0s Four minutes eleven. The raccoon was asked to round it and refused.
+- 1m29s 55%
+- 33s 140%
+- 1m 65%
+- 2m44s 108%
+  > 0s Almost over. Probably. Honestly, who even knows anymore.
+- 1m15s 50%
+- 11s 170%
+  > 0s Eleven seconds of pure chaos. Empty the bastard tank.
+- 3m32s 58%
+
+Cool-down
+- 6m cooldown 60-40%
+  > 0s Well, that was a shit show. Same time tomorrow.`,
+  },
+  {
+    slug: 'sawtooth',
+    name: 'Sawtooth Motherfucker',
+    tags: ['threshold',  'vo2max',  'fun'],
+    description:
+      'Eight ramps that climb from comfortable to cruel and then drop you like a bad habit. The chart looks like a saw because it is one.',
+    text: `Warm-up
+- 10m warmup 45-70%
+  > 0s Eight teeth on this saw. Each one bites a little harder.
+- 3m 55%
+
+Teeth
+- 3m ramp 70-115%
+  > 0s Up the ramp, off the cliff, repeat until something breaks.
+
+Teeth 3x
+- 1m 50%
+- 3m ramp 70-115%
+
+Teeth
+- 1m 50%
+- 3m ramp 70-115%
+  > 0s Halfway. The saw does not get tired. You do. That is the whole joke.
+
+Teeth 2x
+- 1m 50%
+- 3m ramp 70-115%
+
+Teeth
+- 1m 50%
+- 3m ramp 70-115%
+  > 0s Last tooth. Bite back, motherfucker.
+- 1m 50%
+
+Cool-down
+- 10m cooldown 60-40%
+  > 0s Saw's put away. Count your fingers.`,
+  },
+  {
+    slug: 'market-crash',
+    name: 'Market Crash',
+    tags: ['sweet-spot',  'fun'],
+    description:
+      'A 20-minute bull run to sweet spot, a Black Monday crash, a dead cat bounce, a recession and a slow recovery. Past performance does not guarantee future watts.',
+    text: `- Warm-up 6m warmup 45-60%
+  > 0s Markets open. Everyone is feeling rich and stupid.
+- Bull run 20m ramp 60-92%
+  > 0s Number go up. Your portfolio is on fire. The good kind of fire.
+  > 12m Irrational exuberance. Buy the dip. What dip? There are no dips.
+- Black Monday 3m 40%
+  > 0s CRASH. Oh fuck. Oh fuck oh fuck oh fuck.
+- Dead cat bounce 1m 110%
+  > 0s Dead cat bounce. It's back. It's so back.
+- Recession 10m 55%
+  > 0s It was not back. Welcome to the recession.
+- Slow recovery 14m ramp 60-88%
+  > 0s Slowly, the economy of your legs recovers. Mostly for the rich.
+- Cool-down 6m cooldown 60-40%
+  > 0s Markets closed. Not financial advice.`,
+  },
+  {
+    slug: 'liar-liar',
+    name: 'Liar Liar',
+    tags: ['vo2max',  'fun'],
+    description:
+      'Every one of these 3-minute intervals is the last one, according to the coach. There are seven.',
+    text: `Warm-up
+- 10m warmup 45-70%
+  > 0s Today is short and easy. Four intervals, tops. Trust me.
+- 3m 55%
+
+Intervals
+- 3m 110%
+  > 0s Interval one of four. Easy.
+- 3m 50%
+- 3m 110%
+  > 0s Two of four. See? I never lie.
+- 3m 50%
+- 3m 110%
+  > 0s Three of four. Almost done, champ.
+- 3m 50%
+- 3m 110%
+  > 0s Last one. For real.
+- 3m 50%
+  > 0s ...
+- 3m 110%
+  > 0s Okay, one more. That was a typo.
+- 3m 50%
+- 3m 110%
+  > 0s THIS is the last one. Pinky promise.
+- 3m 50%
+- 3m 110%
+  > 0s Fine. I'm a fucking liar. This is the actual last one.
+
+Cool-down
+- 8m cooldown 60-40%
+  > 0s It's over. Genuinely. Would I lie to you?`,
+  },
 ]
 
 function build(spec: BuiltinSpec): Workout {

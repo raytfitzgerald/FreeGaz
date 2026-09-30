@@ -34,6 +34,14 @@ const MINUTES: Record<string, number> = {
   'race-openers': 30,
   'cadence-drills': 55,
   'roast-me': 55,
+  'the-bird': 42,
+  'both-barrels': 64,
+  'mount-stupid': 60,
+  'stairway-to-hell': 50,
+  'shit-show': 45,
+  'sawtooth': 55,
+  'market-crash': 60,
+  'liar-liar': 60,
 }
 
 const TAGS = new Set([
@@ -58,8 +66,8 @@ const byId = (slug: string) => {
 }
 
 describe('BUILTIN_WORKOUTS', () => {
-  it('has about 28 workouts with unique, deterministic ids', () => {
-    expect(BUILTIN_WORKOUTS).toHaveLength(28)
+  it('has about 36 workouts with unique, deterministic ids', () => {
+    expect(BUILTIN_WORKOUTS).toHaveLength(36)
     const ids = BUILTIN_WORKOUTS.map((w) => w.id)
     expect(new Set(ids).size).toBe(ids.length)
     expect(ids.map((id) => id.replace('builtin:', '')).sort()).toEqual(Object.keys(MINUTES).sort())

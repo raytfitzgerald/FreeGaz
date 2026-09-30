@@ -19,6 +19,7 @@ export {
   detectProfanity,
   guardrailMatch,
   languageAllowed,
+  maskLanguage,
   normalizeForMatching,
   violatesGuardrails,
   type GuardrailCategory,
