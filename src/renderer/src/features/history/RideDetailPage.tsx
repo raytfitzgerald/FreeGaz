@@ -137,7 +137,7 @@ function SummaryGrid({ r }: { r: RideSummary }) {
 
 /** Stacked small multiples: one metric per chart, one axis each, shared crosshair. */
 function Streams({ streams, ride }: { streams: RideStreams; ride: RideSummary }) {
-  const units = useSettings((s) => s.units)
+  const speed = useSettings((s) => s.speedUnit)
   const x = useMemo(() => Array.from({ length: streams.length }, (_, i) => i), [streams])
   const wbal = useMemo(() => {
     const wb = new WPrimeBalance({ cp: ride.athlete.cpW ?? ride.athlete.ftpW, wPrimeJ: ride.athlete.wPrimeJ ?? 20_000 })
@@ -147,7 +147,7 @@ function Streams({ streams, ride }: { streams: RideStreams; ride: RideSummary })
     { key: 'power', label: 'Power', unit: 'W', colorVar: '--color-power', values: column(streams, 'power') },
     { key: 'cadence', label: 'Cadence', unit: 'rpm', colorVar: '--color-cadence', values: column(streams, 'cadence') },
     { key: 'hr', label: 'Heart rate', unit: 'bpm', colorVar: '--color-hr', values: column(streams, 'hr') },
-    { key: 'speed', label: 'Speed', unit: speedUnit(units), colorVar: '--color-speed', values: column(streams, 'speed').map((v) => (v === null ? null : displaySpeedKmh(v * 3.6, units))) },
+    { key: 'speed', label: 'Speed', unit: speedUnit(speed), colorVar: '--color-speed', values: column(streams, 'speed').map((v) => (v === null ? null : displaySpeedKmh(v * 3.6, speed))) },
     { key: 'wbal', label: "W′ balance", unit: 'kJ', colorVar: '--color-wbal', values: wbal, wash: true },
   ].filter((p) => p.values.some((v) => v !== null))
 

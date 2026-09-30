@@ -27,6 +27,14 @@ describe('SettingsStore', () => {
     expect(SettingsStore.inDir(d).get()).toEqual(DEFAULT_SETTINGS)
   })
 
+  it('derives speed and weight units for a file saved before they existed', () => {
+    const d = dir()
+    writeFileSync(join(d, 'settings.json'), JSON.stringify({ version: 1, units: 'imperial' }))
+    const s = SettingsStore.inDir(d).get()
+    expect(s.speedUnit).toBe('mph')
+    expect(s.weightUnit).toBe('lb')
+  })
+
   it('rejects invalid patches without changing state', () => {
     const store = SettingsStore.inDir(dir())
     // @ts-expect-error invalid enum on purpose

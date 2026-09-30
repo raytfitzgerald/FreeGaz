@@ -14,6 +14,8 @@ import {
   storedSpeedKmh,
   storedWeightKg,
   tempUnit,
+  unitPreset,
+  weightUnit,
 } from './units'
 
 describe('display units', () => {
@@ -54,5 +56,25 @@ describe('display units', () => {
   it('picks round imperial scale lengths', () => {
     expect(scaleSteps('metric')[0]).toBe(20)
     expect(scaleSteps('imperial').some((m) => Math.abs(m - 1609.344) < 1)).toBe(true)
+  })
+
+  it('drives speed and weight from their own units, independent of the system', () => {
+    expect(speedUnit('kmh')).toBe('km/h')
+    expect(speedUnit('mph')).toBe('mph')
+    expect(formatSpeedKmh(32.4, 'mph')).toBe('20.1')
+    expect(formatSpeedKmh(32.4, 'kmh')).toBe('32.4')
+    expect(formatSpeedMps(10, 'mph')).toBe('22.4')
+    expect(storedSpeedKmh(20, 'mph')).toBeCloseTo(32.19, 1)
+    expect(storedSpeedKmh(20, 'kmh')).toBe(20)
+    expect(weightUnit('lb')).toBe('lb')
+    expect(weightUnit('kg')).toBe('kg')
+    expect(formatWeight(75, 'lb')).toBe('165.3')
+    expect(formatWeight(75, 'kg')).toBe('75')
+    expect(storedWeightKg(displayWeightKg(75, 'lb'), 'lb')).toBeCloseTo(75, 6)
+  })
+
+  it('maps a whole system to its speed and weight preset', () => {
+    expect(unitPreset('metric')).toEqual({ speedUnit: 'kmh', weightUnit: 'kg' })
+    expect(unitPreset('imperial')).toEqual({ speedUnit: 'mph', weightUnit: 'lb' })
   })
 })

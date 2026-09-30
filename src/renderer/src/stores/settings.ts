@@ -16,6 +16,11 @@ export async function loadSettings(): Promise<AppSettings> {
   return s
 }
 
+/** The quick km/h ↔ mph flip on the ride speed tile. */
+export function toggleSpeedUnit(): Promise<AppSettings> {
+  return patchSettings({ speedUnit: settingsStore.getState().speedUnit === 'mph' ? 'kmh' : 'mph' })
+}
+
 export async function patchSettings(patch: AppSettingsPatch): Promise<AppSettings> {
   const s = await bridge().invoke('settings.patch', patch)
   settingsStore.setState(s, true)

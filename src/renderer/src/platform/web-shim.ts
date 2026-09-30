@@ -3,7 +3,7 @@
 // can be checked without Electron. Services that need the main process
 // (file system, secrets, Strava, AI) are replaced by in-browser stand-ins.
 import type { EventChannel, EventMap, FreegazBridge, InvokeChannel, InvokeReq, InvokeRes } from '@shared/ipc/contract'
-import { AppSettingsSchema, DEFAULT_SETTINGS, type AppSettings } from '@shared/settings'
+import { AppSettingsSchema, DEFAULT_SETTINGS, migrateStoredSettings, type AppSettings } from '@shared/settings'
 
 const SETTINGS_KEY = 'freegaz.web.settings'
 const JOURNAL_PREFIX = 'freegaz.web.journal.'
@@ -42,7 +42,7 @@ const ls = {
 function loadSettings(): AppSettings {
   try {
     const raw = localStorage.getItem(SETTINGS_KEY)
-    const parsed = raw ? AppSettingsSchema.safeParse(JSON.parse(raw)) : null
+    const parsed = raw ? AppSettingsSchema.safeParse(migrateStoredSettings(JSON.parse(raw))) : null
     return parsed?.success ? parsed.data : { ...DEFAULT_SETTINGS }
   } catch {
     return { ...DEFAULT_SETTINGS }

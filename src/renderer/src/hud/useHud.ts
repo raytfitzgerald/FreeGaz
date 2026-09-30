@@ -18,7 +18,8 @@ function subscribeBoth(onChange: () => void): () => void {
 
 function state(athlete: AthleteSnapshot): HudState {
   const frame = liveStore.getState()
-  return { frame, ride: rideStore.getState(), athlete, wall: frame.wall, units: settingsStore.getState().units }
+  const { units, speedUnit } = settingsStore.getState()
+  return { frame, ride: rideStore.getState(), athlete, wall: frame.wall, units, speedUnit }
 }
 
 function unitOf(def: WidgetDef, athlete: AthleteSnapshot): string | undefined {

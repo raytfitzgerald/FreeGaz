@@ -1,6 +1,6 @@
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { AppSettingsSchema, DEFAULT_SETTINGS, type AppSettings, type AppSettingsPatch } from '@shared/settings'
+import { AppSettingsSchema, DEFAULT_SETTINGS, migrateStoredSettings, type AppSettings, type AppSettingsPatch } from '@shared/settings'
 
 /**
  * Atomic JSON settings file. Reads once at startup (falling back to defaults
@@ -22,7 +22,7 @@ export class SettingsStore {
   static load(file: string): AppSettings {
     try {
       const raw: unknown = JSON.parse(readFileSync(file, 'utf8'))
-      const parsed = AppSettingsSchema.safeParse(raw)
+      const parsed = AppSettingsSchema.safeParse(migrateStoredSettings(raw))
       return parsed.success ? parsed.data : { ...DEFAULT_SETTINGS }
     } catch {
       return { ...DEFAULT_SETTINGS }
