@@ -11,11 +11,13 @@ import { Button } from '../../ui/Button'
 import { cn } from '../../ui/cn'
 import { useReducedMotion } from '../../ui/use-reduced-motion'
 import { useNow } from '../../ui/useNow'
-import { avatarColors, monogram } from '../avatar'
+import { avatarColors } from '../avatar'
 import { useCoachTalk } from '../talk'
 import { CoachToon } from '../toon/CoachToon'
 import { toonFor } from '../toon/heads'
-import { Cyclist, MonogramHead } from './Cyclist'
+import { useRider, riderInitials } from '../../db/rider'
+import { CoachHead, RiderHead } from '../heads'
+import { Cyclist } from './Cyclist'
 
 // The ride-along: you and your coach on a little road, the coach pacing at
 // the target. Ease off and they ride away and shout; push and you drop them.
@@ -157,6 +159,7 @@ function Scene({ personaId, name, coachOn, muted, ftpW }: { personaId: string; n
     }
   }, [ftpW, reduced])
 
+  const rider = useRider()
   const toon = toonFor(personaId)
   const bubble = useBubble(personaId, coachOn)
   const colors = avatarColors(personaId)
@@ -208,7 +211,7 @@ function Scene({ personaId, name, coachOn, muted, ftpW }: { personaId: string; n
               label={`${name}, riding next to you`}
             />
           ) : (
-            <Cyclist jersey={colors.background} cadence={coachCadence} height={BIKE_H} label={`${name}, riding next to you`} head={<MonogramHead text={monogram(name)} {...colors} />} />
+            <Cyclist jersey={colors.background} cadence={coachCadence} height={BIKE_H} label={`${name}, riding next to you`} head={<CoachHead personaId={personaId} />} />
           )}
         </div>
       </div>
@@ -217,9 +220,9 @@ function Scene({ personaId, name, coachOn, muted, ftpW }: { personaId: string; n
           jersey="var(--color-accent)"
           cadence={riderCadence}
           height={BIKE_H}
-          label="You, riding"
+          label={`${rider.name ?? 'You'}, riding`}
           testId="ride-along-rider"
-          head={<MonogramHead text="You" background="var(--color-panel-2)" color="var(--color-ink)" helmet="var(--color-accent)" />}
+          head={<RiderHead photo={rider.photo} initials={riderInitials(rider.name)} />}
         />
       </div>
     </div>
