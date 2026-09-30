@@ -7,7 +7,7 @@ import { FTP_TESTS } from '@core/workout/ftp-tests'
 import { parseErgMrcWithWarnings, toErg, toMrc } from '@core/workout/io/ergmrc'
 import { parseIntervalsText, toIntervalsText } from '@core/workout/io/intervals-text'
 import { parseZwoWithWarnings, toZwo } from '@core/workout/io/zwo'
-import type { Workout } from '@core/workout/model'
+import type { Workout, WorkoutFolder } from '@core/workout/model'
 import { workoutStats, type WorkoutStats } from '@core/workout/stats'
 import { db, type StoredWorkout } from '../db/db'
 import { bridge } from '../platform/bridge'
@@ -22,14 +22,18 @@ export interface LibraryEntry {
   workout: Workout
   builtin: boolean
   favorite: boolean
+  /** Which Workouts tab it lives on. */
+  folder: 'freegaz' | WorkoutFolder
+  /** Position in the Training plan, for workouts filed there. */
+  planOrder?: number
   timeline: Timeline
   stats: WorkoutStats
 }
 
-const cache = new Map<string, { json: string; ftpW: number; entry: Omit<LibraryEntry, 'favorite'> }>()
+const cache = new Map<string, { json: string; ftpW: number; entry: Omit<LibraryEntry, 'favorite' | 'folder' | 'planOrder'> }>()
 
 /** Compiles and scores a workout (memoized per workout content and FTP). */
-export function describeWorkout(workout: Workout, ftpW: number): Omit<LibraryEntry, 'favorite'> {
+export function describeWorkout(workout: Workout, ftpW: number): Omit<LibraryEntry, 'favorite' | 'folder' | 'planOrder'> {
   const json = JSON.stringify(workout)
   const hit = cache.get(workout.id)
   if (hit && hit.json === json && hit.ftpW === ftpW) return hit.entry
@@ -42,8 +46,10 @@ export function describeWorkout(workout: Workout, ftpW: number): Omit<LibraryEnt
 export async function loadLibrary(ftpW: number): Promise<LibraryEntry[]> {
   const [stored, favKv] = await Promise.all([db().workouts.toArray(), db().kv.get(FAVORITES_KEY)])
   const builtinFavs = new Set((favKv?.value as string[] | undefined) ?? [])
-  const mine = stored.sort((a, b) => b.updatedAt - a.updatedAt).map((s) => ({ ...describeWorkout(s.json, ftpW), favorite: s.favorite }))
-  const builtins = BUILTINS.map((w) => ({ ...describeWorkout(w, ftpW), favorite: builtinFavs.has(w.id) }))
+  const mine = stored
+    .sort((a, b) => b.updatedAt - a.updatedAt)
+    .map((s) => ({ ...describeWorkout(s.json, ftpW), favorite: s.favorite, folder: s.json.folder ?? 'custom', planOrder: s.planOrder }) satisfies LibraryEntry)
+  const builtins = BUILTINS.map((w) => ({ ...describeWorkout(w, ftpW), favorite: builtinFavs.has(w.id), folder: 'freegaz' }) satisfies LibraryEntry)
   return [...mine, ...builtins]
 }
 
@@ -66,12 +72,41 @@ export async function saveWorkout(w: Workout, ftpW: number): Promise<Workout> {
     durationS: stats.durationS,
     tss: stats.tss,
     favorite: existing?.favorite ?? false,
+    planOrder: workout.folder === 'plan' ? (existing?.json.folder === 'plan' && existing.planOrder !== undefined ? existing.planOrder : await nextPlanOrder()) : undefined,
     json: workout,
     createdAt: workout.createdAt!,
     updatedAt: now,
   }
   await db().workouts.put(row)
   return workout
+}
+
+async function nextPlanOrder(): Promise<number> {
+  const rows = await db().workouts.toArray()
+  return rows.reduce((m, r) => (r.json.folder === 'plan' ? Math.max(m, r.planOrder ?? 0) : m), 0) + 1
+}
+
+/** Files one of the rider's workouts in Custom workouts or the Training plan (at its end). */
+export async function moveToFolder(id: string, folder: WorkoutFolder): Promise<void> {
+  const row = await db().workouts.get(id)
+  if (!row) throw new Error('Only your own workouts can be moved. Copy a FreeGaz workout to the builder first.')
+  const json: Workout = { ...row.json }
+  if (folder === 'plan') json.folder = 'plan'
+  else delete json.folder
+  const planOrder = folder === 'plan' ? (row.json.folder === 'plan' && row.planOrder !== undefined ? row.planOrder : await nextPlanOrder()) : undefined
+  await db().workouts.put({ ...row, json, planOrder, updatedAt: Date.now() })
+}
+
+/** Moves a Training plan workout one place earlier (-1) or later (+1). */
+export async function movePlanItem(id: string, by: -1 | 1): Promise<void> {
+  await db().transaction('rw', db().workouts, async () => {
+    const plan = (await db().workouts.toArray()).filter((r) => r.json.folder === 'plan').sort((a, b) => (a.planOrder ?? 0) - (b.planOrder ?? 0))
+    const i = plan.findIndex((r) => r.id === id)
+    const j = i + by
+    if (i < 0 || j < 0 || j >= plan.length) return
+    ;[plan[i], plan[j]] = [plan[j]!, plan[i]!]
+    await Promise.all(plan.map((r, k) => db().workouts.update(r.id, { planOrder: k + 1 })))
+  })
 }
 
 export async function deleteWorkout(id: string): Promise<void> {

@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from '@tanstack/react-router'
 import type uPlot from 'uplot'
 import { ArrowLeft, ExternalLink, FolderOpen, Trash2 } from 'lucide-react'
+import { normalizeRide } from '@core/ride/normalize'
 import { WPrimeBalance } from '@core/metrics'
 import { column, type RideStreams } from '@core/ride/streams'
 import type { RideSummary } from '@core/ride/types'
@@ -26,7 +27,7 @@ const SYNC_KEY = 'ride-detail'
 export function RideDetailPage() {
   const { rideId } = useParams({ from: '/history/$rideId' })
   // Dexie resolves a missing row as undefined, which useLiveQuery also means "loading": map it to null
-  const ride = useLiveQuery(() => db().rides.get(rideId).then((r) => r ?? null), [rideId])
+  const ride = useLiveQuery(() => db().rides.get(rideId).then((r) => (r ? normalizeRide(r) : null)), [rideId])
   const streams = useLiveQuery(() => db().rideStreams.get(rideId), [rideId])
   const navigate = useNavigate()
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -121,7 +122,7 @@ function SummaryGrid({ r }: { r: RideSummary }) {
     ['Cadence', r.avgCadence === null ? '—' : `${r.avgCadence} rpm`],
     ['Variability (VI)', r.vi?.toFixed(2) ?? '—'],
     ['Efficiency (EF)', r.ef?.toFixed(2) ?? '—'],
-    ['Decoupling', r.decouplingPct === null ? '—' : `${r.decouplingPct.toFixed(1)} %`],
+    ['Decoupling', r.decouplingPct == null ? '—' : `${r.decouplingPct.toFixed(1)} %`],
     ['Distance', `${formatLongDistance(r.distanceM, units, 1)} ${distanceUnit(units)}`],
   ]
   return (

@@ -52,11 +52,14 @@ test('History switches between the list and a month calendar, and remembers the 
   await expect(cal.getByTestId('calendar-month')).toHaveText(month!)
 
   // a chip opens the ride
+  // a chip opens the ride, and a bare record (older app versions, imports) still renders
   await cal.getByTestId('calendar-ride').filter({ hasText: 'VO2 Max' }).click()
   await expect(page).toHaveURL(/#\/history\/demo-5$/)
+  await expect(page.getByRole('heading', { name: 'VO2 Max 5×4' })).toBeVisible()
+  await expect(page.getByText('Something went wrong')).toHaveCount(0)
 
-  // back on History (the demo rides are too bare for the detail page), the calendar is still the view
-  await page.goBack()
+  // back on History, the calendar is still the view
+  await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'History', exact: true }).click()
   await expect(page.getByTestId('ride-calendar')).toBeVisible()
   await page.getByRole('radio', { name: 'List' }).click()
   await expect(page.getByTestId('ride-list')).toBeVisible()
