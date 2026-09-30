@@ -95,6 +95,23 @@ export type RememberedDeviceSetting = z.infer<typeof RememberedDeviceSchema>
 
 export const DEFAULT_SETTINGS: AppSettings = AppSettingsSchema.parse({})
 
-/** Partial update accepted over IPC. Arrays replace wholesale. */
-export const AppSettingsPatchSchema = AppSettingsSchema.partial().omit({ version: true })
+/** Drops a field's top-level default, so an absent key stays absent. */
+function noDefault<T extends z.ZodType>(schema: T): z.ZodOptional<z.ZodType<z.output<T>>> {
+  const inner = schema instanceof z.ZodDefault ? (schema.unwrap() as z.ZodType<z.output<T>>) : schema
+  return inner.optional()
+}
+
+const { version: _version, ...settingsShape } = AppSettingsSchema.shape
+
+/**
+ * Partial update accepted over IPC. Arrays and nested objects replace
+ * wholesale. Built without the top-level defaults: zod 4 applies a default
+ * even inside .partial(), which turned every patch into a reset of every
+ * other setting (a spice change flipped Light back to System).
+ */
+export const AppSettingsPatchSchema = z.object(
+  Object.fromEntries(Object.entries(settingsShape).map(([k, v]) => [k, noDefault(v)])) as {
+    [K in keyof typeof settingsShape]: z.ZodOptional<z.ZodType<z.output<(typeof settingsShape)[K]>>>
+  },
+)
 export type AppSettingsPatch = z.infer<typeof AppSettingsPatchSchema>
