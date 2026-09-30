@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { isLoopRoute } from '@core/ride/route-course'
 import type { Route } from '@core/routes/model'
+import { useSettings } from '../../stores/settings'
 import { fitProjection, outlineRuns, scaleBar } from '../../routes/geometry'
 import { gradeVar } from '../../routes/grade'
 
@@ -40,7 +41,8 @@ export function RouteOutline({
   const proj = useMemo(() => fitProjection(route.bounds, width, height, PAD), [route, width, height])
   const runs = useMemo(() => outlineRuns(route.profile, proj), [route, proj])
   const whole = useMemo(() => runs.map((r) => r.points).join(' '), [runs])
-  const scale = scaleBar(proj.metresPerUnit, width / 4)
+  const units = useSettings((s) => s.units)
+  const scale = scaleBar(proj.metresPerUnit, width / 4, units)
   const loop = useMemo(() => isLoopRoute(route), [route])
   const first = route.profile[0]!
   const last = route.profile[route.profile.length - 1]!

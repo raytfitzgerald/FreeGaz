@@ -108,8 +108,8 @@ function SortableTile(props: { def: WidgetDef; athlete: AthleteSnapshot; editing
 
 /** One metric tile. Memoised on its definition, so only its own value re-renders it. */
 export const HudTile = memo(function HudTile({ def, athlete }: { def: WidgetDef; athlete: AthleteSnapshot }) {
-  const { value, sub } = useWidget(def, athlete)
-  return <MetricTile label={def.label} value={value} unit={def.unit} size="md" accent={def.accent} sub={sub} testId={`hud-${def.id}`} />
+  const { value, sub, unit } = useWidget(def, athlete)
+  return <MetricTile label={def.label} value={value} unit={unit} size="md" accent={def.accent} sub={sub} testId={`hud-${def.id}`} />
 })
 
 function WidgetPicker({ label, exclude, onPick, icon, compact }: { label: string; exclude: string[]; onPick: (id: string) => void; icon?: ReactNode; compact?: boolean }) {

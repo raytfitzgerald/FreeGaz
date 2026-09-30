@@ -2,8 +2,10 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { Trash2 } from 'lucide-react'
+import { displayWeightKg, formatWeight, storedWeightKg, weightUnit } from '@core/units'
 import { currentProfile, deleteFtp, recordFtp, updateProfile } from '../../db/athlete-repo'
 import { db } from '../../db/db'
+import { useSettings } from '../../stores/settings'
 import { Button } from '../../ui/Button'
 import { Field, NumberInput, Section } from '../../ui/form'
 
@@ -21,6 +23,9 @@ export function AthleteSection() {
   const profile = useLiveQuery(() => currentProfile(), [])
   const currentFtp = history?.[0]?.ftpW ?? null
   const [ftpDraft, setFtpDraft] = useState<number | null>(null)
+  const units = useSettings((s) => s.units)
+  const kg = profile?.weightKg ?? 75
+  const weightShown = Math.round(displayWeightKg(kg, units) * 10) / 10
 
   const saveFtp = async () => {
     if (!ftpDraft || ftpDraft < 50 || ftpDraft > 700) return
@@ -43,7 +48,7 @@ export function AthleteSection() {
           </div>
           {currentFtp && profile?.weightKg && (
             <div className="mt-2 text-xs text-ink-dim">
-              {(currentFtp / profile.weightKg).toFixed(2)} W/kg at {profile.weightKg} kg
+              {(currentFtp / profile.weightKg).toFixed(2)} W/kg at {formatWeight(profile.weightKg, units)} {weightUnit(units)}
             </div>
           )}
         </Field>
@@ -73,7 +78,14 @@ export function AthleteSection() {
 
       <Section title="Body & heart" description="Used for W/kg, heart-rate zones and the physics that turns watts into virtual speed.">
         <Field label="Weight">
-          <NumberInput value={profile?.weightKg ?? 75} onChange={(v) => v && void updateProfile({ weightKg: v })} unit="kg" min={30} max={200} step={0.1} />
+          <NumberInput
+            value={weightShown}
+            onChange={(v) => v && void updateProfile({ weightKg: Math.round(storedWeightKg(v, units) * 100) / 100 })}
+            unit={weightUnit(units)}
+            min={units === 'imperial' ? 66 : 30}
+            max={units === 'imperial' ? 440 : 200}
+            step={0.1}
+          />
         </Field>
         <Field label="Threshold HR (LTHR)" hint="Your average HR over a hard 20-min test × 0.95 is a good estimate.">
           <NumberInput value={profile?.lthr ?? null} onChange={(v) => void updateProfile({ lthr: v ?? undefined })} unit="bpm" min={100} max={220} />

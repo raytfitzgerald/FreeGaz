@@ -3,6 +3,7 @@
 // map. Pure, so it is tested without a DOM.
 import { gradeIntegral, sampleAt } from '@core/routes/lookup'
 import type { ProfilePoint, RouteBounds } from '@core/routes/model'
+import { formatSpan, scaleSteps, type UnitSystem } from '@core/units'
 import { gradeClass } from './grade'
 
 /** The position within its lap of ride coordinate `x`; a lap's end reads as its end, not the next start. */
@@ -180,13 +181,12 @@ export function outlineRuns(profile: readonly ProfilePoint[], proj: Projection, 
   return runs
 }
 
-const SCALE_STEPS_M = [20, 50, 100, 200, 500, 1000, 2000, 5000, 10_000, 20_000, 50_000, 100_000, 200_000]
-
 /** The longest round distance that fits in `maxUnits` of the drawing. */
-export function scaleBar(metresPerUnit: number, maxUnits: number): { metres: number; units: number; label: string } {
-  let best = SCALE_STEPS_M[0]!
-  for (const m of SCALE_STEPS_M) if (m / metresPerUnit <= maxUnits) best = m
-  return { metres: best, units: best / metresPerUnit, label: best >= 1000 ? `${best / 1000} km` : `${best} m` }
+export function scaleBar(metresPerUnit: number, maxUnits: number, units: UnitSystem = 'metric'): { metres: number; units: number; label: string } {
+  const steps = scaleSteps(units)
+  let best = steps[0]!
+  for (const m of steps) if (m / metresPerUnit <= maxUnits) best = m
+  return { metres: best, units: best / metresPerUnit, label: formatSpan(best, units) }
 }
 
 const f = (v: number) => (Math.round(v * 10) / 10).toString()
