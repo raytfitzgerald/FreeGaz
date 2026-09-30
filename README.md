@@ -38,12 +38,16 @@ It's a data-obsessed indoor cycling trainer for macOS. It drives your smart trai
 
 <p align="center"><img src="docs/screenshots/coach.png" alt="Coach settings: the personas, a sample line, spice from gentle to feral, and profanity from clean to unhinged" width="900"></p>
 
-**Workouts you can see before they hurt you,** and a builder for the ones nobody has written yet. Drag blocks, type intervals.icu text, or describe it and let the AI write it.
+**Workouts you can see before they hurt you,** on three shelves: FreeGaz's own workouts, your Custom ones, and a Training plan you put in order.
 
 <p align="center">
-  <img src="docs/screenshots/workouts.png" alt="The workout library, with every workout drawn as its power profile at your FTP" width="440">
-  <img src="docs/screenshots/builder.png" alt="The builder: blocks you drag and resize, live TSS, IF and zones, and export to Zwift" width="440">
+  <img src="docs/screenshots/workouts.png" alt="The Workouts page on its FreeGaz workouts tab: every workout drawn as its power profile at your FTP, with Custom workouts and Training plan tabs beside it" width="440">
+  <img src="docs/screenshots/training-plan.png" alt="The Training plan tab: three workouts numbered in order, with arrows to reorder them" width="440">
 </p>
+
+**A builder for the ones nobody has written yet.** Drag blocks, type intervals.icu text, or describe it and let the AI write it. File it under Custom workouts or straight into your plan.
+
+<p align="center"><img src="docs/screenshots/builder.png" alt="The builder: name, author and folder, live TSS, IF and zones, blocks you drag and resize, and export to Zwift" width="900"></p>
 
 **Real roads, real gradients.** Import a GPX and the trainer climbs when the road does. Race a ghost of your last attempt if you're feeling brave.
 
