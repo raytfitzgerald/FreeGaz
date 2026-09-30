@@ -7,25 +7,15 @@
 
 **A data-obsessed indoor cycling trainer for macOS.** It controls your smart trainer in ERG, level, slope or heart-rate mode, plays structured workouts and builds new ones the way zwofactory.com does. It runs a proper FTP test that saves your FTP, rides GPX routes FulGaz-style, and records every second locally as a FIT file. The optional coaches will roast you mid-interval if you ask them to.
 
-| Milestone | What you get | State |
-|---|---|---|
-| M0 Foundations | App shell, secure Electron setup, CI, DMG packaging | ✅ |
-| M1 Devices + Just Ride | KICKR (FTMS, Wahoo fallback) and HR over Bluetooth; free ride in ERG, level, slope or HR | ✅ |
-| M2 Recording + FIT | Crash-safe recording (renderer crash or kill: ≤ 2 s lost), local history, FIT export | ✅ |
-| M3 Workouts + builder | ZWO/MRC/ERG/intervals.icu import and export, a library of 28 workouts, the player, the builder | ✅ |
-| M4 FTP | 20-minute, guided, 8-minute and ramp tests, auto-saved FTP with undo, FTP history | ✅ |
-| M5 HUD | 40+ metrics in custom tile layouts, mini-HUD, phone remote, PR toasts, fueling | ✅ |
-| M6 Routes | GPX/TCX in SIM mode: Reactive / Steady / Challenge (ghost) | ✅ |
-| M7 Analysis | Ride detail, power curve, PMC, FIT import, backups, achievements and streaks | ✅ |
-| M8 Integrations + personas | Strava, intervals.icu, music controls, 9 coaching personas with voice | ✅ |
-| M9 AI | Claude / OpenAI / Ollama: debriefs, coach chat, workout generator, fresh coach lines | ✅ |
-| M10 Long tail | Power pedals with PowerMatch, CORE, Moxy, KICKR Headwind, live DFA-α1, app icon | ✅ |
-
-The code is tested thoroughly, against simulated devices (see [What has been verified](#what-has-been-verified)). A few things need your actual hardware before they can be called done; they're listed in that section.
+> FreeGaz is not affiliated with or endorsed by FulGaz, Zwift, TrainerRoad or Wahoo. Product names are trademarks of their owners.
 
 ## What it does
 
 **Riding**
+- **Pick a ride, then go.** The big **Ride** button at the top of the sidebar asks what kind of ride you want, with your trainer and heart-rate status up front:
+  - **Ride for time:** 20 to 90 minutes (or any length), with the trainer holding your watts from Easy to Sweet spot, or at your own pace. Ease in and out if you like.
+  - **Free ride**, a **route** or a **workout**, each a short list away.
+  - While you ride, the button shows your moving time, and a little rider laps the velodrome on it.
 - **Just ride.** ERG (the trainer holds the watts), Level (fixed resistance), Slope (a virtual gradient) or HR (the trainer adjusts watts to hold your heart rate). Switch any time with `M`.
 - **ERG manners.**
   - A 10-second soft start.
@@ -62,6 +52,7 @@ The code is tested thoroughly, against simulated devices (see [What has been ver
 - **Alerts.** Personal-best toasts, and drink and eat reminders.
 - **Music.** Spotify or Apple Music controls: `N` next, `Shift+N` previous, `P` play/pause.
 - **Light or dark.** Pick in **Settings → Appearance**, or follow macOS. Charts and zone colours have their own validated steps for each theme; the mini-HUD stays dark so it reads over video.
+- **Your units.** Metric or imperial, with speed (km/h or mph) and weight (kg or lb) set on their own. Tap the unit on the speed tile to flip it mid-ride.
 
 **Building workouts**
 - **A builder like zwofactory.com**, with blocks you can grab:
@@ -81,17 +72,22 @@ The code is tested thoroughly, against simulated devices (see [What has been ver
   - Drill Sergeant, Roast Comic, Disappointed Dad, The Overlord, Hype Coach, Data Nerd, Zen and Professional;
   - **Bibi**, podium style ("I have drawn a red line at 280 watts");
   - **The Donald**, rally style ("It's going to be a big, beautiful interval", "I'm putting a tariff on coasting").
-- **Caricatures for Bibi and The Donald.** A photo bobblehead on a little bike rides onto the ride screen with each line.
+- **The ride-along.** Your coach bikes next to you on a little road on the ride screen, pacing at your target. Ease off and they ride away; push and you drop them. Their lines pop up in a speech bubble. Fold it to a strip, or turn it off.
+- **Caricatures for Bibi and The Donald.** A photo bobblehead on a little bike rides along and talks.
   - Bibi switches between three public photos, The Donald between four. The Donald's long red tie streams in the wind.
   - The head wiggles and the jaw flaps in time with the voice.
   - It stands still if macOS is set to reduce motion.
-- **Spice** from 1 (professional) to 5 (unhinged). Profanity is a separate switch.
+- **Spice** from 1 (gentle) to 5 (feral).
+- **Profanity** in three levels: **Clean**, **Mild** (damn, hell, bloody) and **Unhinged** (as much as the coach can manage).
+- **Mute** from the ride screen, or press `C`. Safety prompts still come through.
 - **Voice.** Lines are spoken with a macOS voice, and the music is lowered while the coach talks.
+- **Coach chat.** With an AI provider on, ask your coach about your training and they answer in character, at your spice and profanity levels.
 - **Guardrails.** Your body, weight and health are never joke material. If your heart rate looks wrong, or you stop suddenly in a hard effort, every persona turns supportive.
 
 **Your history**
 - **Ride detail:** power, cadence, HR, speed and W′ balance charts, laps, time in zones, RPE and notes, and an AI debrief.
 - **Fitness:** the PMC (fitness, fatigue, form), weekly load, the power curve against your 90-day best, and FTP history.
+- **Fitness overview.** A plain-English read of those numbers: where your fitness is, the six-week trend, and whether your FTP needs a test. With AI on, your coach writes it, and **Ask the coach** takes it straight into the chat for questions.
 - **Achievements and streaks.** The home dashboard shows your FTP with a retest nudge, form, this week and your latest ride.
 - **FIT files:**
   - every ride is saved as a FIT file in `~/Documents/FreeGaz/Rides`;
@@ -122,7 +118,7 @@ npm run dev
 2. **Heart rate from a Garmin watch.** Turn on heart-rate broadcast: on most models it's **Settings → Health & Wellness (or Wrist Heart Rate) → Broadcast Heart Rate**. A chest strap needs no setup.
 3. **Connect.** Open **Devices**, then **Connect trainer** and **Connect heart rate**, and pick each from the list. macOS asks for Bluetooth permission the first time. FreeGaz remembers your devices and reconnects them at launch.
 4. **Tell it about you.** In **Settings → Athlete & FTP**, enter your weight and your FTP if you know it. If you don't, open **Workouts → FTP tests** and take the ramp test (about 20 minutes).
-5. **Ride.** Use **Just ride**, or pick a workout and press **Ride it**. Press **Finish** when you're done; the ride is saved, and so is its FIT file.
+5. **Ride.** Press the big **Ride** button, pick a kind of ride and set it up. Press **Finish** when you're done; the ride is saved, and so is its FIT file.
 
 ### Keyboard
 
@@ -154,46 +150,20 @@ FreeGaz only uploads. It never reads your Strava data. Without a subscription, u
 **AI.** Open **Settings → AI** and pick one provider:
 - **Claude:** an API key from [console.anthropic.com](https://console.anthropic.com). The default model is Claude Opus 5.5.
 - **OpenAI:** an API key.
+- **Grok (xAI):** an API key from [console.x.ai](https://console.x.ai).
 - **Ollama:** runs on your Mac with no key. Install it from [ollama.com](https://ollama.com) and pull a model.
 
 Keys are encrypted with your macOS Keychain and never reach the app's UI process. The AI only ever sees rides recorded on this Mac, never anything from Strava.
 
 ## Your data
 
-Everything stays on this Mac. Rides live in the app's database, plus a FIT file per ride in `~/Documents/FreeGaz/Rides`; you can change that folder, for example to one in iCloud Drive for free sync. **Settings → Data & backup** saves or restores a full backup zip, or scans the FIT folder to rebuild your history on a new Mac. Nothing leaves the machine unless you connect Strava or intervals.icu, or turn on an AI provider.
+Everything stays on this Mac. Rides live in the app's database, plus a FIT file per ride in `~/Documents/FreeGaz/Rides`; you can change that folder, for example to one in iCloud Drive for free sync. **Settings → Data & backup** saves or restores a full backup zip, or scans the FIT folder to rebuild your history on a new Mac. Nothing leaves the machine unless you connect Strava or intervals.icu, turn on an AI provider, or send a bug report.
 
-## What has been verified
+## Reporting a bug
 
-**Automated**, on every push, on Linux and macOS:
-- **Tests:** over 1,500 unit and simulator tests, plus 20 Playwright end-to-end tests (devices, workouts, FTP test, builder, routes, crash recovery, appearance), run against simulated devices that speak real Bluetooth bytes.
-- **Devices:**
-  - codecs are checked against the specs;
-  - ERG settles within ±5 W in under 5 s;
-  - a forced disconnect re-acquires control within 3 s;
-  - another app stealing control is detected.
-- **Rides:**
-  - a 3-hour ride records every second exactly;
-  - FIT files pass Garmin's own decoder;
-  - a renderer crash or a killed app loses at most 2 s of ride.
-- **Workouts and tests:**
-  - a 60-minute workout gets one lap per interval and NP within 1 W of the plan;
-  - the 20-minute test and a ramp test to failure give the right FTP;
-  - PowerMatch converges within 2 % in 30 s.
+Use **Report a bug** at the bottom of the sidebar (or **Settings → About**). It opens a GitHub issue with your report and a few diagnostics filled in: app and macOS versions, device types and a few settings, never names or ride data. You can read and edit all of it before you submit. You can also [open an issue](https://github.com/raytfitzgerald/FreeGaz/issues/new/choose) directly.
 
-**Needs your hardware** (please try these and report back):
-- **Devices:**
-  - Pairing your KICKR and heart-rate strap, and the Garmin watch broadcast.
-  - Reconnecting automatically at launch. This decides whether FreeGaz keeps Web Bluetooth or moves to a native Bluetooth stack.
-- **Riding:**
-  - How ERG steps and 30/30s feel, and how SIM climbs feel.
-  - Power-cycling the KICKR mid-ride, and walking away from the strap.
-  - A 2-hour ride with Netflix fullscreen and the mini-HUD.
-- **Accounts and macOS:**
-  - Strava OAuth with your own app. The app never enters credentials for you.
-  - The macOS permission prompts (Bluetooth, Automation for music) on the installed DMG.
-- **Gear you don't own yet:** power pedals, CORE, Moxy and the Headwind are tested only against simulators and captured byte formats.
-
-## Development
+## Building from source
 
 | Command | What it does |
 |---|---|
@@ -206,11 +176,11 @@ Everything stays on this Mac. Rides live in the app's database, plus a FIT file 
 | `npm run licenses` | Verify every shipped dependency is MIT-compatible |
 | `npm run icon` | Re-render the app icon |
 
-To try everything without hardware, `FREEGAZ_SIM=1 npm run dev` runs the app against a simulated KICKR and HR strap that speak real Bluetooth bytes. Add `FREEGAZ_WARP=10` to speed up time ten-fold; simulated and time-warped rides are always flagged, and never count towards Strava, fitness or FTP.
+To try it without hardware, `FREEGAZ_SIM=1 npm run dev` runs the app against a simulated KICKR and HR strap that speak real Bluetooth bytes. Add `FREEGAZ_WARP=10` to speed up time ten-fold; simulated and time-warped rides are always flagged, and never count towards Strava, fitness or FTP.
 
 Ad-hoc signatures change on every build, so macOS forgets permission grants such as Bluetooth and Automation. To keep them, create a self-signed "Code Signing" certificate named `FreeGaz Local` in Keychain Access and build with `CSC_NAME="FreeGaz Local" npm run dist`.
 
-### Architecture in one breath
+### Architecture
 
 - `src/core`: pure TypeScript domain logic, with no DOM, Node or Electron; ESLint and a dedicated tsconfig enforce that. It holds:
   - BLE codecs and drivers, the simulator, trainer control and PowerMatch;
