@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { gateLine } from '../coach/content'
 import { CoachEngine } from './engine'
-import { detectProfanity, languageAllowed } from './guardrails'
+import { detectProfanity, languageAllowed, maskLanguage } from './guardrails'
 import { DRILL_SERGEANT } from './packs'
 import { mulberry32 } from './rng'
 import { sampleContext } from './samples'
@@ -94,5 +94,15 @@ describe('profanity levels', () => {
       if (l && detectProfanity(l.text) === 'strong') strong++
     }
     expect(strong).toBeGreaterThan(20)
+  })
+})
+
+describe('maskLanguage', () => {
+  it('bleeps to the setting and leaves Unhinged alone', () => {
+    const cue = 'Raise the fucking finger, damn it. Motherfucker.'
+    expect(maskLanguage(cue, 'unhinged')).toBe(cue)
+    expect(maskLanguage(cue, 'mild')).toBe('Raise the f****** finger, damn it. M***********.')
+    expect(maskLanguage(cue, 'clean')).toBe('Raise the f****** finger, d*** it. M***********.')
+    expect(maskLanguage('Shit Show', 'clean')).toBe('S*** Show')
   })
 })

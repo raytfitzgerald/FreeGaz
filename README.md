@@ -45,6 +45,10 @@ It's a data-obsessed indoor cycling trainer for macOS. It drives your smart trai
   <img src="docs/screenshots/training-plan.png" alt="The Training plan tab: three workouts numbered in order, with arrows to reorder them" width="440">
 </p>
 
+**And some workouts your old app would never have shipped.** The FreeGaz shelf includes eight rude ones, where the power chart is the joke. The Bird is four knuckles at threshold and a middle finger at 150 % FTP. Mount Stupid is the Dunning-Kruger curve. Stairway to Hell has no landing. Liar Liar says "last one" seven times. Sawtooth Motherfucker is exactly what it sounds like. The cues swear, bleeped to match your profanity setting.
+
+<p align="center"><img src="docs/screenshots/the-bird.png" alt="The Bird: a workout whose power profile is a hand with the middle finger raised, at 150 % FTP" width="700"></p>
+
 **A builder for the ones nobody has written yet.** Drag blocks, type intervals.icu text, or describe it and let the AI write it. File it under Custom workouts or straight into your plan.
 
 <p align="center"><img src="docs/screenshots/builder.png" alt="The builder: name, author and folder, live TSS, IF and zones, blocks you drag and resize, and export to Zwift" width="900"></p>
@@ -111,6 +115,7 @@ It's a data-obsessed indoor cycling trainer for macOS. It drives your smart trai
   - undo and redo;
   - live TSS, IF and zone totals at your FTP.
 - **Text mode** uses intervals.icu syntax (`- 10m ramp 40-75%`, `4x`, `- 8m 95-100% 95rpm`), synced both ways with the blocks.
+- **Rude workouts included:** The Bird, Both Barrels, Mount Stupid, Stairway to Hell, Shit Show, Sawtooth Motherfucker, Market Crash and Liar Liar, under the Fun filter.
 - **Import and export:**
   - `.zwo`, `.mrc`, `.erg` and intervals.icu text;
   - **Export to Zwift** drops the file straight into Zwift's Custom Workouts.
