@@ -75,6 +75,7 @@ The code is tested thoroughly, against simulated devices (see [What has been ver
 
 **Coaching**
 - **Nine personas:** Drill Sergeant, Roast Comic, Disappointed Dad, The Overlord, Hype Coach, Data Nerd, Zen, Professional, and **Bibi**, a labeled parody of Netanyahu's podium style ("I have drawn a red line at 280 watts").
+- **Bibi's caricature.** A photo bobblehead on a little bike rides onto the ride screen with each of his lines. It switches between three public photos, wiggles, and flaps its jaw in time with the voice. It stands still if macOS is set to reduce motion.
 - **Spice** from 1 (professional) to 5 (unhinged). Profanity is a separate switch.
 - **Voice.** Lines are spoken with a macOS voice, and the music is lowered while the coach talks.
 - **Guardrails.** Your body, weight and health are never joke material. If your heart rate looks wrong, or you stop suddenly in a hard effort, every persona turns supportive.
@@ -224,3 +225,5 @@ Security defaults:
 ## License
 
 [MIT](LICENSE). CI checks every shipped dependency for MIT compatibility. Garmin's FIT SDK is used only in the test suite, as a reference decoder, because its license forbids redistribution. The built-in workouts and every coaching line are original.
+
+The caricature photos are not covered by the MIT license: two are U.S. government works in the public domain, and one is under the Government Open Data License – India. Credits, sources and a list of changes are in [`src/renderer/src/coach/toon/heads/ATTRIBUTION.md`](src/renderer/src/coach/toon/heads/ATTRIBUTION.md). The India photo is courtesy of the Prime Minister's Office and the Press Information Bureau, Government of India.

@@ -35,7 +35,7 @@ The build ran in milestones. Each one had to pass `npm run check` and `npm run e
   - Spotify / Music controls.
   - Nine coaching personas with voice, spice and guardrails.
 - **M9 AI.** Claude, OpenAI and Ollama; debriefs, coach chat, the workout generator, and fresh coach lines.
-- **M10 Long tail.** PowerMatch, Headwind fan control, live RMSSD and DFA-α1, the app icon, and a light theme.
+- **M10 Long tail.** PowerMatch, Headwind fan control, live RMSSD and DFA-α1, the app icon, a light theme, metric/imperial units, and Bibi's talking bobblehead caricature.
 
 ## Next: needs a real KICKR and HR strap
 

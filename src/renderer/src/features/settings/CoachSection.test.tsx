@@ -2,6 +2,7 @@ import { act, cleanup, fireEvent, render, screen, within } from '@testing-librar
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { PACKS } from '@core/persona'
 import { DEFAULT_SETTINGS } from '@shared/settings'
+import { resetHeadCycles } from '../../coach/toon/motion'
 import { createWebShim } from '../../platform/web-shim'
 import { settingsStore } from '../../stores/settings'
 import { CoachSection } from './CoachSection'
@@ -46,6 +47,25 @@ describe('CoachSection', () => {
     render(<CoachSection />)
     await flush()
     fireEvent.click(screen.getByTestId('coach-preview'))
+    expect(screen.getByTestId('coach-sample').textContent).toMatch(/“.+”/)
+  })
+
+  it('shows Bibi as a caricature that swaps photos with every sample', async () => {
+    resetHeadCycles()
+    render(<CoachSection />)
+    await flush()
+    expect(screen.queryByTestId('coach-toon')).toBeNull() // the drill sergeant is a monogram
+    fireEvent.click(screen.getByTestId('persona-bibi'))
+    await flush()
+    const toon = screen.getByRole('img', { name: /Bibi, parody caricature/ })
+    expect(within(toon).getByTestId('parody-badge').textContent).toMatch(/parody/i)
+    const heads = [toon.dataset.head]
+    for (let i = 0; i < 3; i++) {
+      fireEvent.click(screen.getByTestId('coach-preview'))
+      await flush()
+      heads.push(screen.getByTestId('coach-toon').dataset.head)
+    }
+    expect(heads).toEqual(['0', '1', '2', '0'])
     expect(screen.getByTestId('coach-sample').textContent).toMatch(/“.+”/)
   })
 

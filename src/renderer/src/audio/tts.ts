@@ -44,6 +44,8 @@ export interface SpeakOpts {
   interrupt?: boolean
   /** Called once when the line ends, fails or is cancelled. */
   onEnd?: () => void
+  /** Called at each word, for voices that report word boundaries (the caricature's jaw keeps time). */
+  onWord?: () => void
 }
 
 /** Speaks one line. Returns false when there is nothing to say or no speech engine. */
@@ -65,6 +67,12 @@ export function speak(text: string, opts: SpeakOpts): boolean {
   }
   u.onend = end
   u.onerror = end
+  if (opts.onWord) {
+    const onWord = opts.onWord
+    u.onboundary = (e) => {
+      if (e.name === 'word') onWord()
+    }
+  }
   current = u
   speechSynthesis.speak(u)
   return true
