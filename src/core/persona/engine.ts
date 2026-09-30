@@ -399,11 +399,12 @@ export class CoachEngine {
       if (line.criteria && !line.criteria.every((c) => criterionHolds(c, facts))) continue
       const text = renderTemplate(line.text, facts)
       if (text === null) continue
-      // Rendered text is checked, not the template: labels from workout files end up in it.
-      // AI-written lines skip the topic list; the rider asked for an unfiltered voice.
-      if (!line.id.startsWith('ai.') && violatesGuardrails(text) !== null) continue
-      const profanity = detectProfanity(text)
-      if (profanity === 'strong' || (profanity === 'mild' && !this.profanity)) continue
+      // With profanity off, canned lines still skip banned topics and swearing.
+      // AI lines skip the topic list either way. With profanity on, nothing is filtered.
+      if (!this.profanity) {
+        if (!line.id.startsWith('ai.') && violatesGuardrails(text) !== null) continue
+        if (detectProfanity(text) !== null) continue
+      }
       candidates.push({ line, text, packId, specificity: line.criteria?.length ?? 0 })
     }
     if (candidates.length === 0) return null

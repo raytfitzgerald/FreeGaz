@@ -30,11 +30,11 @@ export function matchesAny(text: string, patterns: readonly RegExp[]): boolean {
   return patterns.some((p) => p.test(text) || p.test(norm))
 }
 
-/** Is this text allowed for a persona: global guardrails, its own bans, and never strong profanity. */
+/** Is this text allowed for a persona. Profanity on means no language restrictions. */
 export function textAllowed(text: string, patterns: readonly RegExp[], profanity: boolean): boolean {
+  if (profanity) return true
   if (violatesGuardrails(text) !== null) return false
-  const level = detectProfanity(text)
-  if (level === 'strong' || (level === 'mild' && !profanity)) return false
+  if (detectProfanity(text) !== null) return false
   return !matchesAny(text, patterns)
 }
 
@@ -58,14 +58,15 @@ export const SAFETY_FALLBACK_TEXT = 'Ease right off and take a breather. Stop if
 
 /**
  * The line as it may be shown and spoken, or null when it must be dropped.
- * Persona bans apply to lines from that persona; while the supportive tone is
- * forced, lines come from Professional and only the global rules apply.
+ * With profanity on, the line passes through. Otherwise persona bans apply to
+ * lines from that persona; while the supportive tone is forced, lines come
+ * from Professional and only the global rules apply.
  */
 export function gateLine(line: CoachLine, opts: { personaId: string; profanity: boolean }): CoachLine | null {
-  // AI-written lines skip topic bans. The profanity setting still applies.
+  if (opts.profanity) return line
+  // AI-written lines skip topic bans. Swearing still waits for the profanity setting.
   if (line.lineId.startsWith('ai.')) {
-    const level = detectProfanity(line.text)
-    if (level === 'strong' || (level === 'mild' && !opts.profanity)) {
+    if (detectProfanity(line.text) !== null) {
       if (line.priority === PRIORITY.safety) return { ...line, text: SAFETY_FALLBACK_TEXT, speech: SAFETY_FALLBACK_TEXT }
       return null
     }

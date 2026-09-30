@@ -327,6 +327,9 @@ b.add('idle_banter', [
   [5, "Inner calm, outer watts. Damn, I'm good at this.", P],
 ])
 
+b.add('idle_banter', [[5, 'Breathe in. Breathe out. Now fucking pedal. Mindfully.', P]])
+b.add('under_target', [[5, 'Under target. I am calm. This pace is still shit. Pedal.', P]])
+
 export const ZEN: PersonaPack = {
   meta: {
     id: 'zen',

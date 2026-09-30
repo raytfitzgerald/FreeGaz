@@ -181,6 +181,7 @@ describe('detectProfanity', () => {
     expect(detectProfanity('That was half-assed.')).toBe('mild')
     expect(detectProfanity('Bloody marvelous.')).toBe('mild')
     expect(detectProfanity('What the fuck')).toBe('strong')
+    expect(detectProfanity('You bellend')).toBe('strong')
     expect(detectProfanity('Holy sh*t')).toBe('strong')
     expect(detectProfanity('f*** this hill')).toBe('strong')
     expect(detectProfanity('wtf was that')).toBe('strong')
