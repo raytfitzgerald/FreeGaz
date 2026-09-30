@@ -30,7 +30,7 @@ const PROFANITY: SegmentedOption<CoachPrefs['profanity']>[] = [
 const PROFANITY_HINT: Record<CoachPrefs['profanity'], string> = {
   clean: 'Every line stays clean.',
   mild: 'Light swearing only (damn, hell, bloody). Every topic rule stays on.',
-  unhinged: 'Maximum profanity: nothing is off limits for language, canned or AI.',
+  unhinged: 'Maximum profanity. The canned lines drop every word and topic filter; the AI still never jokes about your body, weight or health.',
 }
 
 const RIDE_ALONG: SegmentedOption<CoachPrefs['rideAlong']>[] = [

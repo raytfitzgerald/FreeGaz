@@ -74,4 +74,25 @@ describe('profanity levels', () => {
     expect(gateLine(mild, { personaId: 'test', profanity: 'mild' })).toBe(mild)
     expect(gateLine(mild, { personaId: 'test', profanity: 'clean' })).toBeNull()
   })
+
+  it('Mild is heard at everyday spice, not only at 5', () => {
+    const e = new CoachEngine({ persona: DRILL_SERGEANT, spice: 3, profanity: 'mild', rng: mulberry32(2), memorySize: 0, perTriggerCooldownMs: 0 })
+    const texts: string[] = []
+    for (let i = 0; i < 300; i++) {
+      const l = e.consider({ ...sampleContext('ftp_test_result'), now: i * 120_000 })
+      if (l) texts.push(l.text)
+    }
+    expect(texts.some((t) => detectProfanity(t) === 'mild')).toBe(true)
+    expect(texts.some((t) => detectProfanity(t) === 'strong')).toBe(false)
+  })
+
+  it('Unhinged swears even when a clean line fits the moment more exactly', () => {
+    const e = new CoachEngine({ persona: DRILL_SERGEANT, spice: 5, profanity: 'unhinged', rng: mulberry32(4), memorySize: 0, perTriggerCooldownMs: 0 })
+    let strong = 0
+    for (let i = 0; i < 60; i++) {
+      const l = e.consider({ ...sampleContext('halfway', 0, { power: 300, targetW: 300 }), now: i * 120_000 })
+      if (l && detectProfanity(l.text) === 'strong') strong++
+    }
+    expect(strong).toBeGreaterThan(20)
+  })
 })

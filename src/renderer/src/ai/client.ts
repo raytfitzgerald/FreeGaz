@@ -4,7 +4,7 @@ import type { AiMessage } from '@core/ai/types'
 import type { FitnessFacts } from '@core/metrics'
 import { PROFESSIONAL, packById } from '@core/persona'
 import type { RideSummary } from '@core/ride/types'
-import { pmcSeries, powerCurve, realRides, weeklyLoad } from '../db/fitness'
+import { isoDay, pmcSeries, powerCurve, realRides, weeklyLoad } from '../db/fitness'
 import { currentFtp, ftpHistory } from '../db/athlete-repo'
 import { bridge } from '../platform/bridge'
 import { settingsStore } from '../stores/settings'
@@ -101,7 +101,9 @@ export async function trainingContext(): Promise<string> {
 export async function fitnessFacts(): Promise<FitnessFacts> {
   const [pmc, weeks, recent, curve, ftp] = await Promise.all([pmcSeries(42), weeklyLoad(5), realRides(Date.now() - 28 * 86_400_000), powerCurve(), currentFtp()])
   const now = pmc.at(-1)
-  const before = pmc.length > 42 ? pmc[0] : undefined
+  // six weeks ago, but only if the rider was already riding then (otherwise it's the model's empty start, not a fitness of 0)
+  const firstRide = (await realRides(0))[0]
+  const before = pmc.length > 42 && firstRide && isoDay(firstRide.startedAt) <= pmc[0]!.date ? pmc[0] : undefined
   return {
     ctl: now ? now.ctl : null,
     atl: now ? now.atl : null,

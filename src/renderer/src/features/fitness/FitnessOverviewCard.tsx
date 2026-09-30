@@ -14,6 +14,11 @@ import { Card, CardBody, CardHeader } from '../../ui/Card'
 
 const KV_KEY = 'fitness.overview'
 
+/** One request per overview key across mounts, so leaving and coming back never pays twice. */
+const inFlight = new Set<string>()
+/** Keys already written or attempted this session: an error is not retried on its own, only with Rewrite. */
+const tried = new Set<string>()
+
 interface CachedOverview {
   /** The facts and coach settings it was written from: a change means it's stale. */
   key: string
@@ -27,6 +32,7 @@ interface CachedOverview {
  */
 export function FitnessOverviewCard({ rideCount }: { rideCount: number | undefined }) {
   const ftp = useLiveQuery(() => db().ftpHistory.count(), [])
+  const lastRide = useLiveQuery(() => db().rides.orderBy('startedAt').last().then((r) => r?.id ?? null), [rideCount])
   const facts = useLiveQuery(() => fitnessFacts(), [rideCount, ftp])
   const cached = useLiveQuery(() => db().kv.get(KV_KEY).then((r) => (r?.value as CachedOverview | undefined) ?? null), [])
   const coach = useSettings((s) => s.coach)
@@ -35,26 +41,40 @@ export function FitnessOverviewCard({ rideCount }: { rideCount: number | undefin
   const [streamed, setStreamed] = useState<{ key: string; text: string } | null>(null)
   const [running, setRunning] = useState<StreamHandle | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const tried = useRef(new Set<string>())
+  const stream = useRef<StreamHandle | null>(null)
   const navigate = useNavigate()
 
   const hasData = !!facts && facts.ctl !== null
-  const key = facts ? `${JSON.stringify(facts)}|${coachVoiceKey()}` : null
+  // stale when a ride, the FTP or the coach changes, not every day as fitness decays
+  const key = facts && lastRide !== undefined ? `${rideCount}|${lastRide}|${ftp}|${facts.ftpW}|${coachVoiceKey()}` : null
 
   const write = async (f: FitnessFacts, k: string) => {
-    tried.current.add(k)
+    if (inFlight.has(k)) return
+    inFlight.add(k)
+    try {
+      await writeOnce(f, k)
+    } finally {
+      inFlight.delete(k)
+      stream.current = null
+    }
+  }
+
+  const writeOnce = async (f: FitnessFacts, k: string) => {
     setError(null)
     let acc = ''
     const h = streamAi('fitness-summary', [{ role: 'user', content: `${coachVoiceNow()}\n\nWrite my fitness overview.\n${await fitnessContext(f)}` }], (d) => {
       acc += d
       setStreamed({ key: k, text: acc })
     })
+    stream.current = h
     setRunning(h)
     const res = await h.done
     setRunning(null)
     if (res.error) {
       setStreamed(null)
-      if (res.code !== 'cancelled') setError(res.code === 'not-configured' ? null : res.error)
+      // cancelled by leaving the page: write it next visit
+      if (res.code === 'cancelled') tried.delete(k)
+      else setError(res.code === 'not-configured' ? null : res.error)
       return
     }
     const text = (res.text ?? acc).trim()
@@ -64,12 +84,15 @@ export function FitnessOverviewCard({ rideCount }: { rideCount: number | undefin
 
   // With an AI provider, the coach writes a fresh overview whenever the numbers (or the coach) change.
   useEffect(() => {
-    if (!facts || !key || !hasData || cached === undefined || cached?.key === key || tried.current.has(key)) return
+    if (!facts || !key || !hasData || cached === undefined || cached?.key === key || tried.has(key)) return
     let live = true
     void aiReady().then((ok) => {
       if (!live) return
       setAi(ok)
-      if (ok && !tried.current.has(key)) void write(facts, key)
+      if (ok && !tried.has(key)) {
+        tried.add(key)
+        void write(facts, key)
+      }
     })
     return () => {
       live = false
@@ -82,6 +105,8 @@ export function FitnessOverviewCard({ rideCount }: { rideCount: number | undefin
     void aiReady().then((ok) => live && setAi(ok))
     return () => {
       live = false
+      // leaving the page stops the writing; it resumes next visit
+      stream.current?.cancel()
     }
   }, [])
 

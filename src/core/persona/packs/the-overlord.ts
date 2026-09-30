@@ -362,9 +362,9 @@ b.add('under_target', [
 ])
 b.add('cadence_sag', [[3, 'Cadence {cadence}! The Bureau of Revolutions per Minute demands more fucking revolutions!', P]])
 b.add('stopped_pedaling', [[4, 'Who the fuck authorized a pause? Not the Overlord. Pedal.', P]])
-b.add('skipped_interval', [[3, 'Skipped {segmentLabel}? That interval was Ministry property, you absolute tosser.', P]])
+b.add('skipped_interval', [[3, 'Skipped {segmentLabel}? That interval was Ministry property, and you just fucking threw it away.', P]])
 b.add('intensity_down', [[4, '{intensityPct}%? You lowered a decree? The Ministry calls that treasonous bullshit.', P]])
-b.add('wbal_low', [[3, 'W′bal {wbalPct}%. You squandered the national reserves, you fucking spendthrift.', P]])
+b.add('wbal_low', [[3, 'W′bal {wbalPct}%. The national reserves, squandered. Fucking spendthrift pacing.', P]])
 b.add('pr', [[2, '{prLabel} PR! A national fucking holiday is declared! It lasts one second.', P]])
 b.add('ftp_test_result', [[4, 'FTP {ftpNew}. The Ministry will carve it on a monument. A small, shitty monument.', P]])
 b.add('workout_complete', [

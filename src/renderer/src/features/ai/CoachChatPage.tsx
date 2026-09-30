@@ -4,6 +4,7 @@ import { ChevronDown, Send, Square, Trash2 } from 'lucide-react'
 import type { AiMessage } from '@core/ai/types'
 import { PROFESSIONAL, packById } from '@core/persona'
 import { coachVoiceNow, streamAi, trainingContext, type StreamHandle } from '../../ai/client'
+import { trimChat, type ChatMessage } from '../../ai/chat-history'
 import { handoffMessage, takeHandoff, type ChatHandoff } from '../../ai/handoff'
 import { PersonaAvatar } from '../../coach/PersonaAvatar'
 import { db } from '../../db/db'
@@ -21,13 +22,6 @@ const SUGGESTIONS = [
 ]
 const DATA_PREFIX = 'My training data (JSON):\n'
 const SPICE = ['gentle', 'cheeky', 'snarky', 'savage', 'feral']
-
-/** A chat turn as stored. `shared` marks a context handoff, shown as a card rather than the raw prompt. */
-interface ChatMessage extends AiMessage {
-  shared?: ChatHandoff
-  /** What the rider typed, when the stored content also carries the training data. */
-  asked?: string
-}
 
 /** What the rider sees for their own message. Older chats stored only the content. */
 function shownText(m: ChatMessage): string {
@@ -48,6 +42,9 @@ export function CoachChatPage() {
   const [running, setRunning] = useState<StreamHandle | null>(null)
   const [error, setError] = useState<string | null>(null)
   const bottom = useRef<HTMLDivElement>(null)
+  // set synchronously, so a double click (or a click while a handoff loads) can't start a second request
+  const busy = useRef(false)
+  const stream = useRef<StreamHandle | null>(null)
   const input = useRef<HTMLInputElement>(null)
   const coach = useSettings((s) => s.coach)
   const persona = (packById(coach.personaId) ?? PROFESSIONAL).meta
@@ -57,7 +54,17 @@ export function CoachChatPage() {
   }, [messages])
 
   const ask = async (prior: readonly ChatMessage[], turn: ChatMessage) => {
-    if (running) return
+    if (busy.current) return
+    busy.current = true
+    try {
+      await askOnce(prior, turn)
+    } finally {
+      busy.current = false
+      stream.current = null
+    }
+  }
+
+  const askOnce = async (prior: readonly ChatMessage[], turn: ChatMessage) => {
     setError(null)
     // The first rider turn carries the training data; later turns keep it in history.
     const first = prior.length === 0
@@ -69,6 +76,7 @@ export function CoachChatPage() {
       acc += d
       setMessages([...history, { role: 'assistant', content: acc }])
     })
+    stream.current = h
     setRunning(h)
     const res = await h.done
     setRunning(null)
@@ -77,9 +85,9 @@ export function CoachChatPage() {
       setMessages(history)
       return
     }
-    const final: ChatMessage[] = [...history, { role: 'assistant', content: res.text ?? acc }]
+    const final = trimChat([...history, { role: 'assistant', content: res.text ?? acc }])
     setMessages(final)
-    await db().kv.put({ key: KV_KEY, value: final.slice(-40) })
+    await db().kv.put({ key: KV_KEY, value: final })
     input.current?.focus()
   }
 
@@ -97,13 +105,15 @@ export function CoachChatPage() {
       })
     return () => {
       live = false
+      // leaving the page stops the answer, so a stale stream can't overwrite a newer chat later
+      stream.current?.cancel()
     }
     // once, on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const send = (text: string) => {
-    if (!text.trim()) return
+    if (!text.trim() || busy.current) return
     setDraft('')
     void ask(messages, { role: 'user', content: text.trim() })
   }

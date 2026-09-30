@@ -19,8 +19,10 @@ export async function pmcSeries(days = 180): Promise<PmcRow[]> {
   // Warm the model up with everything we have; display the last `days`.
   const rides = await realRides(0)
   if (rides.length === 0) return []
-  const today = isoDay(Date.now())
-  const from = isoDay(Date.now() - days * DAY)
+  const now = new Date()
+  const today = isoDay(now.getTime())
+  // calendar days, not 24-hour steps, so a clock change can't shift the range
+  const from = isoDay(new Date(now.getFullYear(), now.getMonth(), now.getDate() - days).getTime())
   return computePmc(
     rides.map((r) => ({ date: isoDay(r.startedAt), tss: r.tss ?? 0 })),
     { from, to: today },
@@ -37,12 +39,15 @@ export interface WeeklyLoad {
 
 export async function weeklyLoad(weeks = 16): Promise<WeeklyLoad[]> {
   const now = new Date()
-  const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7)).getTime()
-  const start = monday - (weeks - 1) * 7 * DAY
+  const monday = now.getDate() - ((now.getDay() + 6) % 7)
+  // each week starts on a calendar Monday, so a clock change can't move a ride into the wrong week
+  const starts = Array.from({ length: weeks + 1 }, (_, i) => new Date(now.getFullYear(), now.getMonth(), monday + (i - weeks + 1) * 7).getTime())
+  const start = starts[0]!
   const rides = await realRides(start)
-  const out: WeeklyLoad[] = Array.from({ length: weeks }, (_, i) => ({ weekStart: start + i * 7 * DAY, tss: 0, hours: 0, kj: 0, rides: 0 }))
+  const out: WeeklyLoad[] = starts.slice(0, weeks).map((weekStart) => ({ weekStart, tss: 0, hours: 0, kj: 0, rides: 0 }))
   for (const r of rides) {
-    const i = Math.floor((r.startedAt - start) / (7 * DAY))
+    let i = starts.findIndex((s) => s > r.startedAt) - 1
+    if (i < -1) i = weeks - 1
     const w = out[i]
     if (!w) continue
     w.tss += r.tss ?? 0

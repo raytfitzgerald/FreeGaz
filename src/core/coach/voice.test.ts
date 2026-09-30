@@ -30,3 +30,10 @@ describe('coach voice', () => {
     expect(coachVoice(TRUMP, { spice: 3, profanity: 'clean' })).toContain('parody')
   })
 })
+
+describe('coach voice rules', () => {
+  it('always carries the house rules, and each parody its off-limits topics', () => {
+    expect(coachVoice(ZEN, { spice: 5, profanity: 'unhinged' })).toContain("never the rider's body")
+    expect(coachVoice(TRUMP, { spice: 3, profanity: 'clean' })).toContain('Never touch religion, race')
+  })
+})
