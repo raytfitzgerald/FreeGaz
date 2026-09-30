@@ -3,7 +3,8 @@
 import { nativeTheme, type BrowserWindow } from 'electron'
 import type { AppSettings } from '@shared/settings'
 
-const BACKGROUND = { dark: '#090b0f', light: '#f3f4f7' } as const
+// The theme's page backgrounds (styles.css --color-bg), so a window never flashes the wrong colour.
+const BACKGROUND = { dark: '#111d36', light: '#ebf1f7' } as const
 
 export function windowBackground(appearance: AppSettings['appearance']): string {
   const dark = appearance === 'system' ? nativeTheme.shouldUseDarkColors : appearance === 'dark'

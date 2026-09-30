@@ -8,6 +8,7 @@ import { randomBytes } from 'node:crypto'
 import { createServer, type Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import type { SecretStore } from '../secrets/secret-store'
+import { BRAND_COLORS, wordmarkSvg } from '@shared/brand'
 import { HttpError, requestJson } from './http'
 
 export interface StravaEndpoints {
@@ -227,5 +228,5 @@ function listenForCode(expectedState: string, timeoutMs: number): Promise<{ serv
 }
 
 function page(message: string): string {
-  return `<!doctype html><meta charset="utf-8"><title>FreeGaz</title><body style="font:16px -apple-system,sans-serif;background:#0a0c10;color:#e9edf4;display:grid;place-items:center;height:100vh;margin:0"><p>${message}</p></body>`
+  return `<!doctype html><meta charset="utf-8"><title>FreeGaz</title><body style="font:16px -apple-system,sans-serif;background:${BRAND_COLORS.night};color:${BRAND_COLORS.chalk};display:grid;place-items:center;align-content:center;gap:20px;height:100vh;margin:0">${wordmarkSvg(BRAND_COLORS.chalk, 'style="height:40px;width:auto"')}<p>${message}</p></body>`
 }

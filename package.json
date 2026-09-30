@@ -1,7 +1,7 @@
 {
   "name": "freegaz",
   "productName": "FreeGaz",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A data-obsessed indoor cycling trainer for macOS: ERG/SIM control, workout builder, FTP tests, FIT export, Strava upload, and optional AI coaching.",
   "author": "Ray Fitzgerald (https://github.com/raytfitzgerald)",
   "license": "MIT",
@@ -35,6 +35,8 @@
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "@fontsource-variable/atkinson-hyperlegible-next": "^5.3.0",
+    "@fontsource-variable/saira": "^5.3.0",
     "@markw65/fit-file-writer": "^0.2.0",
     "@tanstack/react-router": "^1.170.40",
     "class-variance-authority": "^0.7.1",

@@ -26,6 +26,11 @@ A macOS Electron + React/TypeScript indoor-cycling trainer (ERG/SIM control, wor
   - "The Donald": no religion, race, immigration or borders, war or violence, elections or parties, courts or cases, women, age, health, looks, or other real people.
   - New photo heads: Ray approves the exact files first. Credits go in `src/renderer/src/coach/toon/heads/ATTRIBUTION.md`.
 
+## Brand
+- Follow `docs/BRAND.md`. Use theme tokens only (`bg-panel`, `text-ink-dim`, `bg-accent text-on-accent`…), never literal colours; brand constants (`stayer`, `sprinter`, `azure`) are for the logo and track lines, not UI states.
+- Numbers and headings use `font-display` (Saira, condensed, tabular); small uppercase labels use `eyebrow`; everything else is Atkinson (`font-sans`, the default).
+- Sentence case, no exclamation marks or emoji in the interface; the coaches have the personality.
+
 ## Conventions
 - Match surrounding style: small modules, named exports, zod at trust boundaries, and no default exports except React entry points.
 - Tests sit next to the code (`*.test.ts`); simulator scenarios go in `tests/sim`, E2E in `tests/e2e`.

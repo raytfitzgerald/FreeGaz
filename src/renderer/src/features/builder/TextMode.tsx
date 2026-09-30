@@ -109,7 +109,7 @@ export function TextMode({ workout, onSegments }: { workout: Workout; onSegments
         </div>
       </div>
       <aside className="rounded-xl border border-line bg-panel-2/60 px-3 py-2.5" aria-label="Text syntax cheat sheet">
-        <div className="text-[11px] font-medium uppercase tracking-wider text-ink-faint">Syntax (intervals.icu)</div>
+        <div className="eyebrow text-ink-faint">Syntax (intervals.icu)</div>
         <dl className="mt-1.5 space-y-1 text-[11px] leading-snug">
           {CHEATS.map(([code, what]) => (
             <div key={code}>

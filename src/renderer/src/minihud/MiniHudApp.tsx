@@ -29,8 +29,8 @@ export function MiniHudApp() {
   const onTarget = delta !== null && Math.abs(delta) <= Math.max(5, target! * 0.05)
 
   return (
-    <div className="drag-region group flex h-full flex-col rounded-2xl border border-white/10 bg-black/70 px-4 py-3 text-ink backdrop-blur-xl">
-      <div className="flex items-center justify-between text-[10px] uppercase tracking-widest text-ink-faint">
+    <div className="drag-region group flex h-full flex-col rounded-2xl border border-line bg-bg/85 px-4 py-3 text-ink backdrop-blur-xl">
+      <div className="flex items-center justify-between eyebrow text-[10px] text-ink-faint">
         <span className="truncate">{r?.segmentLabel ?? r?.name ?? 'FreeGaz'}</span>
         <span className="tabular">{r ? fmt(r.movingS) : ''}</span>
       </div>
@@ -64,10 +64,10 @@ export function MiniHudApp() {
           {r?.nextLabel ? ` · next ${r.nextLabel}` : ''}
         </span>
         <span className="no-drag flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-          <button type="button" aria-label="Pause or resume" className="rounded-md p-1 hover:bg-white/10" onClick={() => send({ type: 'togglePause' })}>
+          <button type="button" aria-label="Pause or resume" className="rounded-md p-1 hover:bg-panel-3" onClick={() => send({ type: 'togglePause' })}>
             {r?.state === 'paused' ? <Play className="size-4" /> : <Pause className="size-4" />}
           </button>
-          <button type="button" aria-label="Skip interval" className="rounded-md p-1 hover:bg-white/10" onClick={() => send({ type: 'skip' })}>
+          <button type="button" aria-label="Skip interval" className="rounded-md p-1 hover:bg-panel-3" onClick={() => send({ type: 'skip' })}>
             <SkipForward className="size-4" />
           </button>
         </span>

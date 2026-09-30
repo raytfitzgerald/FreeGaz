@@ -1,4 +1,5 @@
 import { Link, Outlet } from '@tanstack/react-router'
+import { Wordmark } from '../brand/Wordmark'
 import { NAV } from './nav'
 import { cn } from '../ui/cn'
 import { ChooserDialog } from '../features/devices/ChooserDialog'
@@ -14,8 +15,8 @@ export function AppShell() {
       <aside className="flex w-[208px] shrink-0 flex-col border-r border-line bg-panel">
         {/* traffic-light gutter + window drag area */}
         <div className="drag-region h-11" />
-        <div className="px-4 pb-4">
-          <Wordmark />
+        <div className="px-5 pb-5 pt-1">
+          <Wordmark className="h-9 w-auto text-ink" />
         </div>
         <nav className="flex flex-1 flex-col gap-0.5 px-2" aria-label="Main">
           {NAV.map(({ to, label, icon: Icon }) => (
@@ -27,7 +28,7 @@ export function AppShell() {
                 'no-drag group flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-ink-dim transition-colors',
                 'hover:bg-panel-2 hover:text-ink',
               )}
-              activeProps={{ className: 'bg-panel-3 text-ink' }}
+              activeProps={{ className: 'bg-panel-3 text-ink [&>svg]:text-accent [&>svg]:opacity-100' }}
             >
               <Icon className="size-4 shrink-0 opacity-80 group-hover:opacity-100" aria-hidden />
               {label}
@@ -53,13 +54,3 @@ export function AppShell() {
   )
 }
 
-function Wordmark() {
-  return (
-    <div className="flex items-baseline gap-1 font-display">
-      <span className="text-xl font-black tracking-tight text-ink">Free</span>
-      <span className="bg-gradient-to-r from-accent to-z5 bg-clip-text text-xl font-black tracking-tight text-transparent">
-        Gaz
-      </span>
-    </div>
-  )
-}
