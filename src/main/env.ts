@@ -16,11 +16,15 @@ export const env = {
 /**
  * Dev and test runs get their own userData so they never touch real rides.
  * IndexedDB is keyed by origin + userData, so this separation is load-bearing.
+ * E2E runs (FREEGAZ_TEST with a FREEGAZ_USER_DATA profile) get a private Documents too.
  */
 export function configureUserData(): void {
   const override = process.env.FREEGAZ_USER_DATA
   if (override) {
     app.setPath('userData', override)
+    // Test runs also get their own Documents, so FIT exports and Zwift
+    // workout files land in the throwaway profile, never the rider's folders.
+    if (env.isTest) app.setPath('documents', join(override, 'Documents'))
   } else if (!app.isPackaged) {
     app.setPath('userData', join(app.getPath('appData'), 'FreeGaz-dev'))
   }

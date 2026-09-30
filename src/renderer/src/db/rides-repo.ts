@@ -5,6 +5,7 @@
 import { finalizeRide, type FinalizeInput } from '@core/ride/finalize'
 import { parseJournal } from '@core/ride/journal'
 import type { RideSummary } from '@core/ride/types'
+import { MIN_UPLOAD_S, uploadSkipReason, type UploadSkip } from '@core/ride/upload-policy'
 import { bridge } from '../platform/bridge'
 import { settingsStore } from '../stores/settings'
 import { db } from './db'
@@ -13,6 +14,8 @@ export interface SaveResult {
   summary: RideSummary
   fitPath: string | null
   uploads: string[]
+  /** Why the ride wasn't queued for Strava, or null if it was. */
+  stravaSkip: UploadSkip | null
 }
 
 export async function saveFinishedRide(input: Omit<FinalizeInput, 'now' | 'utcOffsetMin' | 'softwareVersion'>): Promise<SaveResult> {
@@ -32,10 +35,12 @@ export async function saveFinishedRide(input: Omit<FinalizeInput, 'now' | 'utcOf
 
   const uploads: string[] = []
   const auto = settingsStore.getState().autoUpload
-  if (fitPath && !fin.summary.simulated && fin.summary.movingS >= 60) {
+  const stravaConnected = auto.strava ? await bridge().invoke('strava.status', {}).then((st) => st.connected, () => false) : false
+  const stravaSkip = uploadSkipReason({ simulated: fin.summary.simulated, movingS: fin.summary.movingS, hasFit: fitPath !== null, autoOn: auto.strava, connected: stravaConnected })
+  if (fitPath && !fin.summary.simulated && fin.summary.movingS >= MIN_UPLOAD_S) {
     const description = describe(fin.summary)
     for (const provider of ['strava', 'intervals'] as const) {
-      if (!auto[provider]) continue
+      if (!auto[provider] || (provider === 'strava' && stravaSkip !== null)) continue
       await bridge().invoke('uploads.enqueue', {
         rideId: fin.summary.id,
         provider,
@@ -54,7 +59,7 @@ export async function saveFinishedRide(input: Omit<FinalizeInput, 'now' | 'utcOf
     await db().rideStreams.put(fin.streams)
   })
   await bridge().invoke('journal.remove', { rideId: input.rideId }).catch(() => undefined)
-  return { summary: fin.summary, fitPath, uploads }
+  return { summary: fin.summary, fitPath, uploads, stravaSkip }
 }
 
 /** A short Strava description: the numbers people actually look at. */
