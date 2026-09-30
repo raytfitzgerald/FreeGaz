@@ -21,8 +21,8 @@ import { Cyclist, MonogramHead } from './Cyclist'
 // the target. Ease off and they ride away and shout; push and you drop them.
 // Coach lines land in a speech bubble here instead of the cue banner.
 
-const SCENE_H = 132
-const BIKE_H = 84
+const SCENE_H = 190
+const BIKE_H = 104
 /** Where the rider sits across the scene, and how far the coach can roam either side (fractions of the width). */
 const RIDER_X = 0.3
 const ROAM = 0.28
@@ -125,6 +125,7 @@ function Scene({ personaId, name, parody, coachOn, muted, ftpW }: { personaId: s
   const sceneRef = useRef<HTMLDivElement>(null)
   const coachRef = useRef<HTMLDivElement>(null)
   const roadRef = useRef<HTMLDivElement>(null)
+  const fenceRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     let raf = 0
@@ -135,7 +136,11 @@ function Scene({ personaId, name, parody, coachOn, muted, ftpW }: { personaId: s
       const x = (race.state.gapM / MAX_GAP_M) * ROAM * w
       if (coachRef.current) coachRef.current.style.transform = `translateX(${x.toFixed(1)}px)`
       // lane markings scroll by at the rider's speed: 1 m of road is 8 px
-      if (roadRef.current && !reduced) roadRef.current.style.backgroundPositionX = `${(-(race.state.roadM * 8) % 64).toFixed(1)}px`
+      if (!reduced) {
+        if (roadRef.current) roadRef.current.style.backgroundPositionX = `${(-(race.state.roadM * 8) % 64).toFixed(1)}px`
+        // the fence is further away, so it drifts by slower
+        if (fenceRef.current) fenceRef.current.style.backgroundPositionX = `${(-(race.state.roadM * 3) % 56).toFixed(1)}px`
+      }
     }
     if (reduced) timer = setInterval(draw, 1000)
     else {
@@ -157,31 +162,27 @@ function Scene({ personaId, name, parody, coachOn, muted, ftpW }: { personaId: s
 
   return (
     <div ref={sceneRef} className="relative mx-1 mb-1 overflow-hidden rounded-xl" style={{ height: SCENE_H }}>
-      {/* the road: tarmac with a dashed centre line */}
+      {/* a fence along the far verge, then two lanes of tarmac with a dashed line between */}
       <div
-        ref={roadRef}
-        className="absolute inset-x-0 bottom-0 h-7 bg-panel-3"
-        style={{ backgroundImage: 'linear-gradient(90deg, var(--color-line-strong) 0 32px, transparent 32px 64px)', backgroundSize: '64px 3px', backgroundRepeat: 'repeat-x', backgroundPositionY: 'center' }}
+        ref={fenceRef}
+        className="absolute inset-x-0 bottom-16 h-5 border-b border-line"
+        style={{ backgroundImage: 'linear-gradient(90deg, var(--color-line-strong) 0 3px, transparent 3px 56px)', backgroundSize: '56px 100%' }}
         aria-hidden
       />
-      {/* the rider, fixed; the coach roams ahead or behind */}
-      <div className="absolute bottom-3" style={{ left: `${RIDER_X * 100}%`, transform: 'translateX(-50%)' }}>
-        <Cyclist
-          jersey="var(--color-accent)"
-          cadence={riderCadence}
-          height={BIKE_H}
-          label="You, riding"
-          testId="ride-along-rider"
-          head={<MonogramHead text="You" background="var(--color-panel-2)" color="var(--color-ink)" helmet="var(--color-accent)" />}
-        />
-      </div>
-      <div ref={coachRef} className="absolute bottom-3 will-change-transform" style={{ left: `${RIDER_X * 100}%` }} data-testid="ride-along-coach">
+      <div
+        ref={roadRef}
+        className="absolute inset-x-0 bottom-0 h-16 bg-panel-3"
+        style={{ backgroundImage: 'linear-gradient(90deg, var(--color-line-strong) 0 32px, transparent 32px 64px)', backgroundSize: '64px 3px', backgroundRepeat: 'repeat-x', backgroundPositionY: '55%' }}
+        aria-hidden
+      />
+      {/* the coach in the far lane, roaming ahead or behind; the rider fixed in the near one */}
+      <div ref={coachRef} className="absolute bottom-10 will-change-transform" style={{ left: `${RIDER_X * 100}%` }} data-testid="ride-along-coach">
         <div className="relative -translate-x-1/2">
           {bubble && (
             <div
               key={bubble.id}
               className={cn(
-                'absolute bottom-full left-1/2 mb-1 w-max max-w-[min(22rem,60vw)] -translate-x-1/4 rounded-xl border border-line-strong bg-panel-2 px-3 py-1.5 text-sm font-medium leading-snug shadow',
+                'absolute bottom-full left-1/2 mb-1 line-clamp-3 w-max max-w-[min(20rem,55vw)] -translate-x-1/4 rounded-xl border border-line-strong bg-panel-2 px-3 py-1.5 text-sm font-medium leading-snug shadow',
                 muted && 'text-ink-faint',
               )}
               role="status"
@@ -208,6 +209,16 @@ function Scene({ personaId, name, parody, coachOn, muted, ftpW }: { personaId: s
             <Cyclist jersey={colors.background} cadence={coachCadence} height={BIKE_H} label={`${name}, riding next to you`} head={<MonogramHead text={monogram(name)} {...colors} />} />
           )}
         </div>
+      </div>
+      <div className="absolute -bottom-1" style={{ left: `${RIDER_X * 100}%`, transform: 'translateX(-50%)' }}>
+        <Cyclist
+          jersey="var(--color-accent)"
+          cadence={riderCadence}
+          height={BIKE_H}
+          label="You, riding"
+          testId="ride-along-rider"
+          head={<MonogramHead text="You" background="var(--color-panel-2)" color="var(--color-ink)" helmet="var(--color-accent)" />}
+        />
       </div>
     </div>
   )

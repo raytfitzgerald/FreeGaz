@@ -61,25 +61,43 @@ test('Settings: Bibi is a labelled caricature that swaps photos with every sampl
     .toBeGreaterThan(-7.5)
 })
 
-test('ride: Bibi rides onto the banner with his line, and stands still when the Mac asks for less motion', async () => {
+test('ride: Bibi rides alongside and says his line, and stands still when the Mac asks for less motion', async () => {
   const { page } = ctx
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.getByRole('link', { name: 'Ride', exact: true }).click()
   await page.getByTestId('start-ride').click()
-  const cue = page.getByTestId('cue')
-  // the ride-start line comes within a couple of seconds
-  await expect(cue.getByRole('img', { name: /Bibi, parody caricature/ })).toBeVisible({ timeout: 15_000 })
-  await expect(cue.getByTestId('parody-badge')).toHaveText(/parody/i)
-  await expect(cue).not.toHaveText(/^\s*$/)
+  const along = page.getByTestId('ride-along')
+  await expect(along.getByRole('img', { name: /Bibi, parody caricature, riding next to you/ })).toBeVisible()
+  await expect(along.getByTestId('parody-badge').first()).toHaveText(/parody/i)
+  // the ride-start line comes within a couple of seconds, in his speech bubble rather than the cue banner
+  const bubble = page.getByTestId('ride-along-bubble')
+  await expect(bubble).not.toHaveText(/^\s*$/, { timeout: 15_000 })
+  await expect(page.getByTestId('cue')).toHaveCount(0)
   const pose = () =>
     page.evaluate(() => {
-      const svg = document.querySelector('[data-testid="cue"] [data-testid="coach-toon"] svg')
+      const svg = document.querySelector('[data-testid="ride-along-coach"] [data-testid="coach-toon"] svg')
       return [svg?.querySelector('[data-part="root"]')?.getAttribute('transform'), svg?.querySelector('[data-part="jaw"]')?.getAttribute('y')]
     })
   const first = await pose()
   expect(first).toEqual(['translate(0.00 0.00)', '-8.00'])
   await page.waitForTimeout(400)
   expect(await pose()).toEqual(first)
+
+  // the mute button silences him for the ride, and says so
+  await along.getByTestId('ride-along-mute').click()
+  await expect(along.getByTestId('ride-along-mute')).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.getByTestId('cue')).toContainText('Coach muted')
+  await page.getByTestId('mute-coach').click()
+  await expect(page.getByTestId('mute-coach')).toHaveAttribute('aria-pressed', 'false')
+
+  // folded, the strip keeps the gap and the controls
+  await along.getByTestId('ride-along-toggle').click()
+  await expect(along).toHaveAttribute('data-mode', 'minimized')
+  await expect(along.getByTestId('ride-along-gap')).toBeVisible()
+  await expect(page.getByTestId('ride-along-coach')).toHaveCount(0)
+  await along.getByTestId('ride-along-toggle').click()
+  await page.getByTestId('finish-ride').click()
+  await page.getByRole('button', { name: 'Discard' }).click()
   await page.emulateMedia({ reducedMotion: 'no-preference' })
 })
 

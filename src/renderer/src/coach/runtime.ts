@@ -25,7 +25,7 @@ import { markLine, markMuted, markSpeaking, markWord } from './talk'
 
 /** Dispatched on window by RideRunner for the C key and the phone's mute button. */
 export const MUTE_EVENT = 'freegaz:mute-coach'
-export const MUTED_TEXT = 'Coach muted. Press C to unmute.'
+export const MUTED_TEXT = 'Coach muted. Press C or Unmute to bring them back.'
 export const UNMUTED_TEXT = 'Coach back on.'
 
 export interface FtpOutcome {
