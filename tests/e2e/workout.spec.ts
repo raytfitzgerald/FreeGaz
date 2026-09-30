@@ -90,3 +90,24 @@ test('20-minute FTP test: ERG off for the effort, and the result appears after t
   // Simulated rides never change FTP.
   await expect(page.getByTestId('ftp-result')).toContainText('Your FTP was not changed')
 })
+
+test('the Ride tab starts on a ride-type picker; a ride for time sets up and plays like a workout', async () => {
+  const { page } = ctx
+  await page.getByRole('link', { name: 'Ride', exact: true }).click()
+  const launcher = page.getByTestId('ride-launcher')
+  // an earlier ride left the tab on its own kind: go back to the picker
+  const change = page.getByTestId('change-ride')
+  if (await change.isVisible()) await change.click()
+  await expect(launcher.getByRole('heading', { name: 'What are we riding?' })).toBeVisible()
+  await page.getByTestId('ride-choice-time').click()
+  await page.getByRole('button', { name: '20 min', exact: true }).click()
+  await page.getByTestId('start-time-ride').click()
+  await expect(page.getByRole('heading', { name: '20-minute ride' })).toBeVisible()
+  await expect(page.getByTestId('ride-button')).toHaveAttribute('data-recording', 'true')
+  await page.getByTestId('finish-ride').click()
+  await page.getByRole('button', { name: 'Discard' }).click()
+  // back on the same setup, not a free ride
+  await expect(launcher.getByRole('heading', { name: 'Ride for time' })).toBeVisible()
+  await page.getByTestId('change-ride').click()
+  await expect(launcher.getByRole('heading', { name: 'What are we riding?' })).toBeVisible()
+})

@@ -15,7 +15,7 @@ import { formatDate, formatDurationShort } from '../../ui/format'
 import { useNow } from '../../ui/useNow'
 
 const QUICK_START = [
-  { to: '/ride', search: undefined, title: 'Just ride', text: 'ERG, level or slope. No plan, just watts.', icon: Bike },
+  { to: '/ride', search: { choose: 'free' }, title: 'Just ride', text: 'ERG, level or slope. No plan, just watts.', icon: Bike },
   { to: '/workouts', search: undefined, title: 'Workouts', text: 'Structured intervals, scaled to your FTP.', icon: ListChecks },
   { to: '/workouts', search: { filter: 'tests' }, title: 'FTP test', text: '20-minute, ramp or 8-minute. Saves your FTP.', icon: Gauge },
   { to: '/routes', search: undefined, title: 'Routes', text: 'Ride a GPX in SIM mode: Reactive or Steady.', icon: Mountain },

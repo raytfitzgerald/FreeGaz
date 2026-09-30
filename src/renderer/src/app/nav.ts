@@ -1,6 +1,5 @@
 import {
   Activity,
-  Bike,
   Bluetooth,
   Hammer,
   History,
@@ -18,9 +17,9 @@ export interface NavItem {
   icon: LucideIcon
 }
 
+/** The sidebar tabs. Ride isn't one: it's the big button above them (RideButton). */
 export const NAV: NavItem[] = [
   { to: '/', label: 'Home', icon: LayoutDashboard },
-  { to: '/ride', label: 'Ride', icon: Bike },
   { to: '/workouts', label: 'Workouts', icon: ListChecks },
   { to: '/builder', label: 'Builder', icon: Hammer },
   { to: '/routes', label: 'Routes', icon: Mountain },

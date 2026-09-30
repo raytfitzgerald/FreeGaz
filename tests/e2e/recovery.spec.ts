@@ -2,7 +2,7 @@ import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
-import { launchApp } from './launch'
+import { launchApp, openFreeRide } from './launch'
 
 // M2 exit criteria: a crash (renderer or the whole app) loses at most 2 s of ride.
 type TestWindow = { __freegazTest: { runtime: { rides: { session: { movingSeconds: number } | null } } } }
@@ -10,7 +10,7 @@ type TestWindow = { __freegazTest: { runtime: { rides: { session: { movingSecond
 async function startRecording(page: Page) {
   await page.getByRole('link', { name: 'Devices', exact: true }).click()
   await expect(page.getByTestId('device-trainer-name')).toHaveText('SIM KICKR 0001')
-  await page.getByRole('link', { name: 'Ride', exact: true }).click()
+  await openFreeRide(page)
   await page.getByRole('radio', { name: 'ERG' }).click()
   await page.getByTestId('start-ride').click()
   await expect(page.getByTestId('recording-bar')).toBeVisible()

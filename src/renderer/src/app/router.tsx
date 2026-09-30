@@ -17,7 +17,12 @@ const rootRoute = createRootRoute({ component: AppShell })
 
 const homeRoute = createRoute({ getParentRoute: () => rootRoute, path: '/', component: HomePage })
 
-const rideRoute = createRoute({ getParentRoute: () => rootRoute, path: '/ride', component: RidePage })
+const rideRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/ride',
+  validateSearch: (s: Record<string, unknown>): { choose?: string } => (typeof s.choose === 'string' ? { choose: s.choose } : {}),
+  component: RidePage,
+})
 const workoutsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/workouts',
