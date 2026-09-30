@@ -25,7 +25,8 @@ const SYNC_KEY = 'ride-detail'
 
 export function RideDetailPage() {
   const { rideId } = useParams({ from: '/history/$rideId' })
-  const ride = useLiveQuery(() => db().rides.get(rideId), [rideId])
+  // Dexie resolves a missing row as undefined, which useLiveQuery also means "loading": map it to null
+  const ride = useLiveQuery(() => db().rides.get(rideId).then((r) => r ?? null), [rideId])
   const streams = useLiveQuery(() => db().rideStreams.get(rideId), [rideId])
   const navigate = useNavigate()
   const [confirmDelete, setConfirmDelete] = useState(false)

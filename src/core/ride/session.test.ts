@@ -87,6 +87,7 @@ describe('RideSession', () => {
 
     const j = parseJournal(journal.files.get('ride-test-01')!.join('\n'))
     expect(j.meta?.name).toBe('Test ride')
+    expect(j.meta?.athlete?.lthr).toBe(165) // a recovered ride keeps its HR zones
     expect(j.records.length).toBe(records.length)
     expect(j.ended).toBe(true)
 
@@ -148,6 +149,29 @@ describe('RideSession', () => {
     expect(events.filter((e) => e.type === 'pr')).toEqual([])
   })
 
+  it('writes the last records and the end line before closing, even with an append in flight', async () => {
+    const { session, ride, journal } = setup()
+    const order: string[] = []
+    let release: (() => void) | null = null
+    const append = journal.sink.append
+    journal.sink.append = async (id, seq, lines) => {
+      // the first append after 5 s hangs until finish() has been called
+      if (seq === 2) await new Promise<void>((r) => (release = r))
+      order.push(`append ${seq}`)
+      return append(id, seq, lines)
+    }
+    journal.sink.close = async () => {
+      order.push('close')
+    }
+    session.start()
+    await ride(10, 200)
+    const finished = session.finish()
+    ;(release as (() => void) | null)?.()
+    await finished
+    expect(order.at(-1)).toBe('close')
+    expect(parseJournal(journal.files.get('ride-test-01')!.join('\n')).ended).toBe(true)
+  })
+
   it('retries failed journal appends with the same sequence number', async () => {
     const { session, ride, journal } = setup({ failFirstAppend: true })
     session.start()
@@ -191,5 +215,7 @@ describe('RideSession', () => {
 
   it('names FIT files by local start time', () => {
     expect(fitFileName({ startedAt: Date.UTC(2026, 8, 29, 13, 5), name: 'Sweet Spot' }, -420)).toBe('2026-09-29 0605 - Sweet Spot.fit')
+    // a very long route name still makes a file name the IPC contract accepts
+    expect(fitFileName({ startedAt: 0, name: 'x'.repeat(400) }).length).toBeLessThanOrEqual(200)
   })
 })

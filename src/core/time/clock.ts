@@ -17,16 +17,30 @@ export interface Clock {
   readonly warp: number
 }
 
-/** Real time. Monotonic via performance.now(), anchored to Date.now() at construction. */
+/** Past this much disagreement with Date.now(), the wall anchor is reset. */
+export const WALL_RESYNC_MS = 2000
+
+/**
+ * Real time. Monotonic via performance.now(), anchored to Date.now(). On
+ * macOS the monotonic clock stops while the Mac sleeps, so an app left open
+ * overnight would date every later ride too early by the time asleep: the
+ * anchor is reset whenever the two disagree by more than WALL_RESYNC_MS.
+ */
 export class SystemClock implements Clock {
   readonly warp = 1
-  private readonly wallAnchor = Date.now()
-  private readonly monoAnchor = performance.now()
+  private wallAnchor = Date.now()
+  private monoAnchor = performance.now()
 
   now(): number {
     return performance.now()
   }
   wallMs(mono = this.now()): number {
+    const wallNow = Date.now()
+    const monoNow = performance.now()
+    if (Math.abs(this.wallAnchor + (monoNow - this.monoAnchor) - wallNow) > WALL_RESYNC_MS) {
+      this.wallAnchor = wallNow
+      this.monoAnchor = monoNow
+    }
     return this.wallAnchor + (mono - this.monoAnchor)
   }
   every(ms: number, fn: () => void): Cancel {

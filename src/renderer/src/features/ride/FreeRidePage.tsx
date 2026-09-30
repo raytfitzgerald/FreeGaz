@@ -5,6 +5,7 @@ import type { Desired } from '@core/control/trainer-controller'
 import type { TrainerMode } from '@shared/live'
 import { getRuntime } from '../../runtime/composition'
 import { useLive } from '../../stores/live'
+import { useRide } from '../../stores/ride'
 import { Button } from '../../ui/Button'
 import { MetricTile } from '../../ui/MetricTile'
 import { PageHeader } from '../../ui/PageHeader'
@@ -68,11 +69,12 @@ function initialFromController(): { mode: Mode; targets: Targets } {
 export function FreeRidePage() {
   const [{ mode, targets }, setState] = useState(initialFromController)
   const trainerConnected = useLive((f) => f.trainer.connected)
+  const recording = useRide((s) => s.active)
 
-  // Push the desired state to the controller whenever it changes.
+  // Push the desired state to the controller whenever it changes, and again when a ride starts or ends.
   useEffect(() => {
     getRuntime().controller.setDesired(toDesired(mode, targets))
-  }, [mode, targets])
+  }, [mode, targets, recording])
 
   const nudge = (delta: number) =>
     setState((s) => {

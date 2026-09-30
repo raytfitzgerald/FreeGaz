@@ -41,8 +41,8 @@ export async function saveFinishedRide(input: Omit<FinalizeInput, 'now' | 'utcOf
         provider,
         fitPath,
         fileName: fin.summary.fit!.fileName,
-        name: fin.summary.name,
-        description,
+        name: [...fin.summary.name].slice(0, 200).join(''),
+        description: description.slice(0, 5000),
       })
       uploads.push(provider)
       fin.summary.uploads = { ...fin.summary.uploads, [provider]: { status: 'queued', at: Date.now() } }
@@ -103,7 +103,7 @@ export async function recoverRide(rideId: string): Promise<SaveResult | null> {
     kind: j.meta.kind,
     simulated: j.meta.simulated,
     startedAt: j.meta.startedAt,
-    athlete: { ftpW: j.meta.ftpW, weightKg: j.meta.weightKg },
+    athlete: { ...j.meta.athlete, ftpW: j.meta.ftpW, weightKg: j.meta.weightKg },
     records: j.records,
     workoutId: j.meta.workoutId,
     workoutJson: j.meta.workoutJson,

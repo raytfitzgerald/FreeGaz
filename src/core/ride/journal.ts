@@ -3,6 +3,7 @@
 // seconds. Line 1 is metadata; the rest are compact record arrays or events.
 // A torn final line (crash mid-write) is ignored on read.
 import type { RideRecord } from './recorder'
+import type { AthleteSnapshot } from './types'
 
 export const JOURNAL_VERSION = 1
 
@@ -16,6 +17,8 @@ export interface JournalMeta {
   simulated: boolean
   ftpW: number
   weightKg: number
+  /** The whole athlete snapshot (HR zones, CP), so a recovered ride keeps its zones. Absent in older journals. */
+  athlete?: AthleteSnapshot
   workoutId?: string
   /** JSON snapshot of the workout, so a recovered ride is self-contained. */
   workoutJson?: string
