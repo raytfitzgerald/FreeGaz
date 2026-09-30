@@ -9,12 +9,14 @@ import { RecoveryBanner } from '../features/ride/RecoveryBanner'
 import { ReportBugDialog, ReportBugLink } from '../features/support/ReportBugDialog'
 import { useGlobalHotkeys } from './hotkeys'
 import { ToastHost } from './ToastHost'
+import { MobileTabBar, MobileTopBar } from './MobileNav'
 
 export function AppShell() {
   useGlobalHotkeys()
   return (
-    <div className="flex h-full">
-      <aside className="flex w-[208px] shrink-0 flex-col border-r border-line bg-panel">
+    <div className="flex h-full flex-col md:flex-row">
+      <MobileTopBar />
+      <aside className="hidden md:flex w-[208px] shrink-0 flex-col border-r border-line bg-panel">
         {/* traffic-light gutter + window drag area */}
         <div className="drag-region h-11" />
         <div className="px-5 pb-5 pt-1">
@@ -40,8 +42,8 @@ export function AppShell() {
         </nav>
         <ReportBugLink />
       </aside>
-      <main className="relative flex min-w-0 flex-1 flex-col">
-        <div className="drag-region absolute inset-x-0 top-0 z-10 flex h-11 items-center justify-end px-4">
+      <main className="relative flex min-h-0 min-w-0 flex-1 flex-col">
+        <div className="drag-region absolute inset-x-0 top-0 z-10 hidden h-11 items-center justify-end px-4 md:flex">
           <DeviceStatusBar />
         </div>
         <div className="min-h-0 flex-1 overflow-auto">
@@ -49,6 +51,7 @@ export function AppShell() {
           <Outlet />
         </div>
       </main>
+      <MobileTabBar />
       <ChooserDialog />
       <ToastHost />
       <ReportBugDialog />

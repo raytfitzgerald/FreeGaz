@@ -8,6 +8,7 @@ declare global {
   }
   /** True in the browser-only build (vite.web.config.ts). */
   const __FREEGAZ_WEB__: boolean
+  const __FREEGAZ_VERSION__: string
 }
 
 export {}

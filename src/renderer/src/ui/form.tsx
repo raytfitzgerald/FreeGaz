@@ -4,8 +4,8 @@ import { cn } from './cn'
 
 export function Field({ label, hint, children, className }: { label: ReactNode; hint?: ReactNode; children: ReactNode; className?: string }) {
   return (
-    <div className={cn('grid grid-cols-[minmax(160px,220px)_1fr] items-start gap-6 py-3', className)}>
-      <div className="pt-2">
+    <div className={cn('grid items-start gap-2 py-3 md:grid-cols-[minmax(160px,220px)_1fr] md:gap-6', className)}>
+      <div className="md:pt-2">
         <div className="text-sm font-medium">{label}</div>
         {hint && <div className="mt-0.5 text-xs leading-relaxed text-ink-faint">{hint}</div>}
       </div>

@@ -115,7 +115,7 @@ export function WorkoutsPage() {
 
   return (
     <div
-      className={cn('mx-auto max-w-6xl px-8 pb-12', dragging && 'outline-2 outline-dashed outline-accent/60')}
+      className={cn('mx-auto max-w-6xl px-4 md:px-8 pb-12', dragging && 'outline-2 outline-dashed outline-accent/60')}
       onDragOver={(e) => {
         e.preventDefault()
         setDragging(true)
@@ -168,7 +168,7 @@ export function WorkoutsPage() {
         </div>
       )}
 
-      <div className="mb-4 flex gap-1 border-b border-line" role="tablist" aria-label="Workout folders">
+      <div className="mb-4 flex gap-1 overflow-x-auto border-b border-line" role="tablist" aria-label="Workout folders">
         {TABS.map((t) => (
           <button
             key={t.id}
@@ -177,7 +177,7 @@ export function WorkoutsPage() {
             aria-selected={tab === t.id}
             onClick={() => pickTab(t.id)}
             className={cn(
-              'no-drag -mb-px flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-semibold transition-colors',
+              'no-drag -mb-px flex shrink-0 items-center gap-2 whitespace-nowrap border-b-2 px-3 py-2.5 md:px-4 text-sm font-semibold transition-colors',
               tab === t.id ? 'border-accent text-ink' : 'border-transparent text-ink-dim hover:text-ink',
             )}
             data-testid={`workout-tab-${t.id}`}

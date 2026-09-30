@@ -23,6 +23,12 @@ describe('bug reports', () => {
     expect(body).toContain('- trainer: control lost')
   })
 
+  it('names the phone OS for the web app', () => {
+    const web = formatDiagnostics({ version: '0.3.0-web', electron: 'n/a', chrome: 'n/a', os: 'iOS 18.1', arch: 'browser', simulated: false, devices: [], settings: {}, recent: [] })
+    expect(web).toContain('- FreeGaz 0.3.0-web (web app, Chrome n/a)')
+    expect(web).toContain('- iOS 18.1 (browser)')
+  })
+
   it('points at the repo as a labelled bug', () => {
     const { url, trimmed } = bugIssueUrl('Light mode', 'body')
     expect(url.startsWith('https://github.com/raytfitzgerald/FreeGaz/issues/new?')).toBe(true)

@@ -24,7 +24,7 @@ export function FitnessPage() {
 
   const latest = pmc?.at(-1)
   return (
-    <div className="mx-auto max-w-6xl px-8 pb-12">
+    <div className="mx-auto max-w-6xl px-4 md:px-8 pb-12">
       <PageHeader title="Fitness" subtitle="Training load, FTP over time and your power curve. Simulated rides are excluded." />
 
       <div className="mb-4 grid grid-cols-2 gap-4 lg:grid-cols-4">

@@ -125,7 +125,7 @@ export function CoachChatPage() {
 
   const language = persona.id === PROFESSIONAL.meta.id ? 'clean' : coach.profanity
   return (
-    <div className="mx-auto flex h-full max-w-4xl flex-col px-8 pb-6">
+    <div className="mx-auto flex h-full max-w-4xl flex-col px-4 md:px-8 pb-6">
       <PageHeader
         title="Coach"
         subtitle="Ask about your training. Only rides recorded in FreeGaz are shared with your AI provider."

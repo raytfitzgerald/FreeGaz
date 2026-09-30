@@ -36,7 +36,7 @@ export function RideDetailPage() {
   if (ride === null) return <div className="p-10 text-ink-faint">Ride not found.</div>
 
   return (
-    <div className="mx-auto max-w-6xl px-8 pb-12">
+    <div className="mx-auto max-w-6xl px-4 md:px-8 pb-12">
       <PageHeader
         title={ride.name}
         subtitle={`${formatDateTime(ride.startedAt)} · ${formatDuration(ride.movingS)} moving${ride.simulated ? ' · simulated' : ''}${ride.recovered ? ' · recovered after a crash' : ''}${ride.imported ? ` · imported${ride.imported.device ? ` from ${ride.imported.device}` : ''}` : ''}`}

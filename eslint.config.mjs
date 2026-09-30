@@ -64,6 +64,10 @@ export default defineConfig(
     },
   },
   {
+    files: ['src/renderer/web-public/**/*.js'],
+    languageOptions: { globals: globals.serviceworker },
+  },
+  {
     files: ['src/main/**/*.ts', 'src/preload/**/*.ts'],
     languageOptions: { globals: globals.node },
     rules: {

@@ -27,3 +27,8 @@ createRoot(root).render(
 )
 
 void startAutoConnect(runtime)
+
+// The installed web app works offline (the desktop app has no need).
+if (__FREEGAZ_WEB__ && import.meta.env.PROD && 'serviceWorker' in navigator) {
+  void navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(() => undefined)
+}

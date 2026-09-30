@@ -52,7 +52,7 @@ export function RoutesPage() {
 
   return (
     <div
-      className={cn('mx-auto max-w-6xl px-8 pb-12', dragging && 'outline-2 outline-dashed outline-accent/60')}
+      className={cn('mx-auto max-w-6xl px-4 md:px-8 pb-12', dragging && 'outline-2 outline-dashed outline-accent/60')}
       onDragOver={(e) => {
         e.preventDefault()
         setDragging(true)

@@ -37,7 +37,7 @@ const CHOICES: { id: RideChoice; title: string; text: string; icon: LucideIcon }
 export function RideLauncher({ choice }: { choice: RideChoice | null }) {
   const current = CHOICES.find((c) => c.id === choice) ?? null
   return (
-    <div className="mx-auto max-w-5xl px-8 pb-12" data-testid="ride-launcher">
+    <div className="mx-auto max-w-5xl px-4 md:px-8 pb-12" data-testid="ride-launcher">
       <PageHeader
         title={current ? current.title : 'What are we riding?'}
         subtitle={current ? current.text : 'Pick a kind of ride. You can set it up on the next step.'}

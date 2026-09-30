@@ -62,7 +62,7 @@ export function HomePage() {
   const locked = derived?.achievements.filter((a) => a.unlockedAt === null) ?? []
 
   return (
-    <div className="mx-auto max-w-6xl px-8 pb-10">
+    <div className="mx-auto max-w-6xl px-4 md:px-8 pb-10">
       <div className="pt-12" />
       <HomeHero rides={data?.rides ?? []} tsb={data?.today?.tsb ?? null} now={now} suggested={derived?.suggested ?? null} reason={derived?.suggestion.reason ?? null} />
 

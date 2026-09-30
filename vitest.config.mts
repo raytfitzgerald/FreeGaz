@@ -11,7 +11,7 @@ export default defineConfig({
       '@renderer': r('./src/renderer/src'),
     },
   },
-  define: { __FREEGAZ_WEB__: 'false' },
+  define: { __FREEGAZ_WEB__: 'false', __FREEGAZ_VERSION__: JSON.stringify('0.0.0-test') },
   test: {
     projects: [
       {

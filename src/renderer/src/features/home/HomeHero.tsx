@@ -48,13 +48,13 @@ export function HomeHero({
   const onTrack = rival ? [{ id: `rival-${rival.id}`, label: `${rival.name}, doing laps while you don't`, lapS: 8, head: <CoachHead personaId={rival.id} /> }] : riders
 
   return (
-    <section className="mb-6 grid items-center gap-6 overflow-hidden rounded-3xl border border-line bg-panel p-6 lg:grid-cols-[1.05fr_1fr] lg:p-8" data-testid="home-hero" aria-label="This week">
+    <section className="mb-6 grid grid-cols-[minmax(0,1fr)] items-center gap-6 overflow-hidden rounded-3xl border border-line bg-panel p-5 md:p-6 lg:grid-cols-[1.05fr_1fr] lg:p-8" data-testid="home-hero" aria-label="This week">
       <div className="min-w-0">
         <div className="eyebrow text-ink-faint">
           {words.eyebrow}
           {first && `, ${first}`}
         </div>
-        <h1 className="mt-2 font-display text-4xl font-bold leading-tight lg:text-5xl" data-testid="hero-title">
+        <h1 className="mt-2 font-display text-3xl font-bold md:text-4xl leading-tight lg:text-5xl" data-testid="hero-title">
           {words.title}
         </h1>
         <p className="mt-2 max-w-md text-ink-dim">{words.sub}</p>

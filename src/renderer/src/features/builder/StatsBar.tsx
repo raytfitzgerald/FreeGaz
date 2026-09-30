@@ -17,7 +17,7 @@ export const StatsBar = memo(function StatsBar({ stats, ftpW, known }: { stats: 
   return (
     <section className="rounded-2xl border border-line bg-panel p-3" aria-label="Workout stats" data-testid="builder-stats">
       {/* One fixed grid row: the numbers change live (drags included) but never reflow it, so the canvas below never moves. */}
-      <div className="grid grid-cols-[repeat(5,minmax(0,1fr))_minmax(0,2.4fr)] gap-2">
+      <div className="grid grid-cols-[repeat(3,minmax(0,1fr))] gap-2 md:grid-cols-[repeat(5,minmax(0,1fr))_minmax(0,2.4fr)]">
         {cells.map(([label, value, testId]) => (
           <div key={label} className="flex min-w-0 flex-col justify-center rounded-xl border border-line bg-panel-2 px-3 py-1.5">
             <div className="text-[11px] text-ink-faint">{label}</div>
@@ -26,7 +26,7 @@ export const StatsBar = memo(function StatsBar({ stats, ftpW, known }: { stats: 
             </div>
           </div>
         ))}
-        <div className="min-w-0 rounded-xl border border-line bg-panel-2 px-3 py-1.5">
+        <div className="col-span-full min-w-0 rounded-xl border border-line bg-panel-2 px-3 py-1.5 md:col-span-1">
           <div className="flex items-baseline justify-between gap-2 whitespace-nowrap text-[11px] text-ink-faint">
             <span>Time in zones</span>
             <span className="truncate">
