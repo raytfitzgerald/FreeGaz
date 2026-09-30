@@ -25,6 +25,12 @@ export function startTheme(root: HTMLElement = document.documentElement): () => 
   const apply = () => {
     const theme = resolveTheme(settingsStore.getState().appearance, media?.matches ?? true)
     root.dataset.theme = theme
+    // Inline, so it beats the stylesheet and a click that restyles the
+    // document from the Mac's appearance. `only` refuses that override.
+    // The CSSOM may serialize "only light" as "light only".
+    const scheme = root.style.colorScheme
+    const locked = theme === 'light' ? scheme.includes('light') && !scheme.includes('dark') : scheme.includes('dark') && !scheme.includes('light')
+    if (!locked) root.style.colorScheme = theme === 'light' ? 'only light' : 'only dark'
     if (themeStore.getState().theme !== theme) themeStore.setState({ theme })
   }
   apply()
@@ -32,8 +38,11 @@ export function startTheme(root: HTMLElement = document.documentElement): () => 
     if (next.appearance !== prev.appearance) apply()
   })
   media?.addEventListener('change', apply)
+  // A press can flip prefers-color-scheme for one frame. Re-assert after it.
+  root.addEventListener('pointerup', apply)
   return () => {
     offSettings()
     media?.removeEventListener('change', apply)
+    root.removeEventListener('pointerup', apply)
   }
 }

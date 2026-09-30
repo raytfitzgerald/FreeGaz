@@ -5,18 +5,25 @@ import type { AppSettings } from '@shared/settings'
 
 const BACKGROUND = { dark: '#090b0f', light: '#f3f4f7' } as const
 
-export function windowBackground(): string {
-  return nativeTheme.shouldUseDarkColors ? BACKGROUND.dark : BACKGROUND.light
+export function windowBackground(appearance: AppSettings['appearance']): string {
+  const dark = appearance === 'system' ? nativeTheme.shouldUseDarkColors : appearance === 'dark'
+  return dark ? BACKGROUND.dark : BACKGROUND.light
 }
 
 export function applyAppearance(appearance: AppSettings['appearance']): void {
   if (nativeTheme.themeSource !== appearance) nativeTheme.themeSource = appearance
 }
 
-/** Repaints a window's native background when the theme changes (no flash on resize or reload). */
-export function followTheme(win: BrowserWindow): () => void {
+/**
+ * Keeps the window background in step with the theme. Also puts themeSource
+ * back if a click knocked it onto the system appearance: on a Dark Mac that
+ * turns a Light window dark.
+ */
+export function followTheme(win: BrowserWindow, appearance: () => AppSettings['appearance']): () => void {
   const update = () => {
-    if (!win.isDestroyed()) win.setBackgroundColor(windowBackground())
+    const choice = appearance()
+    applyAppearance(choice)
+    if (!win.isDestroyed()) win.setBackgroundColor(windowBackground(choice))
   }
   nativeTheme.on('updated', update)
   return () => nativeTheme.off('updated', update)

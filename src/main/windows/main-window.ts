@@ -1,10 +1,11 @@
 import { BrowserWindow, shell } from 'electron'
 import { join } from 'node:path'
-import { APP_ORIGIN, isAllowedNavigation } from './navigation'
+import type { AppSettings } from '@shared/settings'
 import { env } from '../env'
+import { APP_ORIGIN, isAllowedNavigation } from './navigation'
 import { followTheme, windowBackground } from './theme'
 
-export function createMainWindow(): BrowserWindow {
+export function createMainWindow(appearance: () => AppSettings['appearance']): BrowserWindow {
   const win = new BrowserWindow({
     title: 'FreeGaz',
     width: 1480,
@@ -12,7 +13,7 @@ export function createMainWindow(): BrowserWindow {
     minWidth: 1100,
     minHeight: 700,
     show: false,
-    backgroundColor: windowBackground(),
+    backgroundColor: windowBackground(appearance()),
     titleBarStyle: 'hiddenInset',
     trafficLightPosition: { x: 14, y: 14 },
     webPreferences: {
@@ -27,7 +28,7 @@ export function createMainWindow(): BrowserWindow {
     },
   })
 
-  const stopFollowing = followTheme(win)
+  const stopFollowing = followTheme(win, appearance)
   win.on('closed', stopFollowing)
 
   win.once('ready-to-show', () => {

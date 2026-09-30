@@ -78,11 +78,14 @@
    (any darker yellow collides with Z5 for colour-blind readers). Both are
    covered because zones are always labeled and height-encoded, so colour is
    never the only signal. The mini-HUD never sets data-theme and stays dark. */
+/* `only` so a click can't hand the page back to macOS. Without it, a button
+   (Tailwind sets appearance: button) adopts the system scheme on press, and
+   on a Mac set to Dark the whole window follows. */
 :root {
-  color-scheme: dark;
+  color-scheme: only dark;
 }
 :root[data-theme='light'] {
-  color-scheme: light;
+  color-scheme: only light;
   --color-bg: #f3f4f7;
   --color-panel: #ffffff;
   --color-panel-2: #f6f7f9;
@@ -126,6 +129,19 @@
 }
 
 @layer base {
+  /* Native buttons follow the Mac's appearance on press, which is Dark here
+     even when the page is light. Draw them ourselves. */
+  button,
+  input:where([type='button'], [type='reset'], [type='submit']),
+  ::file-selector-button {
+    appearance: none;
+    color-scheme: inherit;
+  }
+  input,
+  select,
+  textarea {
+    color-scheme: inherit;
+  }
   html,
   body,
   #root {
