@@ -36,6 +36,8 @@ export {
   PROFESSIONAL,
   ROAST_COMIC,
   THE_OVERLORD,
+  TRUMP,
+  TRUMP_BANNED_PATTERNS,
   ZEN,
   packById,
 } from './packs'

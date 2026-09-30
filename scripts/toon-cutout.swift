@@ -4,9 +4,13 @@
 //   <outPrefix>-jaw.png   the jaw below the lip line; the app slides it down to talk
 // Vision picks the face nearest the hint point and the person instance under it, so
 // nobody standing behind survives. The cut follows the jawline landmarks, so no collar,
-// tie or lapel pin does either. Both layers share one square canvas, chin at the bottom.
+// tie or lapel pin does either; scraps of mask not joined to the face are dropped, and wispy
+// edges take the head's colour, not the background's. Both layers share one square canvas,
+// chin at the bottom.
 //
-// usage: swift scripts/toon-cutout.swift <photo> <outPrefix> <hintX> <hintY>   (hint 0..1, origin top-left)
+// usage: swift scripts/toon-cutout.swift <photo> <outPrefix> <hintX> <hintY> [trim]
+//   hint: 0..1, origin top-left. trim: how far to pull the edge in, as a fraction of the face
+//   width (default 0.006); raise it when a busy background clings to the hairline.
 // The app ships them as WebP (quality 90). Credits for every source photo: src/renderer/src/coach/toon/heads/ATTRIBUTION.md
 import AppKit
 import CoreImage
@@ -15,8 +19,9 @@ import Vision
 
 let args = CommandLine.arguments
 guard args.count >= 5, let hx = Double(args[3]), let hy = Double(args[4]) else {
-  fatalError("usage: cutout <in> <outPrefix> <hintX> <hintY>")
+  fatalError("usage: cutout <in> <outPrefix> <hintX> <hintY> [trim]")
 }
+let trim = args.count >= 6 ? Double(args[5]) ?? 0.006 : 0.006
 let url = URL(fileURLWithPath: args[1])
 let outPrefix = args[2]
 let hint = CGPoint(x: hx, y: 1 - hy) // Vision space: origin bottom-left
@@ -102,9 +107,36 @@ let cut = CIImage(cgImage: g.makeImage()!)
 let xs = poly.map(\.x), bottomY = jaw.map(\.y).min()! - fh * 0.04
 let crop = CGRect(x: xs.min()!, y: bottomY, width: xs.max()! - xs.min()!, height: top - bottomY).intersection(src.extent)
 // a pixel of erosion drops the background halo round the ears
-let alpha = mask.applyingFilter("CIMultiplyCompositing", parameters: [kCIInputBackgroundImageKey: cut])
-  .applyingFilter("CIMorphologyMinimum", parameters: [kCIInputRadiusKey: max(1, fw * 0.006)])
+let rawAlpha = mask.applyingFilter("CIMultiplyCompositing", parameters: [kCIInputBackgroundImageKey: cut])
+  .applyingFilter("CIMorphologyMinimum", parameters: [kCIInputRadiusKey: max(1, fw * CGFloat(trim))])
   .cropped(to: crop)
+
+/** Only what joins up with the face survives: stray scraps of mask (a bust, a shoulder behind) go. */
+func joinedToFace(_ a: CIImage) -> CIImage {
+  let e = a.extent.integral
+  let w = Int(e.width), h = Int(e.height)
+  var px = [UInt8](repeating: 0, count: w * h * 4)
+  ctx.render(a, toBitmap: &px, rowBytes: w * 4, bounds: e, format: .RGBA8, colorSpace: nil)
+  var keep = [UInt8](repeating: 0, count: w * h)
+  // bitmap rows run top-down
+  let sx = min(max(Int(fx + fw / 2 - e.minX), 0), w - 1), sy = min(max(Int(e.maxY - (fy + fh / 2)), 0), h - 1)
+  var stack = [(sx, sy)]
+  while let (x, y) = stack.popLast() {
+    let i = y * w + x
+    if keep[i] != 0 || px[i * 4] < 20 { continue }
+    keep[i] = 255
+    if x > 0 { stack.append((x - 1, y)) }
+    if x < w - 1 { stack.append((x + 1, y)) }
+    if y > 0 { stack.append((x, y - 1)) }
+    if y < h - 1 { stack.append((x, y + 1)) }
+  }
+  let bm = CGContext(data: &keep, width: w, height: h, bitsPerComponent: 8, bytesPerRow: w, space: cs, bitmapInfo: CGImageAlphaInfo.none.rawValue)!
+  let joined = CIImage(cgImage: bm.makeImage()!).transformed(by: CGAffineTransform(translationX: e.minX, y: e.minY))
+    .applyingFilter("CIMorphologyMaximum", parameters: [kCIInputRadiusKey: 2])
+    .applyingFilter("CIGaussianBlur", parameters: [kCIInputRadiusKey: 1])
+  return a.applyingFilter("CIMultiplyCompositing", parameters: [kCIInputBackgroundImageKey: joined]).cropped(to: a.extent)
+}
+let alpha = joinedToFace(rawAlpha)
 
 func write(_ img: CIImage, _ name: String) {
   let path = "\(outPrefix)-\(name).png"
@@ -124,12 +156,23 @@ func masked(_ img: CIImage, _ m: CIImage, in r: CGRect) -> CIImage {
 
 // 4. the sticker: the head plus a white outline (its alpha, dilated)
 let vivid = src.applyingFilter("CIColorControls", parameters: [kCIInputSaturationKey: 1.08, kCIInputContrastKey: 1.05])
+// Wispy edges (hair, mostly) are part background: they take their colour from
+// the head just inside them instead, so no wall, curtain or bust shows through.
+let spread = masked(vivid, alpha, in: crop).clampedToExtent()
+  .applyingFilter("CIGaussianBlur", parameters: [kCIInputRadiusKey: max(2, fw * 0.025)]).cropped(to: crop)
+let inside = spread.applyingFilter("CIUnpremultiply").applyingFilter("CIColorMatrix", parameters: [
+  "inputAVector": CIVector(x: 0, y: 0, z: 0, w: 0), "inputBiasVector": CIVector(x: 0, y: 0, z: 0, w: 1)])
+let solid = alpha.applyingFilter("CIColorMatrix", parameters: [
+  "inputRVector": CIVector(x: 2.2, y: 0, z: 0, w: 0), "inputGVector": CIVector(x: 0, y: 2.2, z: 0, w: 0),
+  "inputBVector": CIVector(x: 0, y: 0, z: 2.2, w: 0), "inputBiasVector": CIVector(x: -1.1, y: -1.1, z: -1.1, w: 0)])
+  .applyingFilter("CIColorClamp")
+let clean = vivid.cropped(to: crop).applyingFilter("CIBlendWithMask", parameters: [kCIInputBackgroundImageKey: inside, kCIInputMaskImageKey: solid])
 let r = max(4, crop.width * 0.03)
 let stickerRect = crop.insetBy(dx: -r * 2, dy: -r * 2)
 let grown = alpha.applyingFilter("CIMorphologyMaximum", parameters: [kCIInputRadiusKey: r])
   .applyingFilter("CIGaussianBlur", parameters: [kCIInputRadiusKey: 1.2]).cropped(to: stickerRect)
 let outline = masked(CIImage(color: .white), grown, in: stickerRect)
-let sticker = masked(vivid, alpha, in: crop).composited(over: outline)
+let sticker = masked(clean, alpha, in: crop).composited(over: outline)
 
 // 5. a cut-out jaw, for talking: below the lip line and inside lines that run
 // from the mouth corners down and out past the jaw. It slides down to talk.

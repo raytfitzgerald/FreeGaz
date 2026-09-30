@@ -8,7 +8,7 @@ import { PersonaAvatar } from '../../coach/PersonaAvatar'
 import { aiReady } from '../../coach/quips'
 import { watchdogMs } from '../../coach/speech-queue'
 import { CoachToon } from '../../coach/toon/CoachToon'
-import { toonHeadsFor } from '../../coach/toon/heads'
+import { toonFor } from '../../coach/toon/heads'
 import { patchSettings, useSettings } from '../../stores/settings'
 import { Button } from '../../ui/Button'
 import { cn } from '../../ui/cn'
@@ -70,7 +70,7 @@ export function CoachSection() {
   const shown = sample?.personaId === meta.id ? sample : null
   const spice = SPICE[c.spice - 1] ?? SPICE[2]!
 
-  const heads = toonHeadsFor(meta.id)
+  const toon = toonFor(meta.id)
 
   const preview = () => {
     const line = previewLine(persona, { spice: c.spice, profanity: c.profanity })
@@ -131,10 +131,11 @@ export function CoachSection() {
         </Field>
         <Field label="Sample" hint="A line from a typical moment of a ride, at your spice level.">
           <div className="flex items-center gap-3">
-            {heads ? (
+            {toon ? (
               <CoachToon
-                heads={heads}
+                heads={toon.heads}
                 setKey={meta.id}
+                tie={toon.tie}
                 lineKey={shown?.line && talk ? talk.key : null}
                 text={shown?.line?.text ?? ''}
                 speaking={talk?.speaking ?? false}

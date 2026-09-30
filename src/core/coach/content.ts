@@ -10,10 +10,12 @@
 // another one and no cue is lost.
 import { detectProfanity, normalizeForMatching, violatesGuardrails } from '../persona/guardrails'
 import { BIBI_BANNED_PATTERNS } from '../persona/packs/bibi'
+import { TRUMP_BANNED_PATTERNS } from '../persona/packs/trump'
 import { PRIORITY, type CoachData, type CoachLine } from '../persona/types'
 
 const BANNED_BY_PERSONA: Readonly<Record<string, readonly RegExp[]>> = {
   bibi: BIBI_BANNED_PATTERNS,
+  trump: TRUMP_BANNED_PATTERNS,
 }
 
 /** Extra patterns a persona's lines must never match, on top of the global guardrails. */

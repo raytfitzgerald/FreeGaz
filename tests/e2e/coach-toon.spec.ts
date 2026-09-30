@@ -82,3 +82,28 @@ test('ride: Bibi rides onto the banner with his line, and stands still when the 
   expect(await pose()).toEqual(first)
   await page.emulateMedia({ reducedMotion: 'no-preference' })
 })
+
+test('Settings: The Donald has his own caricature, four photos and a long red tie', async () => {
+  const { page } = ctx
+  await silenceVoice(page)
+  await page.getByRole('link', { name: 'Settings', exact: true }).click()
+  await page.getByRole('tab', { name: 'Coach' }).click()
+  await page.getByTestId('persona-trump').click()
+  await expect(page.getByTestId('parody-disclaimer')).toHaveText('Parody. Not affiliated with or endorsed by Donald J. Trump.')
+  const toon = page.getByRole('img', { name: /The Donald, parody caricature/ })
+  await expect(toon).toBeVisible()
+  await expect(toon.getByTestId('parody-badge')).toHaveText(/parody/i)
+  await expect(toon.locator('[data-part="tie"]')).toHaveAttribute('fill', '#d7263d')
+  const heads = [await toon.getAttribute('data-head')]
+  for (let i = 0; i < 4; i++) {
+    await page.getByTestId('coach-preview').click()
+    await expect(toon).not.toHaveAttribute('data-head', heads.at(-1)!)
+    heads.push(await toon.getAttribute('data-head'))
+  }
+  expect(new Set(heads).size).toBe(4)
+  // both layers, head and jaw, are his photos (small ones are inlined as data URIs)
+  const layers = await page.evaluate(() =>
+    [...document.querySelectorAll('[data-testid="coach-toon"] image')].map((i) => i.getAttribute('href') ?? '').filter((h) => /trump-.*\.webp$/.test(h) || h.startsWith('data:image/webp')).length,
+  )
+  expect(layers).toBe(2)
+})

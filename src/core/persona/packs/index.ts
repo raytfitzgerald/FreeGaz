@@ -1,4 +1,4 @@
-// The nine built-in persona packs.
+// The ten built-in persona packs.
 import type { PersonaPack } from '../types'
 import { BIBI } from './bibi'
 import { DATA_NERD } from './data-nerd'
@@ -8,6 +8,7 @@ import { HYPE_COACH } from './hype-coach'
 import { PROFESSIONAL } from './professional'
 import { ROAST_COMIC } from './roast-comic'
 import { THE_OVERLORD } from './the-overlord'
+import { TRUMP } from './trump'
 import { ZEN } from './zen'
 
 export { BIBI, BIBI_BANNED_PATTERNS } from './bibi'
@@ -18,6 +19,7 @@ export { HYPE_COACH } from './hype-coach'
 export { PROFESSIONAL } from './professional'
 export { ROAST_COMIC } from './roast-comic'
 export { THE_OVERLORD } from './the-overlord'
+export { TRUMP, TRUMP_BANNED_PATTERNS } from './trump'
 export { ZEN } from './zen'
 
 export const PACKS: readonly PersonaPack[] = [
@@ -30,6 +32,7 @@ export const PACKS: readonly PersonaPack[] = [
   ZEN,
   PROFESSIONAL,
   BIBI,
+  TRUMP,
 ]
 
 const BY_ID = new Map(PACKS.map((p) => [p.meta.id, p]))

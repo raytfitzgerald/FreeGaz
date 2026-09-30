@@ -2,7 +2,7 @@ import type { PersonaMeta } from '@core/persona'
 import { cn } from '../ui/cn'
 import { avatarColors, monogram } from './avatar'
 import { ParodyBadge } from './ParodyBadge'
-import { toonHeadsFor } from './toon/heads'
+import { toonFor } from './toon/heads'
 
 const SIZES = {
   sm: 'size-10 text-sm',
@@ -15,7 +15,7 @@ const SIZES = {
  * appears.
  */
 export function PersonaAvatar({ persona, size = 'sm', className }: { persona: Pick<PersonaMeta, 'id' | 'name' | 'parody'>; size?: keyof typeof SIZES; className?: string }) {
-  const head = toonHeadsFor(persona.id)?.[0]
+  const head = toonFor(persona.id)?.heads[0]
   return (
     <div className={cn('relative shrink-0', className)}>
       <div

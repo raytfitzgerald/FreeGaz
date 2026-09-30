@@ -47,6 +47,14 @@ describe('CueBanner', () => {
     expect(screen.getByTestId('parody-badge').textContent).toMatch(/parody/i)
   })
 
+  it('lets The Donald say his lines the same way, in his long red tie', () => {
+    render(<CueBanner />)
+    say('It is going to be a big, beautiful interval.', 'trump')
+    const toon = screen.getByRole('img', { name: /The Donald, parody caricature/ })
+    expect(toon.querySelector('[data-part="tie"]')?.getAttribute('fill')).toBe('#d7263d')
+    expect(screen.getByTestId('parody-badge').textContent).toMatch(/parody/i)
+  })
+
   it('moves to the next photo with every new line', () => {
     render(<CueBanner />)
     say('One.', 'bibi')

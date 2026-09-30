@@ -21,7 +21,10 @@ A macOS Electron + React/TypeScript indoor-cycling trainer (ERG/SIM control, wor
 - Each ride snapshots FTP, weight and zones. Simulated or time-warped rides are flagged, and excluded from Strava, PMC and FTP auto-save.
 - FTMS first; the Wahoo proprietary protocol is only a fallback. Never drive two control protocols at once. Keep one GATT operation in flight per device.
 - AI never runs inside the ride tick. It gets only locally recorded data, never data pulled from Strava.
-- Personas: body, weight and health are never joke material. The "Bibi" parody targets public rhetoric only: no religion, ethnicity, land claims, war, hostages or trial allegations.
+- Personas: body, weight and health are never joke material. The parodies target public rhetoric only, and each has its own banned-topic list with a test.
+  - "Bibi": no religion, ethnicity, land claims, war, hostages or trial allegations.
+  - "The Donald": no religion, race, immigration or borders, war or violence, elections or parties, courts or cases, women, age, health, looks, or other real people.
+  - New photo heads: Ray approves the exact files first. Credits go in `src/renderer/src/coach/toon/heads/ATTRIBUTION.md`.
 
 ## Conventions
 - Match surrounding style: small modules, named exports, zod at trust boundaries, and no default exports except React entry points.

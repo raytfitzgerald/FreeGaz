@@ -42,7 +42,6 @@ const INK = {
   spoke: '#aab2bf',
   hub: '#cbd2dc',
   metal: '#6b7280',
-  tie: '#2d6cdf',
   spring: '#9aa3b2',
 } as const
 
@@ -57,10 +56,27 @@ function legPath(angle: number): string {
   return `M${pt(HIP)} L${pt(knee(HIP, foot, THIGH, SHIN))} L${pt(foot)}`
 }
 
-function tiePath(flap: number): string {
-  // knot at the collar; the tail streams back and flutters
-  const tailY = 83 + 2.2 * flap
-  return `M86 84 C80 ${82 + flap} 75 ${84 - flap} 67 ${tailY} L69 ${tailY + 4} C76 ${88 - flap} 81 ${87 + flap * 0.5} 86 87 Z`
+/** The cartoon suit's tie: its colour, and how far it streams behind (1 is a normal tie). */
+export interface ToonTie {
+  color: string
+  length: number
+}
+
+export const DEFAULT_TIE: ToonTie = { color: '#2d6cdf', length: 1 }
+
+function tiePath(flap: number, length: number): string {
+  // Knot at the collar; the tail streams back and flutters. A longer tie is
+  // wider too, and flies up over the rider's back, clear of the dark suit.
+  const x = (d: number) => (86 - d * length).toFixed(2)
+  const extra = Math.max(0, length - 1)
+  const f = flap * Math.max(1, length * 0.9)
+  const lift = 7 * extra
+  const width = 4 * (1 + 0.35 * extra)
+  const y = (v: number) => v.toFixed(2)
+  return (
+    `M86 84 C${x(6)} ${y(82 + f - lift * 0.3)} ${x(11)} ${y(84 - f - lift * 0.7)} ${x(19)} ${y(83 + 2.2 * f - lift)} ` +
+    `L${x(17)} ${y(83 + 2.2 * f - lift + width)} C${x(10)} ${y(88 - f - lift * 0.6)} ${x(5)} ${y(87 + f * 0.5 - lift * 0.2)} 86 87 Z`
+  )
 }
 
 /** The animated parts, found by data-part once the SVG is in the page. */
@@ -84,7 +100,7 @@ function parts(svg: SVGSVGElement) {
 }
 type Parts = ReturnType<typeof parts>
 
-function apply(els: Parts, p: ToonPose): void {
+function apply(els: Parts, p: ToonPose, tie: ToonTie): void {
   els.root?.setAttribute('transform', `translate(${p.x.toFixed(2)} ${p.y.toFixed(2)})`)
   els.root?.setAttribute('opacity', p.opacity.toFixed(3))
   els.wheelRear?.setAttribute('transform', `rotate(${p.wheel.toFixed(1)} ${pt(REAR)})`)
@@ -101,7 +117,7 @@ function apply(els: Parts, p: ToonPose): void {
   els.crankFar?.setAttribute('y2', pf.y.toFixed(2))
   els.shoeNear?.setAttribute('transform', `translate(${pt(pn)})`)
   els.shoeFar?.setAttribute('transform', `translate(${pt(pf)})`)
-  els.tie?.setAttribute('d', tiePath(p.tie))
+  els.tie?.setAttribute('d', tiePath(p.tie, tie.length))
   els.head?.setAttribute(
     'transform',
     `translate(${NECK.x} ${(NECK.y + p.headLift).toFixed(2)}) rotate(${p.headRot.toFixed(2)}) scale(${p.headScale.toFixed(3)}) translate(${-NECK.x} ${-NECK.y})`,
@@ -113,6 +129,8 @@ export interface CoachToonProps {
   heads: readonly ToonHead[]
   /** Which rotation the heads belong to (the persona id): each set keeps its own place. */
   setKey: string
+  /** The suit's tie. */
+  tie?: ToonTie
   /** Changes with every new line: the next head pops on, hops and wiggles. Null: no line yet. */
   lineKey: string | number | null
   /** The line being said, to time the jaw when nothing speaks it. */
@@ -136,7 +154,7 @@ export interface CoachToonProps {
 }
 
 /** The coach caricature: a photo bobblehead riding a little bike, talking along with its lines. */
-export function CoachToon({ heads, setKey, lineKey, text, speaking, words = 0, enter = false, leaving = false, cadence, height = 96, badge = false, label, className }: CoachToonProps) {
+export function CoachToon({ heads, setKey, tie = DEFAULT_TIE, lineKey, text, speaking, words = 0, enter = false, leaving = false, cadence, height = 96, badge = false, label, className }: CoachToonProps) {
   const reduced = useReducedMotion()
   const [motion] = useState(() => new ToonMotion({ enter }))
   const svgRef = useRef<SVGSVGElement>(null)
@@ -167,17 +185,17 @@ export function CoachToon({ heads, setKey, lineKey, text, speaking, words = 0, e
     if (!svg) return
     const els = parts(svg)
     if (reduced) {
-      apply(els, STILL_POSE)
+      apply(els, STILL_POSE, tie)
       return
     }
     let raf = 0
     const step = (t: number) => {
-      apply(els, motion.frame(t, cadence ? cadence() : null))
+      apply(els, motion.frame(t, cadence ? cadence() : null), tie)
       raf = requestAnimationFrame(step)
     }
     raf = requestAnimationFrame(step)
     return () => cancelAnimationFrame(raf)
-  }, [motion, reduced, cadence])
+  }, [motion, reduced, cadence, tie])
 
   const width = (height * VB.w) / VB.h
   const still = STILL_POSE
@@ -244,7 +262,7 @@ export function CoachToon({ heads, setKey, lineKey, text, speaking, words = 0, e
           <circle cx={HAND.x} cy={HAND.y} r={3} fill={INK.shoe} />
 
           {/* collar, the tie streaming back, and the spring the head bobbles on */}
-          <path data-part="tie" d={tiePath(0)} fill={INK.tie} stroke={INK.outline} strokeWidth={1.2} strokeLinejoin="round" />
+          <path data-part="tie" d={tiePath(0, tie.length)} fill={tie.color} stroke={INK.outline} strokeWidth={1.2} strokeLinejoin="round" />
           <path d="M81 81 L91 81 L86 87.5 Z" fill="#ffffff" stroke={INK.outline} strokeWidth={1} strokeLinejoin="round" />
           <path d={`M${NECK.x} 84 l-3 -1.6 l6 -1.6 l-6 -1.6 l6 -1.6 l-3 -1.6`} stroke={INK.spring} strokeWidth={1.4} fill="none" strokeLinejoin="round" />
 

@@ -29,7 +29,7 @@ function reachable(line: CoachLineTemplate, trigger: CoachTrigger): boolean {
 }
 
 describe('built-in packs', () => {
-  it('ships the nine personas with unique ids', () => {
+  it('ships the ten personas with unique ids', () => {
     expect(PACKS.map((p) => p.meta.id)).toEqual([
       'drill-sergeant',
       'roast-comic',
@@ -40,6 +40,7 @@ describe('built-in packs', () => {
       'zen',
       'professional',
       'bibi',
+      'trump',
     ])
     for (const p of PACKS) expect(packById(p.meta.id)).toBe(p)
     expect(packById('nope')).toBeUndefined()

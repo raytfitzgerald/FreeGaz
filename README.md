@@ -2,7 +2,7 @@
 
 **A data-obsessed indoor cycling trainer for macOS.** It controls your smart trainer in ERG, level, slope or heart-rate mode, plays structured workouts and builds new ones the way zwofactory.com does. It runs a proper FTP test that saves your FTP, rides GPX routes FulGaz-style, and records every second locally as a FIT file. The optional coaches will roast you mid-interval if you ask them to.
 
-> FreeGaz is a personal hobby project. It is **not affiliated with, endorsed by, or connected to** FulGaz, Zwift, TrainerRoad, Wahoo, Garmin or Strava, or any other company whose products it can talk to. All product names are trademarks of their owners. The "Bibi" coaching persona is a clearly labeled parody and is not affiliated with or endorsed by Benjamin Netanyahu.
+> FreeGaz is a personal hobby project. It is **not affiliated with, endorsed by, or connected to** FulGaz, Zwift, TrainerRoad, Wahoo, Garmin or Strava, or any other company whose products it can talk to. All product names are trademarks of their owners. The "Bibi" and "The Donald" coaching personas are clearly labeled parodies, not affiliated with or endorsed by Benjamin Netanyahu or Donald J. Trump.
 
 | Milestone | What you get | State |
 |---|---|---|
@@ -74,8 +74,14 @@ The code is tested thoroughly, against simulated devices (see [What has been ver
 - **Optional AI.** "45 minutes of over-unders, finish with sprints" becomes a workout you can edit.
 
 **Coaching**
-- **Nine personas:** Drill Sergeant, Roast Comic, Disappointed Dad, The Overlord, Hype Coach, Data Nerd, Zen, Professional, and **Bibi**, a labeled parody of Netanyahu's podium style ("I have drawn a red line at 280 watts").
-- **Bibi's caricature.** A photo bobblehead on a little bike rides onto the ride screen with each of his lines. It switches between three public photos, wiggles, and flaps its jaw in time with the voice. It stands still if macOS is set to reduce motion.
+- **Ten personas:**
+  - Drill Sergeant, Roast Comic, Disappointed Dad, The Overlord, Hype Coach, Data Nerd, Zen and Professional;
+  - **Bibi**, a labeled parody of Netanyahu's podium style ("I have drawn a red line at 280 watts");
+  - **The Donald**, a labeled parody of Trump's rally style ("It's going to be a big, beautiful interval", "I'm putting a tariff on coasting").
+- **Caricatures for the two parodies.** A photo bobblehead on a little bike rides onto the ride screen with each line.
+  - Bibi switches between three public photos, The Donald between four. The Donald's long red tie streams in the wind.
+  - The head wiggles and the jaw flaps in time with the voice.
+  - It stands still if macOS is set to reduce motion.
 - **Spice** from 1 (professional) to 5 (unhinged). Profanity is a separate switch.
 - **Voice.** Lines are spoken with a macOS voice, and the music is lowered while the coach talks.
 - **Guardrails.** Your body, weight and health are never joke material. If your heart rate looks wrong, or you stop suddenly in a hard effort, every persona turns supportive.
@@ -226,4 +232,4 @@ Security defaults:
 
 [MIT](LICENSE). CI checks every shipped dependency for MIT compatibility. Garmin's FIT SDK is used only in the test suite, as a reference decoder, because its license forbids redistribution. The built-in workouts and every coaching line are original.
 
-The caricature photos are not covered by the MIT license: two are U.S. government works in the public domain, and one is under the Government Open Data License – India. Credits, sources and a list of changes are in [`src/renderer/src/coach/toon/heads/ATTRIBUTION.md`](src/renderer/src/coach/toon/heads/ATTRIBUTION.md). The India photo is courtesy of the Prime Minister's Office and the Press Information Bureau, Government of India.
+The caricature photos are not covered by the MIT license: five are U.S. government works in the public domain, and one is under the Government Open Data License – India. Credits, sources and a list of changes are in [`src/renderer/src/coach/toon/heads/ATTRIBUTION.md`](src/renderer/src/coach/toon/heads/ATTRIBUTION.md). The India photo is courtesy of the Prime Minister's Office and the Press Information Bureau, Government of India.
