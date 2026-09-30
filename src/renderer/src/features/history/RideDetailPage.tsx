@@ -16,6 +16,8 @@ import { Card, CardBody, CardHeader } from '../../ui/Card'
 import { Dialog } from '../../ui/Dialog'
 import { PageHeader } from '../../ui/PageHeader'
 import { formatDateTime, formatDuration } from '../../ui/format'
+import { displaySpeedKmh, distanceUnit, formatLongDistance, speedUnit } from '@core/units'
+import { useSettings } from '../../stores/settings'
 import { POWER_ZONE_LABELS, zoneVar } from '../../ui/zones'
 import { DebriefCard } from '../ai/DebriefCard'
 
@@ -106,6 +108,7 @@ function FtpTestNote({ t }: { t: NonNullable<RideSummary['ftpTest']> }) {
 }
 
 function SummaryGrid({ r }: { r: RideSummary }) {
+  const units = useSettings((s) => s.units)
   const items: [string, string][] = [
     ['Normalized Power', r.np === null ? '—' : `${r.np} W`],
     ['Average power', r.avgPower === null ? '—' : `${r.avgPower} W`],
@@ -118,7 +121,7 @@ function SummaryGrid({ r }: { r: RideSummary }) {
     ['Variability (VI)', r.vi?.toFixed(2) ?? '—'],
     ['Efficiency (EF)', r.ef?.toFixed(2) ?? '—'],
     ['Decoupling', r.decouplingPct === null ? '—' : `${r.decouplingPct.toFixed(1)} %`],
-    ['Distance', `${(r.distanceM / 1000).toFixed(1)} km`],
+    ['Distance', `${formatLongDistance(r.distanceM, units, 1)} ${distanceUnit(units)}`],
   ]
   return (
     <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-6" data-testid="ride-summary">
@@ -134,6 +137,7 @@ function SummaryGrid({ r }: { r: RideSummary }) {
 
 /** Stacked small multiples: one metric per chart, one axis each, shared crosshair. */
 function Streams({ streams, ride }: { streams: RideStreams; ride: RideSummary }) {
+  const units = useSettings((s) => s.units)
   const x = useMemo(() => Array.from({ length: streams.length }, (_, i) => i), [streams])
   const wbal = useMemo(() => {
     const wb = new WPrimeBalance({ cp: ride.athlete.cpW ?? ride.athlete.ftpW, wPrimeJ: ride.athlete.wPrimeJ ?? 20_000 })
@@ -143,7 +147,7 @@ function Streams({ streams, ride }: { streams: RideStreams; ride: RideSummary })
     { key: 'power', label: 'Power', unit: 'W', colorVar: '--color-power', values: column(streams, 'power') },
     { key: 'cadence', label: 'Cadence', unit: 'rpm', colorVar: '--color-cadence', values: column(streams, 'cadence') },
     { key: 'hr', label: 'Heart rate', unit: 'bpm', colorVar: '--color-hr', values: column(streams, 'hr') },
-    { key: 'speed', label: 'Speed', unit: 'km/h', colorVar: '--color-speed', values: column(streams, 'speed').map((v) => (v === null ? null : v * 3.6)) },
+    { key: 'speed', label: 'Speed', unit: speedUnit(units), colorVar: '--color-speed', values: column(streams, 'speed').map((v) => (v === null ? null : displaySpeedKmh(v * 3.6, units))) },
     { key: 'wbal', label: "W′ balance", unit: 'kJ', colorVar: '--color-wbal', values: wbal, wash: true },
   ].filter((p) => p.values.some((v) => v !== null))
 

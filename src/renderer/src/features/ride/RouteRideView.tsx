@@ -9,8 +9,10 @@ import { MetricTile } from '../../ui/MetricTile'
 import { Segmented } from '../../ui/Segmented'
 import { cn } from '../../ui/cn'
 import { formatDuration } from '../../ui/format'
-import { useActiveRoutePlan } from '../../routes/active'
 import { formatGapM, formatGapS, formatKm, kmh } from '../../routes/format'
+import { useActiveRoutePlan } from '../../routes/active'
+import { distanceUnit, displayElevation, elevationUnit, speedUnit } from '@core/units'
+import { useSettings } from '../../stores/settings'
 import { formatGrade, gradeClass, gradeVar } from '../../routes/grade'
 import { ElevationChart } from '../routes/ElevationChart'
 import { GradeLegend } from '../routes/GradeLegend'
@@ -42,6 +44,7 @@ const command = (cmd: Parameters<ReturnType<typeof getRuntime>['rides']['command
 /** The in-ride HUD for routes: the road ahead, where you are, and the numbers. */
 export function RouteRideView() {
   const plan = useActiveRoutePlan()
+  const units = useSettings((s) => s.units)
   const tick = useRide((s) => (isRouteTick(s.plan) ? s.plan : null))
   const name = useRide((s) => s.snapshot?.name ?? '')
   // Mode switches apply to the plan at once; re-render now instead of on the next engine tick.
@@ -94,7 +97,7 @@ export function RouteRideView() {
       <div className="rounded-2xl border border-line bg-panel p-4" data-testid="route-strip">
         <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
           <div className="text-xs font-medium uppercase tracking-wider text-ink-faint">
-            {r.finished ? 'The last of the route' : `The next ${formatKm(Math.min(AHEAD_M, r.remainingM))} km`}
+            {r.finished ? 'The last of the route' : `The next ${formatKm(Math.min(AHEAD_M, r.remainingM), 1, units)} ${distanceUnit(units)}`}
           </div>
           <GradeLegend />
         </div>
@@ -139,16 +142,17 @@ export function RouteRideView() {
 }
 
 function SpeedTile({ r }: { r: RouteProgress }) {
+  const units = useSettings((s) => s.units)
   const avg = r.elapsedS > 5 ? r.riddenM / r.elapsedS : null
   return (
     <MetricTile
       label={r.mode === 'steady' ? 'Speed · route pace' : 'Speed'}
-      value={kmh(r.speedMps)}
-      unit="km/h"
+      value={kmh(r.speedMps, units)}
+      unit={speedUnit(units)}
       size="xl"
       accent="var(--color-speed)"
       testId="route-speed"
-      sub={avg !== null ? `Average ${kmh(avg)} km/h` : undefined}
+      sub={avg !== null ? `Average ${kmh(avg, units)} ${speedUnit(units)}` : undefined}
     />
   )
 }
@@ -188,10 +192,11 @@ function PowerTile() {
 function SecondaryTiles({ r, plan }: { r: RouteProgress; plan: RoutePlan }) {
   const hr = useLive((f) => f.hr)
   const cadence = useLive((f) => f.cadence)
+  const units = useSettings((s) => s.units)
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-      <MetricTile label="Distance" value={formatKm(r.riddenM, 2)} unit="km" size="md" testId="route-distance" sub={`${formatKm(r.remainingM, 2)} km to go`} />
-      <MetricTile label="Climbed" value={Math.round(r.gainedM)} unit="m" size="md" testId="route-climbed" sub={`${Math.round(r.remainingGainM)} m to go`} />
+      <MetricTile label="Distance" value={formatKm(r.riddenM, 2, units)} unit={distanceUnit(units)} size="md" testId="route-distance" sub={`${formatKm(r.remainingM, 2, units)} ${distanceUnit(units)} to go`} />
+      <MetricTile label="Climbed" value={Math.round(displayElevation(r.gainedM, units))} unit={elevationUnit(units)} size="md" testId="route-climbed" sub={`${Math.round(displayElevation(r.remainingGainM, units))} ${elevationUnit(units)} to go`} />
       <MetricTile
         label="Time to go"
         value={r.finished ? formatDuration(0) : r.etaS === null ? null : formatDuration(r.etaS)}
@@ -208,8 +213,9 @@ function SecondaryTiles({ r, plan }: { r: RouteProgress; plan: RoutePlan }) {
 
 /** The gap to the ghost: ± seconds and metres, with an icon and a word, never colour alone. */
 function GhostTile({ r, plan }: { r: RouteProgress; plan: RoutePlan }) {
+  const units = useSettings((s) => s.units)
   if (!r.challenge) {
-    return <MetricTile label="Elevation" value={Math.round(r.ele)} unit="m" size="md" testId="route-elevation" sub={r.laps > 1 ? `Lap ${Math.min(r.lap + 1, r.laps)} of ${r.laps}` : undefined} />
+    return <MetricTile label="Elevation" value={Math.round(displayElevation(r.ele, units))} unit={elevationUnit(units)} size="md" testId="route-elevation" sub={r.laps > 1 ? `Lap ${Math.min(r.lap + 1, r.laps)} of ${r.laps}` : undefined} />
   }
   const g = r.ghost
   if (!g) {
@@ -243,7 +249,7 @@ function GhostTile({ r, plan }: { r: RouteProgress; plan: RoutePlan }) {
         </span>
       </div>
       <div className="tabular mt-2 text-xs text-ink-dim" data-testid="ghost-gap-m">
-        {r.finished ? 'Final gap' : formatGapM(g.gapM)} · {plan.ghostLabel ?? 'your ghost'}
+        {r.finished ? 'Final gap' : formatGapM(g.gapM, units)} · {plan.ghostLabel ?? 'your ghost'}
       </div>
     </div>
   )

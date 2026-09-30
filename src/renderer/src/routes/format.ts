@@ -1,19 +1,21 @@
-// Number formats for route screens (metric, like the rest of the app).
+// Number formats for route screens. Storage is metres; the unit system only
+// changes the label.
 
-/** 12400 → "12.4", 3000 → "3". */
-export function formatKm(m: number, dp = 1): string {
-  const v = Math.round((m / 1000) * 10 ** dp) / 10 ** dp
-  return Number.isInteger(v) ? String(v) : v.toFixed(dp)
+import { formatLongDistance, formatSpan, formatSpeedMps, type UnitSystem } from '@core/units'
+
+/** 12400 → "12.4" km, or "7.7" miles. */
+export function formatKm(m: number, dp = 1, units: UnitSystem = 'metric'): string {
+  return formatLongDistance(m, units, dp)
 }
 
-/** 250 → "250 m", 1500 → "1.5 km". */
-export function formatMetres(m: number): string {
-  return m >= 1000 ? `${formatKm(m)} km` : `${Math.round(m)} m`
+/** 250 → "250 m", 1500 → "1.5 km". Imperial: feet, then miles. */
+export function formatMetres(m: number, units: UnitSystem = 'metric'): string {
+  return formatSpan(m, units)
 }
 
-/** m/s → "32.4" km/h, or null. */
-export function kmh(mps: number | null | undefined): string | null {
-  return mps === null || mps === undefined || !Number.isFinite(mps) ? null : (mps * 3.6).toFixed(1)
+/** m/s → "32.4" in the active speed unit, or null. */
+export function kmh(mps: number | null | undefined, units: UnitSystem = 'metric'): string | null {
+  return formatSpeedMps(mps, units)
 }
 
 /** A signed gap: "+12 s", "−1:05", "+85 m", "−1.2 km". */
@@ -23,8 +25,8 @@ export function formatGapS(s: number): string {
   return `${s < 0 && v > 0 ? '−' : '+'}${body}`
 }
 
-export function formatGapM(m: number): string {
-  const v = Math.abs(m)
-  const body = v >= 1000 ? `${formatKm(v)} km` : `${Math.round(v)} m`
-  return `${m < 0 && Math.round(v) > 0 ? '−' : '+'}${body}`
+export function formatGapM(m: number, units: UnitSystem = 'metric'): string {
+  const body = formatSpan(Math.abs(m), units)
+  const shown = Math.round(Math.abs(m))
+  return `${m < 0 && shown > 0 ? '−' : '+'}${body}`
 }

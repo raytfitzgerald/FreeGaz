@@ -1,11 +1,14 @@
 import type { TrainerPrefs } from '@shared/settings'
+import { displaySpeedKmh, displayWeightKg, speedUnit, storedSpeedKmh, storedWeightKg, weightUnit } from '@core/units'
 import { patchSettings, settingsStore, useSettings } from '../../stores/settings'
 import { Segmented } from '../../ui/Segmented'
 import { Field, NumberInput, Section, Slider, Switch } from '../../ui/form'
 
 export function TrainerSection() {
   const t = useSettings((s) => s.trainer)
+  const units = useSettings((s) => s.units)
   const set = (patch: Partial<TrainerPrefs>) => void patchSettings({ trainer: { ...t, ...patch } })
+  const bikeShown = Math.round(displayWeightKg(t.bikeKg, units) * 10) / 10
 
   return (
     <>
@@ -40,7 +43,14 @@ export function TrainerSection() {
 
       <Section title="Virtual bike" description="Physics for virtual speed and distance on routes and free rides.">
         <Field label="Bike weight">
-          <NumberInput value={t.bikeKg} onChange={(v) => v && set({ bikeKg: v })} unit="kg" min={4} max={30} step={0.1} />
+          <NumberInput
+            value={bikeShown}
+            onChange={(v) => v && set({ bikeKg: Math.round(storedWeightKg(v, units) * 100) / 100 })}
+            unit={weightUnit(units)}
+            min={units === 'imperial' ? 9 : 4}
+            max={units === 'imperial' ? 66 : 30}
+            step={0.1}
+          />
         </Field>
         <Field label="CdA" hint="Aerodynamic drag area. 0.35 ≈ hoods, 0.30 ≈ drops, 0.25 ≈ TT bike.">
           <NumberInput value={t.cda} onChange={(v) => v && set({ cda: v })} unit="m²" min={0.15} max={0.7} step={0.01} />
@@ -64,7 +74,9 @@ const FAN_MODES = [
 /** KICKR Headwind: which signal sets the fan speed. */
 function FanSettings() {
   const fan = useSettings((s) => s.fan)
+  const units = useSettings((s) => s.units)
   const set = (patch: Partial<typeof fan>) => void patchSettings({ fan: { ...settingsStore.getState().fan, ...patch } })
+  const fanSpeed = Math.round(displaySpeedKmh(fan.speedFullKmh, units))
   return (
     <Section title="Fan (KICKR Headwind)" description="Connect the fan on the Devices page; FreeGaz sets its speed as you ride.">
       <Field label="Fan follows">
@@ -87,7 +99,15 @@ function FanSettings() {
       )}
       {fan.mode === 'speed' && (
         <Field label="Full speed at" hint="Virtual speed on routes, trainer speed otherwise.">
-          <Slider ariaLabel="Fan full-speed road speed" value={fan.speedFullKmh} min={15} max={60} step={1} format={(v) => `${v} km/h`} onChange={(speedFullKmh) => set({ speedFullKmh })} />
+          <Slider
+            ariaLabel="Fan full-speed road speed"
+            value={fanSpeed}
+            min={units === 'imperial' ? 10 : 15}
+            max={units === 'imperial' ? 40 : 60}
+            step={1}
+            format={(v) => `${v} ${speedUnit(units)}`}
+            onChange={(v) => set({ speedFullKmh: Math.round(storedSpeedKmh(v, units)) })}
+          />
         </Field>
       )}
       {fan.mode === 'power' && (

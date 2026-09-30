@@ -3,9 +3,11 @@ import { Circle, Flag, Pause, Play, Square, Trash2 } from 'lucide-react'
 import type { RidePlan } from '@core/ride/plan'
 import { getRuntime } from '../../runtime/composition'
 import { useRide } from '../../stores/ride'
+import { useSettings } from '../../stores/settings'
 import { Button } from '../../ui/Button'
 import { Dialog } from '../../ui/Dialog'
 import { formatDuration } from '../../ui/format'
+import { distanceUnit, formatLongDistanceFixed } from '@core/units'
 
 /** Start/pause/lap/finish controls plus the running ride totals. */
 export function RecordingBar({ plan, startLabel = 'Start recording' }: { plan?: () => RidePlan; startLabel?: string }) {
@@ -18,6 +20,7 @@ export function RecordingBar({ plan, startLabel = 'Start recording' }: { plan?: 
   const kj = useRide((s) => s.snapshot?.kj ?? 0)
   const wbal = useRide((s) => s.snapshot?.wbalPct ?? null)
   const saving = useRide((s) => s.saving)
+  const units = useSettings((s) => s.units)
   const [confirm, setConfirm] = useState(false)
   const rt = getRuntime()
 
@@ -39,7 +42,7 @@ export function RecordingBar({ plan, startLabel = 'Start recording' }: { plan?: 
         {state === 'paused' ? 'Paused' : 'Recording'}
       </div>
       <Stat label="Moving" value={formatDuration(moving)} testId="ride-moving" />
-      <Stat label="Distance" value={`${(distance / 1000).toFixed(2)} km`} />
+      <Stat label="Distance" value={`${formatLongDistanceFixed(distance, units, 2)} ${distanceUnit(units)}`} />
       <Stat label="NP" value={np === null ? '—' : `${np} W`} />
       <Stat label="TSS" value={tss === null ? '—' : tss.toFixed(0)} />
       <Stat label="Work" value={`${kj} kJ`} />

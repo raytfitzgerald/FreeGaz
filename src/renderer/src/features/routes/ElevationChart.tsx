@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent } from 'react'
-import type { Route } from '@core/routes/model'
 import { formatKm, formatMetres } from '../../routes/format'
+import type { Route } from '@core/routes/model'
+import { displayElevation, distanceUnit, elevationUnit } from '@core/units'
+import { useSettings } from '../../stores/settings'
 import { areaPath, courseSamples, elevationRange, gradeRuns, linePath, meanGrade, ticks, type GradeRun } from '../../routes/geometry'
 import { GRADE_CLASSES, formatGrade, gradeClass, gradeVar } from '../../routes/grade'
 
@@ -48,6 +50,7 @@ export function ElevationChart({
   title,
   testId,
 }: ElevationChartProps) {
+  const units = useSettings((s) => s.units)
   const ref = useRef<SVGSVGElement>(null)
   const [width, setWidth] = useState(800)
   /** Pointer offset from the plot's left edge, px: kept in pixels so a moving window (the HUD strip) keeps the tooltip under the pointer. */
@@ -63,7 +66,7 @@ export function ElevationChart({
 
   const L = route.distanceM
   const end = toX ?? L * laps
-  const pad = { top: 12, right: 12, bottom: 20, left: showYAxis ? 44 : 10 }
+  const pad = { top: 12, right: 12, bottom: 20, left: showYAxis ? (units === 'imperial' ? 52 : 44) : 10 }
   const innerW = Math.max(10, width - pad.left - pad.right)
   const innerH = Math.max(10, height - pad.top - pad.bottom)
   const bins = Math.max(20, Math.min(600, Math.round(innerW / 3)))
@@ -95,10 +98,10 @@ export function ElevationChart({
   const xTicks = useMemo(() => {
     if (axis === 'ahead') {
       const origin = rider ?? fromX
-      return ticks(0, end - origin, Math.max(2, Math.floor(innerW / 90))).map((v) => ({ x: origin + v, label: v === 0 ? 'now' : `+${formatMetres(v)}` }))
+      return ticks(0, end - origin, Math.max(2, Math.floor(innerW / 90))).map((v) => ({ x: origin + v, label: v === 0 ? 'now' : `+${formatMetres(v, units)}` }))
     }
-    return ticks(fromX, end, Math.max(2, Math.floor(innerW / 80))).map((v) => ({ x: v, label: `${formatKm(v)}${v === 0 ? '' : ' km'}` }))
-  }, [axis, rider, fromX, end, innerW])
+    return ticks(fromX, end, Math.max(2, Math.floor(innerW / 80))).map((v) => ({ x: v, label: `${formatKm(v, 1, units)}${v === 0 ? '' : ` ${distanceUnit(units)}`}` }))
+  }, [axis, rider, fromX, end, innerW, units])
 
   const eleAt = (x: number) => {
     const i = Math.max(0, Math.min(samples.x.length - 2, Math.floor(((x - fromX) / (span || 1)) * bins)))
@@ -127,7 +130,7 @@ export function ElevationChart({
             <g key={v}>
               <line x1={pad.left} x2={pad.left + innerW} y1={sy(v)} y2={sy(v)} stroke="var(--color-line)" strokeWidth={1} />
               <text x={pad.left - 6} y={sy(v) + 3} textAnchor="end" fontSize={10} fill="var(--color-ink-faint)">
-                {Math.round(v)} m
+                {Math.round(displayElevation(v, units))} {elevationUnit(units)}
               </text>
             </g>
           ))}
@@ -165,7 +168,7 @@ export function ElevationChart({
           style={{ left: Math.min(Math.max(sx(hover) + 10, 0), width - 170) }}
         >
           <div className="text-ink-faint">
-            {axis === 'ahead' && rider !== null && rider !== undefined ? `${hover >= rider ? '+' : '−'}${formatMetres(Math.abs(hover - rider))} from you` : `${formatKm(hover, 2)} km`}
+            {axis === 'ahead' && rider !== null && rider !== undefined ? `${hover >= rider ? '+' : '−'}${formatMetres(Math.abs(hover - rider), units)} from you` : `${formatKm(hover, 2, units)} ${distanceUnit(units)}`}
             {laps > 1 && ` · lap ${Math.min(laps, Math.floor(hover / L) + 1)}`}
           </div>
           <div className="mt-1 flex items-center gap-2">
@@ -173,7 +176,7 @@ export function ElevationChart({
             <span className="tabular font-semibold text-ink">{formatGrade(hoverGrade)}</span>
             <span className="text-ink-dim">{GRADE_CLASSES[gradeClass(hoverGrade)]!.name.toLowerCase()}</span>
           </div>
-          <div className="tabular mt-1 text-ink-dim">{Math.round(eleAt(hover))} m elevation</div>
+          <div className="tabular mt-1 text-ink-dim">{Math.round(displayElevation(eleAt(hover), units))} {elevationUnit(units)} elevation</div>
         </div>
       )}
     </div>

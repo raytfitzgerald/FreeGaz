@@ -15,6 +15,7 @@ import { Dialog } from '../../ui/Dialog'
 import { Select } from '../../ui/form'
 import { formatDate, formatDuration } from '../../ui/format'
 import { formatKm } from '../../routes/format'
+import { distanceUnit, formatElevation, formatSpeedKmh, speedUnit, type UnitSystem } from '@core/units'
 import { formatGrade } from '../../routes/grade'
 import { deleteRoute, loadRoute, routeRides, type RouteEntry, type RouteRideEntry } from '../../routes/routes-repo'
 import { startRouteRide, type GhostChoice } from '../../routes/start'
@@ -26,7 +27,7 @@ export type Notice = { tone: 'good' | 'bad'; text: string }
 
 const MODES: { mode: RouteMode; label: string; hint: string }[] = [
   { mode: 'reactive', label: 'Reactive', hint: 'Your watts set your speed; the trainer follows the gradient.' },
-  { mode: 'steady', label: 'Steady', hint: 'The route rolls at its recorded pace (or 25 km/h); the gradient still comes to you on schedule.' },
+  { mode: 'steady', label: 'Steady', hint: 'The route rolls at its recorded pace, or a steady fallback; the gradient still comes to you on schedule.' },
   { mode: 'challenge', label: 'Challenge', hint: 'Reactive, racing a ghost of an earlier effort.' },
 ]
 
@@ -37,6 +38,7 @@ export function RouteDetailDialog({ entry, onClose, onNotice }: { entry: RouteEn
   const athlete = useLiveQuery(() => athleteSnapshot(), [])
   const riding = useRide((s) => s.active)
   const trainer = useDevices((s) => s.devices.some((d) => d.role === 'trainer' && d.state === 'connected'))
+  const units = useSettings((s) => s.units)
   const [laps, setLaps] = useState(1)
   const [ghostKey, setGhostKey] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
@@ -124,7 +126,7 @@ export function RouteDetailDialog({ entry, onClose, onNotice }: { entry: RouteEn
                 {!ghostChoice && <option value="">Ride this route once to race yourself</option>}
                 {(rides ?? []).map((r) => (
                   <option key={r.rideId} value={r.rideId}>
-                    {rideLabel(r)}
+                    {rideLabel(r, units)}
                   </option>
                 ))}
                 {entry.hasTimes && <option value="recorded">The file’s recorded pace</option>}
@@ -138,7 +140,7 @@ export function RouteDetailDialog({ entry, onClose, onNotice }: { entry: RouteEn
                 key={m.mode}
                 variant={m.mode === 'reactive' ? 'primary' : 'secondary'}
                 disabled={busy || riding || !route || (m.mode === 'challenge' && !ghost)}
-                title={riding ? 'Finish the ride in progress first' : m.hint}
+                title={riding ? 'Finish the ride in progress first' : m.mode === 'steady' ? `The route rolls at its recorded pace (or ${formatSpeedKmh(25, units)} ${speedUnit(units)}); the gradient still comes to you on schedule.` : m.hint}
                 onClick={() => void ride(m.mode)}
                 data-testid={`ride-route-${m.mode}`}
               >
@@ -175,6 +177,7 @@ export function RouteDetailDialog({ entry, onClose, onNotice }: { entry: RouteEn
 
 function Stats({ route, entry, ftpW, weightKg, laps }: { route: Route; entry: RouteEntry; ftpW: number | null; weightKg: number | null; laps: number }) {
   const t = useSettings((s) => s.trainer)
+  const units = useSettings((s) => s.units)
   const estimate = useMemo(() => {
     if (ftpW === null || weightKg === null) return null
     const watts = Math.round(ftpW * 0.75)
@@ -188,12 +191,12 @@ function Stats({ route, entry, ftpW, weightKg, laps }: { route: Route; entry: Ro
     return (times ? recordedTimeBetween(route.profile, times, 0, route.distanceM) : route.distanceM / (25 / 3.6)) * laps
   }, [route, laps])
   const items: [string, string][] = [
-    ['Distance', `${formatKm(route.distanceM * laps)} km`],
-    ['Climbing', `${Math.round(route.elevationGainM * laps)} m`],
-    ['Descending', `${Math.round(route.elevationLossM * laps)} m`],
+    ['Distance', `${formatKm(route.distanceM * laps, 1, units)} ${distanceUnit(units)}`],
+    ['Climbing', formatElevation(route.elevationGainM * laps, units)],
+    ['Descending', formatElevation(route.elevationLossM * laps, units)],
     ['Steepest', formatGrade(route.maxGradePct)],
     ['Reactive estimate', estimate ? `${formatDuration(estimate.s)} at ${estimate.watts} W` : '—'],
-    [entry.hasTimes ? 'Steady (recorded pace)' : 'Steady (25 km/h)', formatDuration(steadyS)],
+    [entry.hasTimes ? 'Steady (recorded pace)' : `Steady (${formatSpeedKmh(25, units)} ${speedUnit(units)})`, formatDuration(steadyS)],
   ]
   return (
     <div className="grid grid-cols-2 content-start gap-2">
@@ -216,8 +219,8 @@ function ghostOption(key: string | null, rides: RouteRideEntry[]): GhostChoice |
   return r ? { kind: 'ride', rideId: r.rideId, label: `Your ride, ${formatDate(r.startedAt)}` } : null
 }
 
-function rideLabel(r: RouteRideEntry): string {
-  const time = r.finishS !== null ? formatDuration(r.finishS) : `stopped at ${formatKm(r.distanceM)} km`
+function rideLabel(r: RouteRideEntry, units: UnitSystem): string {
+  const time = r.finishS !== null ? formatDuration(r.finishS) : `stopped at ${formatKm(r.distanceM, 1, units)} ${distanceUnit(units)}`
   const power = r.avgPower !== null ? ` · ${r.avgPower} W avg` : ''
   const mode = r.mode === 'steady' ? ' · Steady' : ''
   return `${formatDate(r.startedAt)} · ${time}${power}${mode}${r.laps > 1 ? ` · ${r.laps} laps` : ''}${r.simulated ? ' · simulated' : ''}`

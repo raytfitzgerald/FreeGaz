@@ -4,6 +4,7 @@
 import type { LiveFrame } from '@shared/live'
 import type { AthleteSnapshot } from '@core/ride/types'
 import { COGGAN_POWER, FRIEL_HR_LTHR } from '@core/metrics/zones'
+import { distanceUnit, formatLongDistanceFixed, formatSpeedKmh, formatTempC, speedUnit, tempUnit, type UnitSystem } from '@core/units'
 import type { rideStore } from '../stores/ride'
 import { formatDuration } from '../ui/format'
 
@@ -13,6 +14,7 @@ export interface HudState {
   athlete: AthleteSnapshot
   /** Epoch ms, refreshed by the frame clock. */
   wall: number
+  units: UnitSystem
 }
 
 export type WidgetGroup = 'Power' | 'Heart rate' | 'Cadence' | 'Time' | 'Speed & distance' | 'Energy' | 'Trainer' | 'Body'
@@ -21,7 +23,7 @@ export interface WidgetDef {
   id: string
   label: string
   group: WidgetGroup
-  unit?: string
+  unit?: string | ((s: HudState) => string)
   /** Series colour for the line-key (never the text). */
   accent?: string
   read: (s: HudState) => number | string | null
@@ -98,8 +100,11 @@ export const WIDGETS: readonly WidgetDef[] = [
   { id: 'lapTime', label: 'Lap time', group: 'Time', read: (s) => (s.ride.metrics ? formatDuration(s.ride.metrics.lap.seconds) : null) },
   { id: 'clock', label: 'Time of day', group: 'Time', read: (s) => new Date(s.wall).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) },
   // ---- speed & distance
-  { id: 'speed', label: 'Speed', group: 'Speed & distance', unit: 'km/h', accent: SPEED, read: (s) => (s.ride.plan?.speed != null ? Math.round(s.ride.plan.speed * 36) / 10 : s.frame.speedKmh) },
-  { id: 'distance', label: 'Distance', group: 'Speed & distance', unit: 'km', read: (s) => (s.ride.snapshot ? (s.ride.snapshot.distanceM / 1000).toFixed(2) : null) },
+  { id: 'speed', label: 'Speed', group: 'Speed & distance', unit: (s) => speedUnit(s.units), accent: SPEED, read: (s) => {
+    const kmh = s.ride.plan?.speed != null ? Math.round(s.ride.plan.speed * 36) / 10 : s.frame.speedKmh
+    return s.units === 'imperial' ? formatSpeedKmh(kmh, 'imperial') : kmh
+  } },
+  { id: 'distance', label: 'Distance', group: 'Speed & distance', unit: (s) => distanceUnit(s.units), read: (s) => (s.ride.snapshot ? formatLongDistanceFixed(s.ride.snapshot.distanceM, s.units, 2) : null) },
   { id: 'grade', label: 'Grade', group: 'Speed & distance', unit: '%', read: (s) => {
     const g = s.ride.plan?.grade ?? s.frame.trainer.rawGradePct
     return g === null || g === undefined ? null : g.toFixed(1)
@@ -119,7 +124,7 @@ export const WIDGETS: readonly WidgetDef[] = [
   } },
   { id: 'intensity', label: 'Intensity', group: 'Trainer', unit: '%', read: (s) => s.frame.trainer.intensityPct },
   // ---- body
-  { id: 'coreTemp', label: 'Core temp', group: 'Body', unit: '°C', read: (s) => (s.frame.coreTemp === null ? null : s.frame.coreTemp.toFixed(1)) },
+  { id: 'coreTemp', label: 'Core temp', group: 'Body', unit: (s) => tempUnit(s.units), read: (s) => formatTempC(s.frame.coreTemp, s.units) },
 ]
 
 export const WIDGET_BY_ID: ReadonlyMap<string, WidgetDef> = new Map(WIDGETS.map((w) => [w.id, w]))

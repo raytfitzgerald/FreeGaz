@@ -1,10 +1,13 @@
 import { Clock, Repeat } from 'lucide-react'
+import { distanceUnit, formatElevation } from '@core/units'
 import { formatGrade } from '../../routes/grade'
 import { formatKm } from '../../routes/format'
+import { useSettings } from '../../stores/settings'
 import type { RouteEntry } from '../../routes/routes-repo'
 import { ElevationThumb } from './ElevationThumb'
 
 export function RouteCard({ entry, onOpen }: { entry: RouteEntry; onOpen: () => void }) {
+  const units = useSettings((s) => s.units)
   return (
     <button
       type="button"
@@ -17,7 +20,7 @@ export function RouteCard({ entry, onOpen }: { entry: RouteEntry; onOpen: () => 
       </div>
       <div className="mt-3 font-semibold leading-snug">{entry.name}</div>
       <div className="tabular mt-1 text-xs text-ink-dim">
-        {formatKm(entry.distanceM)} km · {Math.round(entry.elevationGainM)} m up · max {formatGrade(entry.maxGradePct)}
+        {formatKm(entry.distanceM, 1, units)} {distanceUnit(units)} · {formatElevation(entry.elevationGainM, units)} up · max {formatGrade(entry.maxGradePct)}
       </div>
       <div className="mt-2 flex flex-wrap gap-1">
         <span className={entry.builtin ? 'rounded bg-panel-3 px-1.5 py-0.5 text-[10px] text-ink-dim' : 'rounded bg-accent/15 px-1.5 py-0.5 text-[10px] text-ink'}>
