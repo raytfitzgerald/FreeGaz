@@ -2,16 +2,14 @@ import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { Sparkles, Square } from 'lucide-react'
 import type { RideSummary } from '@core/ride/types'
-import { rideFacts, streamAi, type StreamHandle } from '../../ai/client'
+import { coachVoiceNow, rideFacts, streamAi, type StreamHandle } from '../../ai/client'
 import { db } from '../../db/db'
-import { useSettings } from '../../stores/settings'
 import { Button } from '../../ui/Button'
 import { Card, CardBody, CardHeader } from '../../ui/Card'
 import { Markdown } from '../../ui/Markdown'
 
 /** Streamed AI post-ride debrief, cached on the ride once written. */
 export function DebriefCard({ ride }: { ride: RideSummary }) {
-  const personaId = useSettings((s) => s.coach.personaId)
   const [text, setText] = useState(ride.debrief ?? '')
   const [running, setRunning] = useState<StreamHandle | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -21,12 +19,11 @@ export function DebriefCard({ ride }: { ride: RideSummary }) {
     setText('')
     const previous = await db().rides.where('startedAt').below(ride.startedAt).reverse().limit(8).toArray()
     const input = JSON.stringify({
-      persona: personaId,
       ride: rideFacts(ride),
       previousRides: previous.filter((r) => !r.simulated).map(rideFacts),
     })
     let acc = ''
-    const h = streamAi('debrief', [{ role: 'user', content: `Debrief this ride.\n${input}` }], (d) => {
+    const h = streamAi('debrief', [{ role: 'user', content: `${coachVoiceNow()}\n\nDebrief this ride.\n${input}` }], (d) => {
       acc += d
       setText(acc)
     })

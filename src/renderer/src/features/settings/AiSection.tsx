@@ -5,12 +5,19 @@ import { bridge } from '../../platform/bridge'
 import { Button } from '../../ui/Button'
 import { Field, Input, Section, Select } from '../../ui/form'
 
-type Provider = 'anthropic' | 'openai' | 'ollama'
+type Provider = 'anthropic' | 'openai' | 'grok' | 'ollama'
+/** The providers that need an API key, with where to get one and what it looks like. */
+const KEYED: Partial<Record<Provider, { placeholder: string; where: string }>> = {
+  anthropic: { placeholder: 'sk-ant-…', where: 'Get one at console.anthropic.com.' },
+  openai: { placeholder: 'sk-…', where: 'Get one at platform.openai.com.' },
+  grok: { placeholder: 'xai-…', where: 'Get one at console.x.ai.' },
+}
 
 const PROVIDERS: { id: Provider | 'off'; name: string; blurb: string }[] = [
   { id: 'off', name: 'Off', blurb: 'No AI. Canned coaching lines still work.' },
   { id: 'anthropic', name: 'Claude (Anthropic)', blurb: 'Default model: Claude Opus 5.5. Best analysis and workout design.' },
   { id: 'openai', name: 'OpenAI', blurb: 'Any GPT model your key can use.' },
+  { id: 'grok', name: 'Grok (xAI)', blurb: 'Any Grok model your key can use.' },
   { id: 'ollama', name: 'Ollama (local)', blurb: 'Free and private: runs on your Mac. Install from ollama.com.' },
 ]
 
@@ -33,6 +40,7 @@ export function AiSection() {
 
   const provider = status?.provider ?? null
   const configured = !!status?.configured
+  const keySaved = provider !== null && provider !== 'ollama' && !!status?.keys[provider]
 
   // The model list is fetched live from the provider whenever it (or its key) changes.
   useEffect(() => {
@@ -85,18 +93,16 @@ export function AiSection() {
           </div>
         </Field>
 
-        {(provider === 'anthropic' || provider === 'openai') && (
+        {provider && KEYED[provider] && (
           <Field label="API key" hint="Encrypted with your Keychain and only used from the main process.">
             <div className="flex items-center gap-2">
-              <Input type="password" value={key} onChange={(e) => setKey(e.target.value)} placeholder={status?.keys[provider] ? '•••••• (saved)' : provider === 'anthropic' ? 'sk-ant-…' : 'sk-…'} className="max-w-md" />
+              <Input type="password" value={key} onChange={(e) => setKey(e.target.value)} placeholder={keySaved ? '•••••• (saved)' : KEYED[provider]!.placeholder} className="max-w-md" />
               <Button size="sm" disabled={key.trim().length < 8} onClick={() => void saveKey()}>
                 Save
               </Button>
-              {status?.keys[provider] && <CheckCircle2 className="size-4 text-good" />}
+              {keySaved && <CheckCircle2 className="size-4 text-good" />}
             </div>
-            <div className="mt-2 text-xs text-ink-faint">
-              {provider === 'anthropic' ? 'Get one at console.anthropic.com.' : 'Get one at platform.openai.com.'}
-            </div>
+            <div className="mt-2 text-xs text-ink-faint">{KEYED[provider]!.where}</div>
           </Field>
         )}
 

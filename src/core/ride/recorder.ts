@@ -85,7 +85,11 @@ export class RideRecorder {
 
   /** Begin (or resume) recording at `now`. */
   start(now = this.clock.now()): void {
-    if (!this.paused) return
+    // resumed before a requested pause took effect: cancel it, or the slot boundary would pause a riding session
+    if (!this.paused) {
+      this.pauseRequested = false
+      return
+    }
     this.paused = false
     this.pauseRequested = false
     this.slotStart = now

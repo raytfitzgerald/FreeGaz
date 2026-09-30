@@ -77,7 +77,8 @@ export class RideSession {
   private seq = 0
   private pendingLines: string[] = []
   private unacked: { seq: number; lines: string[] }[] = []
-  private flushing = false
+  /** The append loop in progress, if any: finish() waits for it before closing the journal. */
+  private flushRun: Promise<void> | null = null
   private journalStarted: Promise<void> | null = null
 
   // live metrics
@@ -148,6 +149,7 @@ export class RideSession {
       simulated: this.options.simulated,
       ftpW: this.options.athlete.ftpW,
       weightKg: this.options.athlete.weightKg,
+      athlete: this.options.athlete,
       workoutId: this.plan.workoutId,
       workoutJson: this.plan.workoutJson,
     })
@@ -245,12 +247,15 @@ export class RideSession {
     this.recorder.pauseNow()
     this.state = 'finished'
     this.deps.setPaused(false)
-    this.deps.controller.setDesired({ mode: 'idle' })
+    // a free ride's trainer mode belongs to the Just ride page, which carries on after the ride
+    if (this.kind !== 'free') this.deps.controller.setDesired({ mode: 'idle' })
     const endTs = this.records.at(-1)?.ts ?? this.startedAtWall
     const end: JournalEvent = { type: 'end', t: this.recorder.movingSeconds, ts: endTs }
     this.events.push(end)
     this.pendingLines.push(encodeEvent(end))
+    // the last records and the end line are written before the journal closes (an in-flight append included)
     await this.flushJournal()
+    if (this.unacked.length > 0) await this.flushJournal()
     await this.deps.journal.close(this.rideId).catch(() => undefined)
     this.emit({ type: 'state', state: 'finished' })
     return { records: this.records, events: this.events }
@@ -423,14 +428,18 @@ export class RideSession {
     this.pendingLines.push(encodeEvent(e))
   }
 
-  private async flushJournal(): Promise<void> {
+  /**
+   * Appends everything pending. While a loop is already running it picks up
+   * the new batch too, so this returns that loop: awaiting it means the batch
+   * was written (or failed and is kept for the next flush).
+   */
+  private flushJournal(): Promise<void> {
     if (this.pendingLines.length > 0) {
       this.unacked.push({ seq: ++this.seq, lines: this.pendingLines })
       this.pendingLines = []
     }
-    if (this.flushing) return
-    this.flushing = true
-    try {
+    if (this.flushRun) return this.flushRun
+    this.flushRun = (async () => {
       await this.journalStarted
       while (this.unacked.length > 0) {
         const batch = this.unacked[0]!
@@ -442,9 +451,10 @@ export class RideSession {
           break // keep it; retried on the next flush with the same seq
         }
       }
-    } finally {
-      this.flushing = false
-    }
+    })().finally(() => {
+      this.flushRun = null
+    })
+    return this.flushRun
   }
 
   private emit(e: SessionEvent): void {

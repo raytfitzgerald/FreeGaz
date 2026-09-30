@@ -39,6 +39,7 @@ export function RouteDetailDialog({ entry, onClose, onNotice }: { entry: RouteEn
   const riding = useRide((s) => s.active)
   const trainer = useDevices((s) => s.devices.some((d) => d.role === 'trainer' && d.state === 'connected'))
   const units = useSettings((s) => s.units)
+  const speed = useSettings((s) => s.speedUnit)
   const [laps, setLaps] = useState(1)
   const [ghostKey, setGhostKey] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
@@ -140,7 +141,7 @@ export function RouteDetailDialog({ entry, onClose, onNotice }: { entry: RouteEn
                 key={m.mode}
                 variant={m.mode === 'reactive' ? 'primary' : 'secondary'}
                 disabled={busy || riding || !route || (m.mode === 'challenge' && !ghost)}
-                title={riding ? 'Finish the ride in progress first' : m.mode === 'steady' ? `The route rolls at its recorded pace (or ${formatSpeedKmh(25, units)} ${speedUnit(units)}); the gradient still comes to you on schedule.` : m.hint}
+                title={riding ? 'Finish the ride in progress first' : m.mode === 'steady' ? `The route rolls at its recorded pace (or ${formatSpeedKmh(25, speed)} ${speedUnit(speed)}); the gradient still comes to you on schedule.` : m.hint}
                 onClick={() => void ride(m.mode)}
                 data-testid={`ride-route-${m.mode}`}
               >
@@ -178,6 +179,7 @@ export function RouteDetailDialog({ entry, onClose, onNotice }: { entry: RouteEn
 function Stats({ route, entry, ftpW, weightKg, laps }: { route: Route; entry: RouteEntry; ftpW: number | null; weightKg: number | null; laps: number }) {
   const t = useSettings((s) => s.trainer)
   const units = useSettings((s) => s.units)
+  const speed = useSettings((s) => s.speedUnit)
   const estimate = useMemo(() => {
     if (ftpW === null || weightKg === null) return null
     const watts = Math.round(ftpW * 0.75)
@@ -196,7 +198,7 @@ function Stats({ route, entry, ftpW, weightKg, laps }: { route: Route; entry: Ro
     ['Descending', formatElevation(route.elevationLossM * laps, units)],
     ['Steepest', formatGrade(route.maxGradePct)],
     ['Reactive estimate', estimate ? `${formatDuration(estimate.s)} at ${estimate.watts} W` : '—'],
-    [entry.hasTimes ? 'Steady (recorded pace)' : `Steady (${formatSpeedKmh(25, units)} ${speedUnit(units)})`, formatDuration(steadyS)],
+    [entry.hasTimes ? 'Steady (recorded pace)' : `Steady (${formatSpeedKmh(25, speed)} ${speedUnit(speed)})`, formatDuration(steadyS)],
   ]
   return (
     <div className="grid grid-cols-2 content-start gap-2">

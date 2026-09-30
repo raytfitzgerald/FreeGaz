@@ -205,7 +205,9 @@ export function fitFileName(s: Pick<RideSummary, 'startedAt' | 'name'>, tzOffset
   const d = new Date(s.startedAt + tzOffsetMin * 60_000)
   const p = (n: number) => String(n).padStart(2, '0')
   const stamp = `${d.getUTCFullYear()}-${p(d.getUTCMonth() + 1)}-${p(d.getUTCDate())} ${p(d.getUTCHours())}${p(d.getUTCMinutes())}`
-  return `${stamp} - ${s.name}.fit`
+  // route and workout names have no length limit; file names (and the IPC contract) do
+  const name = [...s.name].slice(0, 150).join('').trim()
+  return `${stamp} - ${name}.fit`
 }
 
 function hashSerial(id: string): number {

@@ -1,8 +1,11 @@
 import { Profiler } from 'react'
-import { act, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { liveStore } from '../stores/live'
+import { DEFAULT_SETTINGS } from '@shared/settings'
+import { createWebShim } from '../platform/web-shim'
 import { rideStore } from '../stores/ride'
+import { settingsStore } from '../stores/settings'
 import { WIDGET_BY_ID } from './catalog'
 import { HudTile } from './HudGrid'
 
@@ -49,5 +52,22 @@ describe('HUD tiles', () => {
     )
     expect(screen.getByTestId('hud-wkg-value').textContent).toBe('4.00')
     expect(screen.getByTestId('hud-pctFtp-value').textContent).toBe('120')
+  })
+
+  it('flip speed between km/h and mph from the unit label', async () => {
+    localStorage.clear()
+    window.freegaz = createWebShim()
+    settingsStore.setState({ ...DEFAULT_SETTINGS, units: 'metric', speedUnit: 'kmh' }, true)
+    act(() => liveStore.setState({ ...liveStore.getState(), speedKmh: 32.4 }))
+    render(<HudTile def={WIDGET_BY_ID.get('speed')!} athlete={athlete} />)
+    expect(screen.getByTestId('hud-speed-value').textContent).toBe('32.4')
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Switch speed units' }))
+      await new Promise<void>((r) => setTimeout(r, 0))
+    })
+    expect(settingsStore.getState().speedUnit).toBe('mph')
+    expect(settingsStore.getState().units).toBe('metric') // distance stays put
+    expect(screen.getByTestId('hud-speed-unit').textContent).toBe('mph')
+    expect(screen.getByTestId('hud-speed-value').textContent).toBe('20.1')
   })
 })

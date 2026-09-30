@@ -49,6 +49,8 @@ export class RideRunner {
   private lastMetrics = 0
   private actualSeen = 0
   private actualRev = -1
+  /** Set synchronously in start(), so a double click can't create two sessions across its awaits. */
+  private starting = false
   private readonly sessionListeners = new Set<(session: RideSession) => void>()
 
   constructor(private readonly deps: RideRunnerDeps) {
@@ -72,7 +74,16 @@ export class RideRunner {
   }
 
   async start(opts: { plan?: RidePlan; name?: string; kind?: RideKind } = {}): Promise<void> {
-    if (this.active) return
+    if (this.active || this.starting) return
+    this.starting = true
+    try {
+      await this.begin(opts)
+    } finally {
+      this.starting = false
+    }
+  }
+
+  private async begin(opts: { plan?: RidePlan; name?: string; kind?: RideKind }): Promise<void> {
     const athlete = await athleteSnapshot()
     const bests = await bestPowers([5, 60, 300, 1200]).catch(() => ({}))
     const rideId = newRideId()
@@ -192,7 +203,18 @@ export class RideRunner {
       await recordTestOnRide(session.rideId)
       rideStore.setState({ active: false, rideId: null, snapshot: null, metrics: null, saving: false, lastSaved: saved, ...ENDED })
     } catch (e) {
-      rideStore.setState({ saving: false, error: `Could not save the ride: ${e instanceof Error ? e.message : String(e)}. It is safe in the journal and will be offered for recovery.` })
+      // the session is over either way: leave the recording screen and offer the journal for recovery now
+      this.detach()
+      rideStore.setState({
+        active: false,
+        rideId: null,
+        snapshot: null,
+        metrics: null,
+        saving: false,
+        ...ENDED,
+        error: `Could not save the ride: ${e instanceof Error ? e.message : String(e)}. It is safe in the journal and is offered for recovery.`,
+      })
+      void this.loadRecoveries()
     } finally {
       this.session = null
       void bridge().invoke('power.keepAwake', { on: false })

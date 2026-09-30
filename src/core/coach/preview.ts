@@ -3,7 +3,7 @@
 // the same gate as a real ride.
 import { CoachEngine, clampSpice } from '../persona/engine'
 import { sampleVariants } from '../persona/samples'
-import type { CoachLine, CoachTrigger, PersonaPack } from '../persona/types'
+import type { CoachLine, CoachTrigger, PersonaPack, ProfanitySetting } from '../persona/types'
 import { gateLine } from './content'
 
 /** Moments that show a persona off: interval cues, a fade, a verdict, a record. */
@@ -37,7 +37,7 @@ function shuffled<T>(items: readonly T[], rng: () => number): T[] {
  * when it has none at this spice. Professional's fallback lines never stand
  * in for a persona's own voice.
  */
-export function previewLine(persona: PersonaPack, opts: { spice: number; profanity: boolean; rng?: () => number; trigger?: CoachTrigger }): CoachLine | null {
+export function previewLine(persona: PersonaPack, opts: { spice: number; profanity: ProfanitySetting; rng?: () => number; trigger?: CoachTrigger }): CoachLine | null {
   const rng = opts.rng ?? Math.random
   const engine = new CoachEngine({ persona, spice: clampSpice(opts.spice), profanity: opts.profanity, rng })
   // far apart in time, so no cooldown ever gets in the way

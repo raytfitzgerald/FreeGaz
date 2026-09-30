@@ -1,7 +1,7 @@
 // Number formats for route screens. Storage is metres; the unit system only
 // changes the label.
 
-import { formatLongDistance, formatSpan, formatSpeedMps, type UnitSystem } from '@core/units'
+import { formatLongDistance, formatSpan, formatSpeedMps, type SpeedSystem, type UnitSystem } from '@core/units'
 
 /** 12400 → "12.4" km, or "7.7" miles. */
 export function formatKm(m: number, dp = 1, units: UnitSystem = 'metric'): string {
@@ -14,7 +14,7 @@ export function formatMetres(m: number, units: UnitSystem = 'metric'): string {
 }
 
 /** m/s → "32.4" in the active speed unit, or null. */
-export function kmh(mps: number | null | undefined, units: UnitSystem = 'metric'): string | null {
+export function kmh(mps: number | null | undefined, units: SpeedSystem = 'metric'): string | null {
   return formatSpeedMps(mps, units)
 }
 

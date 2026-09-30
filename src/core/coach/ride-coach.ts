@@ -3,7 +3,7 @@
 // on everything that comes out, canned or AI-written. Pure: the renderer wraps
 // it with speech and display, the simulator tests drive it directly.
 import { CoachEngine, clampSpice, type CoachEngineOptions } from '../persona/engine'
-import type { CoachContext, CoachLine, CoachLineTemplate, PersonaPack } from '../persona/types'
+import { toProfanity, type CoachContext, type CoachLine, type CoachLineTemplate, type PersonaPack, type Profanity, type ProfanitySetting } from '../persona/types'
 import type { SessionEvent } from '../ride/session'
 import { gateLine, personaBannedPatterns, sanitizeFacts } from './content'
 import { TriggerDetector, type DetectorOptions, type DetectorTick, type FuelingPlan } from './detector'
@@ -11,7 +11,7 @@ import { TriggerDetector, type DetectorOptions, type DetectorTick, type FuelingP
 export interface RideCoachOptions extends DetectorOptions {
   persona: PersonaPack
   spice: number
-  profanity: boolean
+  profanity: ProfanitySetting
   /** Uniform [0, 1); pass mulberry32(seed) for reproducible rides. */
   rng?: () => number
   /** Engine pacing overrides (cooldowns, memory). */
@@ -23,12 +23,12 @@ export class RideCoach {
   readonly engine: CoachEngine
   private base: PersonaPack
   private extra: { personaId: string; lines: readonly CoachLineTemplate[] } | null = null
-  private profanity: boolean
+  private profanity: Profanity
 
   constructor(opts: RideCoachOptions) {
     this.detector = new TriggerDetector(opts)
     this.base = opts.persona
-    this.profanity = opts.profanity
+    this.profanity = toProfanity(opts.profanity)
     this.engine = new CoachEngine({
       ...opts.engine,
       persona: opts.persona,
@@ -72,9 +72,9 @@ export class RideCoach {
     this.engine.setSpice(clampSpice(spice))
   }
 
-  setProfanity(on: boolean): void {
-    this.profanity = on
-    this.engine.setProfanity(on)
+  setProfanity(level: ProfanitySetting): void {
+    this.profanity = toProfanity(level)
+    this.engine.setProfanity(this.profanity)
   }
 
   setFueling(f: FuelingPlan | null): void {
@@ -117,7 +117,7 @@ export class RideCoach {
   private say(moments: readonly CoachContext[]): CoachLine[] {
     const out: CoachLine[] = []
     const personaId = this.base.meta.id
-    const banned = this.profanity ? [] : personaBannedPatterns(personaId)
+    const banned = this.profanity === 'unhinged' ? [] : personaBannedPatterns(personaId)
     for (const m of moments) {
       const line = this.engine.consider(banned.length > 0 ? { ...m, data: sanitizeFacts(m.data, banned) } : m)
       if (!line) continue

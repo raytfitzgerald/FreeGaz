@@ -161,4 +161,14 @@ describe('AiService', () => {
     svc.configure({ provider: 'ollama', model: 'llama3.3' })
     expect(svc.status()).toMatchObject({ provider: 'ollama', configured: true, model: 'llama3.3' })
   })
+
+  it('configures Grok with its own key, and says which key is missing', async () => {
+    const store = memoryStore({ provider: 'grok', models: { grok: 'grok-4.7' } })
+    const svc = new AiService(store, () => new FakeProvider())
+    expect(svc.status()).toMatchObject({ provider: 'grok', configured: false, keys: { grok: false } })
+    await expect(svc.complete('ride-title', { system: 's', messages: [{ role: 'user', content: 'x' }] })).rejects.toMatchObject({ code: 'not-configured', message: expect.stringContaining('xAI') })
+    svc.configure({ apiKey: 'xai-test-key' })
+    expect(store.keys.grok).toBe('xai-test-key')
+    expect(svc.status()).toMatchObject({ provider: 'grok', configured: true, model: 'grok-4.7', keys: { grok: true } })
+  })
 })

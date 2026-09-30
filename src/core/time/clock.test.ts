@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
-import { FakeClock, WarpClock } from './clock'
+import { describe, expect, it, vi } from 'vitest'
+import { FakeClock, SystemClock, WarpClock } from './clock'
 
 describe('FakeClock', () => {
   it('fires interval and one-shot timers in chronological order', () => {
@@ -52,5 +52,25 @@ describe('WarpClock', () => {
     const start = clock.now()
     await new Promise((r) => setTimeout(r, 50))
     expect(clock.now() - start).toBeGreaterThan(500)
+  })
+})
+
+describe('SystemClock', () => {
+  it('re-anchors wall time after the monotonic clock stopped (the Mac slept)', () => {
+    let wall = 1_000_000
+    let mono = 500
+    vi.spyOn(Date, 'now').mockImplementation(() => wall)
+    vi.spyOn(performance, 'now').mockImplementation(() => mono)
+    const clock = new SystemClock()
+    mono += 1000
+    wall += 1000
+    expect(clock.wallMs()).toBe(1_001_000)
+    // eight hours asleep: wall time moves on, the monotonic clock doesn't
+    wall += 8 * 3_600_000
+    expect(clock.wallMs()).toBe(wall)
+    mono += 1000
+    wall += 1000
+    expect(clock.wallMs()).toBe(wall)
+    vi.restoreAllMocks()
   })
 })

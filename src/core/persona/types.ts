@@ -121,6 +121,20 @@ export const TRIGGER_THRESHOLDS = {
 
 export type RideKind = 'free' | 'workout' | 'route' | 'ftp-test'
 
+/**
+ * The rider's language setting. Clean: no swearing. Mild: damn, hell, bloody
+ * and friends, with every topic rule still on. Unhinged: no language limits,
+ * and the coach reaches for its sweariest lines first.
+ */
+export const PROFANITY_LEVELS = ['clean', 'mild', 'unhinged'] as const
+export type Profanity = (typeof PROFANITY_LEVELS)[number]
+/** Callers from before the three levels passed a boolean: true meant no limits. */
+export type ProfanitySetting = Profanity | boolean
+
+export function toProfanity(v: ProfanitySetting): Profanity {
+  return v === true ? 'unhinged' : v === false ? 'clean' : v
+}
+
 /** 1 = gentle, 5 = savage. */
 export type Spice = 1 | 2 | 3 | 4 | 5
 

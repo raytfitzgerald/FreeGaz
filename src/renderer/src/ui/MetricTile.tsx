@@ -13,6 +13,8 @@ export interface MetricTileProps {
   testId?: string
   /** Optional status chip (icon + label), e.g. ERG compliance. */
   status?: ReactNode
+  /** Makes the unit a button (e.g. flip km/h and mph); `label` is its accessible name. */
+  unitAction?: { label: string; onClick: () => void }
 }
 
 const SIZES = {
@@ -26,7 +28,7 @@ const SIZES = {
  * Values use tabular figures on purpose: they update several times a second,
  * and proportional digits would make the number jitter in width.
  */
-export function MetricTile({ label, value, unit, accent, sub, size = 'lg', className, testId, status }: MetricTileProps) {
+export function MetricTile({ label, value, unit, accent, sub, size = 'lg', className, testId, status, unitAction }: MetricTileProps) {
   const missing = value === null || value === undefined
   return (
     <div className={cn('flex flex-col rounded-2xl border border-line bg-panel px-5 py-4', className)} data-testid={testId}>
@@ -44,7 +46,21 @@ export function MetricTile({ label, value, unit, accent, sub, size = 'lg', class
         >
           {missing ? '—' : value}
         </span>
-        {unit && <span className="text-sm font-medium text-ink-dim">{unit}</span>}
+        {unit &&
+          (unitAction ? (
+            <button
+              type="button"
+              aria-label={unitAction.label}
+              title={unitAction.label}
+              onClick={unitAction.onClick}
+              className="no-drag rounded text-sm font-medium text-ink-dim underline decoration-dotted underline-offset-4 hover:text-ink"
+              data-testid={testId ? `${testId}-unit` : undefined}
+            >
+              {unit}
+            </button>
+          ) : (
+            <span className="text-sm font-medium text-ink-dim">{unit}</span>
+          ))}
       </div>
       {sub && <div className="mt-2 text-xs text-ink-dim">{sub}</div>}
     </div>

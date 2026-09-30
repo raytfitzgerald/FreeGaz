@@ -334,6 +334,53 @@ b.add('idle_banter', [
 b.add('under_target', [[5, '{power} watts. That sample is fucking noise. Get back on target.', P]])
 b.add('idle_banter', [[5, 'This power trace is shit. Smooth it out.', P]])
 
+// Unhinged: strong profanity, only for riders who asked for it.
+b.add('ride_start', [
+  [1, "Recording at one hertz. Let's collect some fucking beautiful data.", P],
+  [4, "Dataset: {workoutName}. Null hypothesis: you half-ass it. Let's reject that shit.", P],
+])
+b.add(
+  'segment_start',
+  [
+    [2, '{targetW} watts for {remainingS}. Clean data only. No fucking outliers.', P],
+    [5, '{targetW} watts. Spike to 600 in the first ten seconds and I will lose my shit.', P],
+  ],
+  [HARD],
+)
+b.add('countdown_10s', [[3, 'Ten seconds. Brace for a step function. A big fucking step function.', P]])
+b.add('halfway', [[3, 'Halfway. Sample size is fine. The effect size is shit. Push.', P]])
+b.add('last_minute', [[2, "Sixty seconds. Hold {targetW}. Don't fuck up my rolling average.", P]])
+b.add('segment_end_success', [
+  [1, '{pct}% of target. That is some statistically significant shit. Beautiful.', P],
+  [5, '{avgW} on a {targetW} target. P less than 0.05. You fucking legend.', P],
+])
+b.add('segment_end_failed', [
+  [3, "{pct}%. That's not variance, that's bullshit with error bars.", P],
+  [5, 'Average {avgW}. Target {targetW}. I ran the numbers. The numbers say what the fuck.', P],
+])
+b.add('under_target', [
+  [2, "{deficitW} watts under. Regress to the target, for fuck's sake.", P],
+  [4, "{power} watts. That's two standard deviations of bullshit below target.", P],
+])
+b.add('cadence_sag', [[3, '{torqueNm} newton meters of torque. That is a fucking grind, not a spin.', P]])
+b.add('stopped_pedaling', [[4, 'Stopped. Now I have zeros in my fucking dataset. Well, nulls. Missing is not zero.', P]])
+b.add('skipped_interval', [[3, "Skipped {segmentLabel}. That's missing data, and missing data is shit data.", P]])
+b.add('intensity_down', [[4, '{intensityPct}%. You just rescaled the whole fucking y-axis.', P]])
+b.add('wbal_low', [[3, 'W′bal {wbalPct}%. The model is screaming. Stop fucking surging.', P]])
+b.add('pr', [[2, '{prLabel} PR at {power} watts. Fucking gorgeous outlier. Keeping it.', P]])
+b.add('ftp_test_minute', [[3, 'Minute {minute}. Projected {projectedFtp}. The confidence interval is tightening. Hold that shit.', P]])
+b.add('ftp_test_result', [[4, 'FTP {ftpNew}. Recalculating every fucking zone. This is my favourite part.', P]])
+b.add('workout_complete', [
+  [1, 'Done. {tss} TSS, {kj} kilojoules. Fucking lovely numbers.', P],
+  [5, "NP {np}, TSS {tss}. I'm going to stare at this shit for an hour.", P],
+])
+b.add('ride_bailed', [[4, 'Ending at {elapsedMin} minutes. Incomplete file. Truncated. Fucking tragic.', P]])
+b.add('fueling_reminder', [[3, '{elapsedMin} minutes in. Eat, or the back half of your power curve goes to shit.', P]])
+b.add('idle_banter', [
+  [2, "Power {power}, cadence {cadence}. Low variability. Fucking chef's kiss.", P],
+  [5, "Correlation isn't causation. But cadence dropping and watts going to shit? That's causation.", P],
+])
+
 export const DATA_NERD: PersonaPack = {
   meta: {
     id: 'data-nerd',

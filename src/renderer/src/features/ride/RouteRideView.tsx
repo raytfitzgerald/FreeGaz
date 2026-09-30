@@ -12,11 +12,12 @@ import { formatDuration } from '../../ui/format'
 import { formatGapM, formatGapS, formatKm, kmh } from '../../routes/format'
 import { useActiveRoutePlan } from '../../routes/active'
 import { distanceUnit, displayElevation, elevationUnit, speedUnit } from '@core/units'
-import { useSettings } from '../../stores/settings'
+import { toggleSpeedUnit, useSettings } from '../../stores/settings'
 import { formatGrade, gradeClass, gradeVar } from '../../routes/grade'
 import { ElevationChart } from '../routes/ElevationChart'
 import { GradeLegend } from '../routes/GradeLegend'
 import { RouteOutline } from '../routes/RouteOutline'
+import { RideAlong } from '../../coach/ride-along/RideAlong'
 import { CueBanner } from './CueBanner'
 import { RecordingBar } from './RecordingBar'
 
@@ -82,6 +83,7 @@ export function RouteRideView() {
       </div>
 
       <CueBanner />
+      <RideAlong />
       {r.finished && (
         <div className="flex items-center gap-3 rounded-2xl border border-good/40 bg-good/5 px-5 py-3 text-sm" role="status" data-testid="route-complete">
           <CheckCircle2 className="size-4 text-good" /> Route complete. The trainer is on a flat road now: spin easy as long as you like, then press Finish to save.
@@ -142,17 +144,18 @@ export function RouteRideView() {
 }
 
 function SpeedTile({ r }: { r: RouteProgress }) {
-  const units = useSettings((s) => s.units)
+  const speed = useSettings((s) => s.speedUnit)
   const avg = r.elapsedS > 5 ? r.riddenM / r.elapsedS : null
   return (
     <MetricTile
       label={r.mode === 'steady' ? 'Speed · route pace' : 'Speed'}
-      value={kmh(r.speedMps, units)}
-      unit={speedUnit(units)}
+      value={kmh(r.speedMps, speed)}
+      unit={speedUnit(speed)}
       size="xl"
       accent="var(--color-speed)"
       testId="route-speed"
-      sub={avg !== null ? `Average ${kmh(avg, units)} ${speedUnit(units)}` : undefined}
+      unitAction={{ label: 'Switch speed units', onClick: () => void toggleSpeedUnit() }}
+      sub={avg !== null ? `Average ${kmh(avg, speed)} ${speedUnit(speed)}` : undefined}
     />
   )
 }

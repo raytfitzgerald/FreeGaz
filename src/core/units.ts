@@ -2,14 +2,27 @@
 // helpers only change what the rider sees and what they type.
 
 export type UnitSystem = 'metric' | 'imperial'
+/** The rider's own speed and weight choices; either also accepts a whole system. */
+export type SpeedUnitSetting = 'kmh' | 'mph'
+export type WeightUnitSetting = 'kg' | 'lb'
+export type SpeedSystem = UnitSystem | SpeedUnitSetting
+export type WeightSystem = UnitSystem | WeightUnitSetting
+
+const mphSpeed = (u: SpeedSystem): boolean => u === 'imperial' || u === 'mph'
+const lbWeight = (u: WeightSystem): boolean => u === 'imperial' || u === 'lb'
+
+/** The speed and weight units that go with a whole system (the Units preset). */
+export function unitPreset(u: UnitSystem): { speedUnit: SpeedUnitSetting; weightUnit: WeightUnitSetting } {
+  return u === 'imperial' ? { speedUnit: 'mph', weightUnit: 'lb' } : { speedUnit: 'kmh', weightUnit: 'kg' }
+}
 
 const M_PER_MI = 1609.344
 const M_PER_FT = 0.3048
 const KG_PER_LB = 0.45359237
 const KMH_PER_MPH = 1.609344
 
-export function speedUnit(u: UnitSystem): 'km/h' | 'mph' {
-  return u === 'imperial' ? 'mph' : 'km/h'
+export function speedUnit(u: SpeedSystem): 'km/h' | 'mph' {
+  return mphSpeed(u) ? 'mph' : 'km/h'
 }
 export function distanceUnit(u: UnitSystem): 'km' | 'mi' {
   return u === 'imperial' ? 'mi' : 'km'
@@ -17,8 +30,8 @@ export function distanceUnit(u: UnitSystem): 'km' | 'mi' {
 export function elevationUnit(u: UnitSystem): 'm' | 'ft' {
   return u === 'imperial' ? 'ft' : 'm'
 }
-export function weightUnit(u: UnitSystem): 'kg' | 'lb' {
-  return u === 'imperial' ? 'lb' : 'kg'
+export function weightUnit(u: WeightSystem): 'kg' | 'lb' {
+  return lbWeight(u) ? 'lb' : 'kg'
 }
 export function tempUnit(u: UnitSystem): '°C' | '°F' {
   return u === 'imperial' ? '°F' : '°C'
@@ -34,21 +47,21 @@ function fixedOrInt(n: number, dp: number): string {
   return Number.isInteger(r) ? String(r) : r.toFixed(dp)
 }
 
-export function displaySpeedKmh(kmh: number, u: UnitSystem): number {
-  return u === 'imperial' ? kmh / KMH_PER_MPH : kmh
+export function displaySpeedKmh(kmh: number, u: SpeedSystem): number {
+  return mphSpeed(u) ? kmh / KMH_PER_MPH : kmh
 }
-export function storedSpeedKmh(shown: number, u: UnitSystem): number {
-  return u === 'imperial' ? shown * KMH_PER_MPH : shown
+export function storedSpeedKmh(shown: number, u: SpeedSystem): number {
+  return mphSpeed(u) ? shown * KMH_PER_MPH : shown
 }
 
 /** km/h in, display string out. Null stays null. */
-export function formatSpeedKmh(kmh: number | null | undefined, u: UnitSystem, dp = 1): string | null {
+export function formatSpeedKmh(kmh: number | null | undefined, u: SpeedSystem, dp = 1): string | null {
   if (kmh === null || kmh === undefined || !Number.isFinite(kmh)) return null
   return fixedOrInt(displaySpeedKmh(kmh, u), dp)
 }
 
 /** m/s in, display string out. */
-export function formatSpeedMps(mps: number | null | undefined, u: UnitSystem, dp = 1): string | null {
+export function formatSpeedMps(mps: number | null | undefined, u: SpeedSystem, dp = 1): string | null {
   if (mps === null || mps === undefined || !Number.isFinite(mps)) return null
   return formatSpeedKmh(mps * 3.6, u, dp)
 }
@@ -95,14 +108,14 @@ export function displayElevation(m: number, u: UnitSystem): number {
   return u === 'imperial' ? m / M_PER_FT : m
 }
 
-export function displayWeightKg(kg: number, u: UnitSystem): number {
-  return u === 'imperial' ? kg / KG_PER_LB : kg
+export function displayWeightKg(kg: number, u: WeightSystem): number {
+  return lbWeight(u) ? kg / KG_PER_LB : kg
 }
-export function storedWeightKg(shown: number, u: UnitSystem): number {
-  return u === 'imperial' ? shown * KG_PER_LB : shown
+export function storedWeightKg(shown: number, u: WeightSystem): number {
+  return lbWeight(u) ? shown * KG_PER_LB : shown
 }
 
-export function formatWeight(kg: number, u: UnitSystem, dp = 1): string {
+export function formatWeight(kg: number, u: WeightSystem, dp = 1): string {
   return fixedOrInt(displayWeightKg(kg, u), dp)
 }
 

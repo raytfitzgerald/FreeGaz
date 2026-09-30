@@ -25,5 +25,6 @@ export interface ProviderConfig {
 export const DEFAULT_MODEL: Record<AiProviderId, string> = {
   anthropic: 'claude-opus-5-5',
   openai: '',
+  grok: '',
   ollama: '',
 }

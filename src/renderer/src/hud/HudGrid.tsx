@@ -6,12 +6,14 @@ import { CSS } from '@dnd-kit/utilities'
 import { GripVertical, LayoutGrid, Plus, RotateCcw, X } from 'lucide-react'
 import type { AthleteSnapshot } from '@core/ride/types'
 import { athleteSnapshot, DEFAULT_FTP_W, DEFAULT_WEIGHT_KG } from '../db/athlete-repo'
-import { patchSettings, settingsStore, useSettings } from '../stores/settings'
+import { patchSettings, settingsStore, toggleSpeedUnit, useSettings } from '../stores/settings'
 import { Button } from '../ui/Button'
 import { MetricTile } from '../ui/MetricTile'
 import { cn } from '../ui/cn'
 import { DEFAULT_LAYOUT, PRESETS, WIDGETS, WIDGET_BY_ID, type HudView, type WidgetDef, type WidgetGroup } from './catalog'
 import { useWidget } from './useHud'
+
+const SPEED_FLIP = { label: 'Switch speed units', onClick: () => void toggleSpeedUnit() }
 
 const FALLBACK: AthleteSnapshot = { ftpW: DEFAULT_FTP_W, weightKg: DEFAULT_WEIGHT_KG }
 const GROUPS: WidgetGroup[] = ['Power', 'Heart rate', 'Cadence', 'Time', 'Speed & distance', 'Energy', 'Trainer', 'Body']
@@ -109,7 +111,7 @@ function SortableTile(props: { def: WidgetDef; athlete: AthleteSnapshot; editing
 /** One metric tile. Memoised on its definition, so only its own value re-renders it. */
 export const HudTile = memo(function HudTile({ def, athlete }: { def: WidgetDef; athlete: AthleteSnapshot }) {
   const { value, sub, unit } = useWidget(def, athlete)
-  return <MetricTile label={def.label} value={value} unit={unit} size="md" accent={def.accent} sub={sub} testId={`hud-${def.id}`} />
+  return <MetricTile label={def.label} value={value} unit={unit} size="md" accent={def.accent} sub={sub} testId={`hud-${def.id}`} unitAction={def.id === 'speed' ? SPEED_FLIP : undefined} />
 })
 
 function WidgetPicker({ label, exclude, onPick, icon, compact }: { label: string; exclude: string[]; onPick: (id: string) => void; icon?: ReactNode; compact?: boolean }) {

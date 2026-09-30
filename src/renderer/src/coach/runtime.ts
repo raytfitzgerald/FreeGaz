@@ -21,11 +21,11 @@ import { rideStore } from '../stores/ride'
 import { settingsStore } from '../stores/settings'
 import { fetchQuipLines, type QuipSource } from './quips'
 import { SpeechQueue, type Voice } from './speech-queue'
-import { markLine, markSpeaking, markWord } from './talk'
+import { markLine, markMuted, markSpeaking, markWord } from './talk'
 
 /** Dispatched on window by RideRunner for the C key and the phone's mute button. */
 export const MUTE_EVENT = 'freegaz:mute-coach'
-export const MUTED_TEXT = 'Coach muted. Press C to unmute.'
+export const MUTED_TEXT = 'Coach muted. Press C or the mute button to unmute.'
 export const UNMUTED_TEXT = 'Coach back on.'
 
 export interface FtpOutcome {
@@ -45,8 +45,10 @@ export interface CoachRuntimeDeps {
   voice: Voice | null
   /** Puts a line on the ride screen; `from` is the persona line behind it (absent for the app's own notices). */
   show(session: RideSession, text: string, from?: Pick<CoachLine, 'personaId' | 'priority'>): void
-  /** Mute toggles (the C key, the phone remote). */
+  /** Mute toggles (the C key, the phone remote, the ride screen's button). */
   onMute(listener: () => void): () => void
+  /** The current ride's mute state changed (for the ride screen's button). */
+  onMutedChange?: (muted: boolean) => void
   /** Valid FTP-test results, which arrive after the ride is saved. */
   onFtpResult?(listener: (r: FtpOutcome) => void): () => void
   /** AI quip packs; omitted, or any failure, means canned lines only. */
@@ -144,6 +146,7 @@ export class CoachRuntime {
     })
     const ride: ActiveRide = { session, coach, probe: new RideProbe(session, this.deps.hub, this.deps.controller), offs: [], muted: false, finished: false }
     this.active = ride
+    this.deps.onMutedChange?.(false)
     ride.offs.push(
       this.deps.engine.onTick((now) => this.onTick(ride, now)),
       session.on((e) => this.onEvent(ride, e)),
@@ -185,7 +188,10 @@ export class CoachRuntime {
   private detach(ride: ActiveRide): void {
     ride.finished = true
     for (const off of ride.offs.splice(0)) off()
-    if (this.active === ride) this.active = null
+    if (this.active === ride) {
+      this.active = null
+      this.deps.onMutedChange?.(false)
+    }
   }
 
   private deliver(ride: ActiveRide, lines: readonly CoachLine[]): void {
@@ -209,6 +215,7 @@ export class CoachRuntime {
     ride.muted = !ride.muted
     if (ride.muted) ride.coach.mute(this.deps.clock.now())
     else ride.coach.unmute()
+    this.deps.onMutedChange?.(ride.muted)
     this.deps.show(ride.session, ride.muted ? MUTED_TEXT : UNMUTED_TEXT)
   }
 
@@ -295,6 +302,7 @@ export function createCoachRuntime(
       // show it now rather than at the next once-a-second snapshot
       if (rideStore.getState().active) rideStore.setState({ snapshot: session.snapshot() })
     },
+    onMutedChange: markMuted,
     onMute: (l) => {
       window.addEventListener(MUTE_EVENT, l)
       return () => window.removeEventListener(MUTE_EVENT, l)

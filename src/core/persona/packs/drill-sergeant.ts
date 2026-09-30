@@ -332,6 +332,60 @@ b.add('segment_start', [[5, '{targetW} watts! Move and fucking pedal, recruit!',
 b.add('under_target', [[5, 'Under target! That effort was shit, recruit! Fix it!', P]])
 b.add('idle_banter', [[5, 'Quit sightseeing and fucking pedal, recruit!', P]])
 
+// Unhinged: strong profanity, only for riders who asked for it.
+b.add('ride_start', [
+  [1, 'Morning, recruit. Easy spin to start. Then we do some fucking work.', P],
+  [3, 'Clip in, recruit! That saddle is not a fucking suggestion!', P],
+  [5, "On the bike, recruit! I've seen more hustle from a parked fucking car!", P],
+])
+b.add(
+  'segment_start',
+  [
+    [2, '{targetW} watts, recruit. No bullshit. Go.', P],
+    [4, '{targetW} watts for {remainingS}! Every fucking second of it!', P],
+  ],
+  [HARD],
+)
+b.add('countdown_10s', [
+  [3, 'Ten seconds, recruit! Get your shit together!', P],
+  [5, 'TEN SECONDS! You fucking MOVE when I say move!', P],
+])
+b.add('halfway', [[3, 'Halfway, recruit! Half done is half-assed! Finish the fucking job!', P]])
+b.add('last_minute', [
+  [2, 'One minute, recruit. Hold {targetW}. No fucking around.', P],
+  [5, 'ONE MINUTE! Empty the fucking tank, recruit! Leave nothing!', P],
+])
+b.add('segment_end_success', [
+  [1, 'Interval complete. Fucking outstanding, recruit.', P],
+  [4, "That's how it's fucking done! Don't let it go to your head!", P],
+])
+b.add('segment_end_failed', [
+  [3, '{pct}%, recruit? That is some grade-A bullshit!', P],
+  [5, 'Average {avgW} on a {targetW} target? What the fuck was that, recruit?', P],
+])
+b.add('under_target', [
+  [2, '{deficitW} watts short, recruit. Fix that shit.', P],
+  [4, '{power} watts? Is that a fucking joke, recruit? PEDAL!', P],
+])
+b.add('cadence_sag', [[3, 'Cadence {cadence}! Spin, recruit! You are grinding like a fucking coffee mill!', P]])
+b.add('stopped_pedaling', [[4, 'Who the fuck said stop? Nobody! Get pedaling!', P]])
+b.add('skipped_interval', [[4, 'Skipped it? Bullshit, recruit! The next one counts double in my book!', P]])
+b.add('intensity_down', [[3, '{intensityPct}%? Fine. But I want every fucking watt of it.', P]])
+b.add('wbal_low', [[3, 'W′bal {wbalPct}%, recruit! Quit surging like a fucking amateur!', P]])
+b.add('pr', [[2, 'New {prLabel} record, recruit! Fucking hell, that was solid!', P]])
+b.add('ftp_test_minute', [[3, 'Minute {minute}, recruit! Projected {projectedFtp}! Hold that shit steady!', P]])
+b.add('ftp_test_result', [[4, 'FTP {ftpNew}. The test does not lie, recruit, and it does not give a shit about excuses.', P]])
+b.add('workout_complete', [
+  [1, 'Workout complete. Fucking good work, recruit. Dismissed.', P],
+  [5, 'Done! You earned it! Now get the fuck off my bike and stretch!', P],
+])
+b.add('ride_bailed', [[4, 'Quitting at {elapsedMin} minutes? That is fucking unacceptable, recruit!', P]])
+b.add('fueling_reminder', [[3, 'Eat your fucking gel, recruit! Chew while you pedal!', P]])
+b.add('idle_banter', [
+  [2, 'Shoulders down, recruit. Eyes forward. Pedal like you give a shit.', P],
+  [4, 'Nobody ever got faster by fucking coasting, recruit!', P],
+])
+
 export const DRILL_SERGEANT: PersonaPack = {
   meta: {
     id: 'drill-sergeant',

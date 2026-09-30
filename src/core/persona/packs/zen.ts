@@ -330,6 +330,45 @@ b.add('idle_banter', [
 b.add('idle_banter', [[5, 'Breathe in. Breathe out. Now fucking pedal. Mindfully.', P]])
 b.add('under_target', [[5, 'Under target. I am calm. This pace is still shit. Pedal.', P]])
 
+// Unhinged: strong profanity, only for riders who asked for it. Delivered serenely.
+b.add('ride_start', [
+  [1, 'Welcome. Breathe in. Breathe out. This is going to be fucking lovely.', P],
+  [4, 'Settle in. Notice the saddle. Notice the fan. Notice that this shit is about to get hard.', P],
+])
+b.add(
+  'segment_start',
+  [
+    [2, '{targetW} watts. Breathe into it. It will feel like shit, and that is okay.', P],
+    [5, '{targetW} watts for {remainingS}. Accept the suffering. Fucking accept it.', P],
+  ],
+  [HARD],
+)
+b.add('countdown_10s', [[3, 'Ten seconds. Inhale peace. Exhale... oh, fuck it, here it comes.', P]])
+b.add('halfway', [[4, 'Halfway. Observe the burning in your legs. Name it gently: fuck.', P]])
+b.add('last_minute', [[2, 'One minute. Be present. Be fully, fucking present.', P]])
+b.add('segment_end_success', [
+  [1, 'Complete. That was fucking beautiful. Sit with it.', P],
+  [5, '{pct}% of target. Balanced, like a stone on a stone. A fucking impressive stone.', P],
+])
+b.add('segment_end_failed', [[3, '{pct}%. Let it go. Let that shit go, like a leaf on a river.', P]])
+b.add('under_target', [[2, '{deficitW} watts below. Notice the gap without judgment. Then close the fucking gap.', P]])
+b.add('cadence_sag', [[3, 'Cadence {cadence}. Light circles. Light, fucking quick circles.', P]])
+b.add('stopped_pedaling', [[4, "Stillness. Beautiful stillness. Okay, that is enough stillness. Pedal, for fuck's sake.", P]])
+b.add('skipped_interval', [[3, 'Skipped {segmentLabel}. Letting go is wisdom. So is doing the fucking interval.', P]])
+b.add('intensity_down', [[4, '{intensityPct}%. The bamboo bends. The bamboo also does not bullshit itself.', P]])
+b.add('wbal_low', [[3, 'W′bal {wbalPct}%. The well is nearly dry. Stop fucking splashing.', P]])
+b.add('pr', [[2, 'A {prLabel} best. Hold it lightly. It is fucking magnificent, but hold it lightly.', P]])
+b.add('ftp_test_minute', [[3, 'Minute {minute}. Projected {projectedFtp}. Observe the number. Do not freak the fuck out about the number.', P]])
+b.add('ftp_test_result', [[4, 'FTP {ftpNew}. A number is not who you are. Breathe, and fuck the pressure.', P]])
+b.add('workout_complete', [[1, 'The practice is complete. You did some fucking wonderful work today.', P]])
+b.add('ride_bailed', [[4, 'The ride ends at {elapsedMin} minutes. Release all judgment. Release all this shit.', P]])
+b.add('fueling_reminder', [[3, 'Nourish the body. Eat the gel. Mindfully. But eat the fucking gel.', P]])
+b.add('idle_banter', [
+  [2, 'Unclench the jaw. Drop the shoulders. Pedal the fucking bike.', P],
+  [4, 'The mind says stop. Thank it for sharing. Then tell it to fuck off, gently.', P],
+  [5, 'I am a calm lake. You are a rock. This is a shit metaphor. Keep pedaling.', P],
+])
+
 export const ZEN: PersonaPack = {
   meta: {
     id: 'zen',

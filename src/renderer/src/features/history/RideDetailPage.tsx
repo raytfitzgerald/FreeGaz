@@ -25,7 +25,8 @@ const SYNC_KEY = 'ride-detail'
 
 export function RideDetailPage() {
   const { rideId } = useParams({ from: '/history/$rideId' })
-  const ride = useLiveQuery(() => db().rides.get(rideId), [rideId])
+  // Dexie resolves a missing row as undefined, which useLiveQuery also means "loading": map it to null
+  const ride = useLiveQuery(() => db().rides.get(rideId).then((r) => r ?? null), [rideId])
   const streams = useLiveQuery(() => db().rideStreams.get(rideId), [rideId])
   const navigate = useNavigate()
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -137,7 +138,7 @@ function SummaryGrid({ r }: { r: RideSummary }) {
 
 /** Stacked small multiples: one metric per chart, one axis each, shared crosshair. */
 function Streams({ streams, ride }: { streams: RideStreams; ride: RideSummary }) {
-  const units = useSettings((s) => s.units)
+  const speed = useSettings((s) => s.speedUnit)
   const x = useMemo(() => Array.from({ length: streams.length }, (_, i) => i), [streams])
   const wbal = useMemo(() => {
     const wb = new WPrimeBalance({ cp: ride.athlete.cpW ?? ride.athlete.ftpW, wPrimeJ: ride.athlete.wPrimeJ ?? 20_000 })
@@ -147,7 +148,7 @@ function Streams({ streams, ride }: { streams: RideStreams; ride: RideSummary })
     { key: 'power', label: 'Power', unit: 'W', colorVar: '--color-power', values: column(streams, 'power') },
     { key: 'cadence', label: 'Cadence', unit: 'rpm', colorVar: '--color-cadence', values: column(streams, 'cadence') },
     { key: 'hr', label: 'Heart rate', unit: 'bpm', colorVar: '--color-hr', values: column(streams, 'hr') },
-    { key: 'speed', label: 'Speed', unit: speedUnit(units), colorVar: '--color-speed', values: column(streams, 'speed').map((v) => (v === null ? null : displaySpeedKmh(v * 3.6, units))) },
+    { key: 'speed', label: 'Speed', unit: speedUnit(speed), colorVar: '--color-speed', values: column(streams, 'speed').map((v) => (v === null ? null : displaySpeedKmh(v * 3.6, speed))) },
     { key: 'wbal', label: "W′ balance", unit: 'kJ', colorVar: '--color-wbal', values: wbal, wash: true },
   ].filter((p) => p.values.some((v) => v !== null))
 

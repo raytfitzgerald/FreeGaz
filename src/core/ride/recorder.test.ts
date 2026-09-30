@@ -61,6 +61,18 @@ describe('RideRecorder', () => {
     expect(rec.movingSeconds).toBe(6)
   })
 
+  it('a resume before the requested pause takes effect cancels it, so recording carries on', () => {
+    const { hub, rec } = setup()
+    feed(hub, 0, 20_000, 4, () => 200)
+    rec.start(0)
+    rec.collect(2500)
+    rec.requestPause()
+    rec.resume(2600) // pressed again within the same second
+    rec.collect(10_000)
+    expect(rec.isPaused).toBe(false)
+    expect(rec.movingSeconds).toBe(10)
+  })
+
   it('records null, never 0, when the sensor goes silent', () => {
     const { hub, rec } = setup()
     feed(hub, 0, 2000, 4, () => 220)

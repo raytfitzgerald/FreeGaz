@@ -6,7 +6,7 @@ import { Field, NumberInput, Section, Slider, Switch } from '../../ui/form'
 
 export function TrainerSection() {
   const t = useSettings((s) => s.trainer)
-  const units = useSettings((s) => s.units)
+  const units = useSettings((s) => s.weightUnit)
   const set = (patch: Partial<TrainerPrefs>) => void patchSettings({ trainer: { ...t, ...patch } })
   const bikeShown = Math.round(displayWeightKg(t.bikeKg, units) * 10) / 10
 
@@ -47,8 +47,8 @@ export function TrainerSection() {
             value={bikeShown}
             onChange={(v) => v && set({ bikeKg: Math.round(storedWeightKg(v, units) * 100) / 100 })}
             unit={weightUnit(units)}
-            min={units === 'imperial' ? 9 : 4}
-            max={units === 'imperial' ? 66 : 30}
+            min={units === 'lb' ? 9 : 4}
+            max={units === 'lb' ? 66 : 30}
             step={0.1}
           />
         </Field>
@@ -74,7 +74,7 @@ const FAN_MODES = [
 /** KICKR Headwind: which signal sets the fan speed. */
 function FanSettings() {
   const fan = useSettings((s) => s.fan)
-  const units = useSettings((s) => s.units)
+  const units = useSettings((s) => s.speedUnit)
   const set = (patch: Partial<typeof fan>) => void patchSettings({ fan: { ...settingsStore.getState().fan, ...patch } })
   const fanSpeed = Math.round(displaySpeedKmh(fan.speedFullKmh, units))
   return (
@@ -102,8 +102,8 @@ function FanSettings() {
           <Slider
             ariaLabel="Fan full-speed road speed"
             value={fanSpeed}
-            min={units === 'imperial' ? 10 : 15}
-            max={units === 'imperial' ? 40 : 60}
+            min={units === 'mph' ? 10 : 15}
+            max={units === 'mph' ? 40 : 60}
             step={1}
             format={(v) => `${v} ${speedUnit(units)}`}
             onChange={(v) => set({ speedFullKmh: Math.round(storedSpeedKmh(v, units)) })}

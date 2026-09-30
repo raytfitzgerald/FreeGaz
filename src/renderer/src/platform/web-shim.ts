@@ -3,7 +3,7 @@
 // can be checked without Electron. Services that need the main process
 // (file system, secrets, Strava, AI) are replaced by in-browser stand-ins.
 import type { EventChannel, EventMap, FreegazBridge, InvokeChannel, InvokeReq, InvokeRes } from '@shared/ipc/contract'
-import { AppSettingsSchema, DEFAULT_SETTINGS, type AppSettings } from '@shared/settings'
+import { AppSettingsSchema, DEFAULT_SETTINGS, mergeSettings, migrateStoredSettings, type AppSettings } from '@shared/settings'
 
 const SETTINGS_KEY = 'freegaz.web.settings'
 const JOURNAL_PREFIX = 'freegaz.web.journal.'
@@ -42,7 +42,7 @@ const ls = {
 function loadSettings(): AppSettings {
   try {
     const raw = localStorage.getItem(SETTINGS_KEY)
-    const parsed = raw ? AppSettingsSchema.safeParse(JSON.parse(raw)) : null
+    const parsed = raw ? AppSettingsSchema.safeParse(migrateStoredSettings(JSON.parse(raw))) : null
     return parsed?.success ? parsed.data : { ...DEFAULT_SETTINGS }
   } catch {
     return { ...DEFAULT_SETTINGS }
@@ -75,7 +75,7 @@ export function createWebShim(): FreegazBridge {
     }),
     'settings.get': () => settings,
     'settings.patch': (patch) => {
-      settings = AppSettingsSchema.parse({ ...settings, ...patch })
+      settings = mergeSettings(settings, patch)
       try {
         localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings))
       } catch {
@@ -180,8 +180,8 @@ export function createWebShim(): FreegazBridge {
     'uploads.list': () => ({ items: [] }),
     'uploads.retry': () => ({ ok: false }),
     // AI runs in main (keys never touch the renderer); the browser build uses offline personas only.
-    'ai.status': () => ({ provider: null, configured: false, model: null, keys: { anthropic: false, openai: false }, breakerOpen: false }),
-    'ai.configure': () => ({ provider: null, configured: false, model: null, keys: { anthropic: false, openai: false }, breakerOpen: false }),
+    'ai.status': () => ({ provider: null, configured: false, model: null, keys: { anthropic: false, openai: false, grok: false }, breakerOpen: false }),
+    'ai.configure': () => ({ provider: null, configured: false, model: null, keys: { anthropic: false, openai: false, grok: false }, breakerOpen: false }),
     'ai.models': () => ({ models: [], error: 'AI needs the desktop app' }),
     'ai.complete': () => ({ ok: false, error: 'AI needs the desktop app', code: 'not-configured' }),
     'ai.structured': () => ({ ok: false, error: 'AI needs the desktop app', code: 'not-configured' }),

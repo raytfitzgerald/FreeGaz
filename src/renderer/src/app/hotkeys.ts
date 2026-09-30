@@ -8,7 +8,8 @@ const typing = (t: EventTarget | null) =>
 export function useGlobalHotkeys(): void {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (typing(e.target) || e.metaKey || e.ctrlKey || e.altKey) return
+      // a held key repeats: one press is one pause, lap or mute
+      if (typing(e.target) || e.metaKey || e.ctrlKey || e.altKey || e.repeat) return
       const rides = getRuntime().rides
       if (e.code === 'Space' && rides.active) {
         rides.command({ type: 'togglePause' })

@@ -7,9 +7,9 @@
 import { personaInstruction } from '../ai/prompts'
 import { QuipPackSchema } from '../ai/schemas'
 import { clampSpice } from '../persona/engine'
-import { detectProfanity } from '../persona/guardrails'
+import { detectProfanity, languageAllowed } from '../persona/guardrails'
 import { bracesBalanced, formatDuration, placeholdersOf } from '../persona/template'
-import { isDataKey, type CoachLineTemplate, type CoachTrigger, type PersonaMeta, type RideKind } from '../persona/types'
+import { isDataKey, toProfanity, type CoachLineTemplate, type ProfanitySetting, type CoachTrigger, type PersonaMeta, type RideKind } from '../persona/types'
 import { MAX_LINE_CHARS } from '../persona/validate'
 import type { CoachSegment } from './segments'
 
@@ -59,11 +59,11 @@ const KIND_LABEL: Record<RideKind, string> = {
 }
 
 /** The user message for an 'ai.structured' quip-pack request. */
-export function quipPackPrompt(meta: PersonaMeta, opts: { spice: number; profanity: boolean }, ride: QuipRide): string {
+export function quipPackPrompt(meta: PersonaMeta, opts: { spice: number; profanity: ProfanitySetting }, ride: QuipRide): string {
   const name = ride.name ? ride.name.slice(0, 60) : null
   const minutes = ride.durationS !== null && ride.durationS > 0 ? Math.round(ride.durationS / 60) : null
   return [
-    personaInstruction({ name: meta.name, tagline: meta.tagline, spice: clampSpice(opts.spice), profanity: opts.profanity }),
+    personaInstruction({ name: meta.name, tagline: meta.tagline, spice: clampSpice(opts.spice), profanity: toProfanity(opts.profanity) }),
     `Ride: ${KIND_LABEL[ride.kind]}${name ? ` called "${name}"` : ''}${minutes ? `, ${minutes} minutes` : ''}.`,
     ride.structure ? `Main work: ${ride.structure}.` : '',
     'Write two or three lines for every trigger, 40 to 55 lines in all.',
@@ -98,12 +98,12 @@ export interface QuipFilterResult {
   rejected: { text: string; reason: QuipRejection }[]
 }
 
-function rejection(trigger: string, text: string, allowProfanity: boolean): QuipRejection | null {
+function rejection(trigger: string, text: string, language: 'clean' | 'mild' | 'unhinged'): QuipRejection | null {
   if (!QUIP_TRIGGER_SET.has(trigger)) return 'trigger'
   if (text.length < 3 || text.length > MAX_LINE_CHARS) return 'length'
   if (!bracesBalanced(text) || placeholdersOf(text).some((k) => !isDataKey(k))) return 'placeholder'
   if (UNSPEAKABLE.test(text)) return 'unspeakable'
-  if (detectProfanity(text) !== null && !allowProfanity) return 'profanity'
+  if (!languageAllowed(text, language)) return 'profanity'
   return null
 }
 
@@ -112,10 +112,10 @@ function rejection(trigger: string, text: string, allowProfanity: boolean): Quip
  * the ride's spice level. Topic bans do not apply; the profanity setting does,
  * and it covers strong language as well as mild.
  */
-export function quipLinesFromPack(value: unknown, opts: { persona: PersonaMeta; spice: number; profanity: boolean }): QuipFilterResult {
+export function quipLinesFromPack(value: unknown, opts: { persona: PersonaMeta; spice: number; profanity: ProfanitySetting }): QuipFilterResult {
   const parsed = QuipPackSchema.safeParse(value)
   if (!parsed.success) return { lines: [], rejected: [] }
-  const allowProfanity = opts.profanity
+  const language = toProfanity(opts.profanity)
   const spice = clampSpice(opts.spice)
   const lines: CoachLineTemplate[] = []
   const rejected: QuipFilterResult['rejected'] = []
@@ -125,7 +125,7 @@ export function quipLinesFromPack(value: unknown, opts: { persona: PersonaMeta; 
     const trigger = raw.trigger.trim().toLowerCase()
     const text = raw.text.replace(/\s+/g, ' ').trim()
     const dedupe = text.toLowerCase()
-    const reason = lines.length >= MAX_AI_LINES ? 'limit' : seen.has(dedupe) ? 'duplicate' : rejection(trigger, text, allowProfanity)
+    const reason = lines.length >= MAX_AI_LINES ? 'limit' : seen.has(dedupe) ? 'duplicate' : rejection(trigger, text, language)
     if (reason) {
       rejected.push({ text, reason })
       continue

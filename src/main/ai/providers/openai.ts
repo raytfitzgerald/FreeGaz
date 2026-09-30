@@ -1,24 +1,49 @@
-// OpenAI via the official SDK's Responses API.
+// OpenAI via the official SDK's Responses API. xAI's Grok speaks the same
+// API at its own base URL, so it is the same provider with a different flavour.
 import OpenAI from 'openai'
 import { zodTextFormat } from 'openai/helpers/zod'
 import type { z } from 'zod'
 import { AiError, type AiRequest, type AiResult } from '@core/ai/types'
 import type { AiProvider, CallOpts, ProviderConfig } from '../provider'
 
-export class OpenAiProvider implements AiProvider {
-  readonly id = 'openai' as const
-  private readonly client: OpenAI
+/** An OpenAI-compatible service: who it is, where it lives, and which of its models can chat. */
+export interface OpenAiFlavor {
+  id: 'openai' | 'grok'
+  name: string
+  baseURL?: string
+  chatModel(id: string): boolean
+}
 
-  constructor(cfg: ProviderConfig) {
-    if (!cfg.apiKey) throw new AiError('Add your OpenAI API key in Settings → AI', 'not-configured')
-    this.client = new OpenAI({ apiKey: cfg.apiKey, baseURL: cfg.baseUrl || undefined, maxRetries: 1 })
+export const OPENAI: OpenAiFlavor = {
+  id: 'openai',
+  name: 'OpenAI',
+  chatModel: (id) => /^(gpt-|o\d|chatgpt)/.test(id) && !/(audio|realtime|tts|transcribe|image|search|embedding)/.test(id),
+}
+
+export const GROK: OpenAiFlavor = {
+  id: 'grok',
+  name: 'xAI',
+  baseURL: 'https://api.x.ai/v1',
+  chatModel: (id) => /^grok/.test(id) && !/(image|imagine|vision|video|embed|tts|voice)/.test(id),
+}
+
+export class OpenAiProvider implements AiProvider {
+  readonly id: 'openai' | 'grok'
+  private readonly client: OpenAI
+  private readonly flavor: OpenAiFlavor
+
+  constructor(cfg: ProviderConfig, flavor: OpenAiFlavor = OPENAI) {
+    if (!cfg.apiKey) throw new AiError(`Add your ${flavor.name} API key in Settings → AI`, 'not-configured')
+    this.id = flavor.id
+    this.flavor = flavor
+    this.client = new OpenAI({ apiKey: cfg.apiKey, baseURL: cfg.baseUrl || flavor.baseURL, maxRetries: 1 })
   }
 
   async listModels(signal: AbortSignal): Promise<string[]> {
     const out: string[] = []
     for await (const m of this.client.models.list({ signal })) out.push(m.id)
     // Chat-capable text models only.
-    return out.filter((id) => /^(gpt-|o\d|chatgpt)/.test(id) && !/(audio|realtime|tts|transcribe|image|search|embedding)/.test(id)).sort()
+    return out.filter((id) => this.flavor.chatModel(id)).sort()
   }
 
   private body(req: AiRequest, model: string) {
@@ -35,7 +60,7 @@ export class OpenAiProvider implements AiProvider {
       const r = await this.client.responses.create({ ...this.body(req, opts.model), stream: false }, { signal: opts.signal, timeout: opts.timeoutMs })
       return { text: r.output_text, model: r.model, usage: { inputTokens: r.usage?.input_tokens, outputTokens: r.usage?.output_tokens } }
     } catch (e) {
-      throw mapError(e)
+      throw mapError(e, this.flavor.name)
     }
   }
 
@@ -56,7 +81,7 @@ export class OpenAiProvider implements AiProvider {
       }
       return { text, model }
     } catch (e) {
-      throw mapError(e)
+      throw mapError(e, this.flavor.name)
     }
   }
 
@@ -68,18 +93,18 @@ export class OpenAiProvider implements AiProvider {
       )
       return { value: r.output_parsed, raw: r.output_text, model: r.model }
     } catch (e) {
-      throw mapError(e)
+      throw mapError(e, this.flavor.name)
     }
   }
 }
 
-function mapError(e: unknown): Error {
+function mapError(e: unknown, name: string): Error {
   if (e instanceof AiError) return e
   if (e instanceof OpenAI.APIUserAbortError) return new AiError('Cancelled', 'cancelled')
-  if (e instanceof OpenAI.APIConnectionTimeoutError) return new AiError('OpenAI timed out', 'timeout')
-  if (e instanceof OpenAI.AuthenticationError || e instanceof OpenAI.PermissionDeniedError) return new AiError('OpenAI rejected the API key', 'auth')
-  if (e instanceof OpenAI.RateLimitError) return new AiError('OpenAI rate limit reached; try again shortly', 'rate-limited')
-  if (e instanceof OpenAI.APIConnectionError) return new AiError('Could not reach OpenAI', 'network')
-  if (e instanceof OpenAI.APIError) return new AiError(`OpenAI error ${e.status ?? ''}: ${e.message}`, 'provider')
+  if (e instanceof OpenAI.APIConnectionTimeoutError) return new AiError(`${name} timed out`, 'timeout')
+  if (e instanceof OpenAI.AuthenticationError || e instanceof OpenAI.PermissionDeniedError) return new AiError(`${name} rejected the API key`, 'auth')
+  if (e instanceof OpenAI.RateLimitError) return new AiError(`${name} rate limit reached; try again shortly`, 'rate-limited')
+  if (e instanceof OpenAI.APIConnectionError) return new AiError(`Could not reach ${name}`, 'network')
+  if (e instanceof OpenAI.APIError) return new AiError(`${name} error ${e.status ?? ''}: ${e.message}`, 'provider')
   return new AiError(e instanceof Error ? e.message : String(e), 'provider')
 }

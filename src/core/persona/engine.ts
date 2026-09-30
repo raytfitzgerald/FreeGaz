@@ -16,11 +16,12 @@
 //
 // A null result means "not now". Persistent conditions (under_target,
 // reminders) should simply be sent again on later ticks.
-import { detectProfanity, violatesGuardrails } from './guardrails'
+import { detectProfanity, languageAllowed, violatesGuardrails, type ProfanityLevel } from './guardrails'
 import { PROFESSIONAL } from './packs/professional'
 import { buildFacts, isHardKind, renderTemplate, toSpeech, type Facts } from './template'
 import {
   PRIORITY,
+  toProfanity,
   type CoachContext,
   type CoachLine,
   type CoachLineTemplate,
@@ -28,6 +29,8 @@ import {
   type CoachTrigger,
   type Criterion,
   type PersonaPack,
+  type Profanity,
+  type ProfanitySetting,
   type Spice,
 } from './types'
 
@@ -54,6 +57,28 @@ export const ENGINE_TIMING = {
 } as const
 
 export const DEFAULT_MEMORY_SIZE = 40
+
+/** On Unhinged, a strong-profanity line is this many times likelier than a clean one of equal fit. */
+export const UNHINGED_PROFANITY_BOOST = 8
+/** A mild-swearing line (damn, hell) is this much likelier on Mild or Unhinged. */
+export const MILD_PROFANITY_BOOST = 2
+/**
+ * The packs' mild-swearing lines are written at spice 5, but "Mild" should be
+ * heard at everyday spice: with swearing on they count as this spice.
+ */
+export const MILD_LINE_SPICE: Spice = 2
+
+const swearCache = new WeakMap<CoachLineTemplate, ProfanityLevel | null>()
+/** How hard a canned line swears (from its template text), cached per line. */
+function swearing(line: CoachLineTemplate): ProfanityLevel | null {
+  if (line.profanity !== true) return null
+  let v = swearCache.get(line)
+  if (v === undefined) {
+    v = detectProfanity(line.text)
+    swearCache.set(line, v)
+  }
+  return v
+}
 
 /** Cue triggers repeat far more often than coaching, so they get shorter cooldowns. */
 export const DEFAULT_TRIGGER_COOLDOWNS_MS: Readonly<Partial<Record<CoachTrigger, number>>> = {
@@ -154,6 +179,9 @@ interface Candidate {
   text: string
   packId: string
   specificity: number
+  /** The line's spice as it counts right now (mild-swearing lines drop to MILD_LINE_SPICE with swearing on). */
+  spice: Spice
+  swear: ProfanityLevel | null
 }
 
 interface SegmentState {
@@ -165,7 +193,8 @@ interface SegmentState {
 export interface CoachEngineOptions {
   persona: PersonaPack
   spice: Spice
-  profanity: boolean
+  /** Clean, Mild or Unhinged (a boolean means Clean or Unhinged). */
+  profanity: ProfanitySetting
   /** Uniform [0, 1). Default Math.random; pass mulberry32(seed) for reproducible output. */
   rng?: () => number
   /** Global cooldown after any line before banter may follow. Clamped to 45–90 s; default 60 s. */
@@ -183,7 +212,7 @@ export interface CoachEngineOptions {
 export class CoachEngine {
   private personaIndex: PackIndex
   private spice: Spice
-  private profanity: boolean
+  private profanity: Profanity
   private readonly rng: () => number
   private readonly cooldownMs: number
   private readonly perTriggerCooldownMs: number
@@ -207,7 +236,7 @@ export class CoachEngine {
   constructor(opts: CoachEngineOptions) {
     this.personaIndex = opts.persona === PROFESSIONAL ? PROFESSIONAL_INDEX : indexPack(opts.persona)
     this.spice = clampSpice(opts.spice)
-    this.profanity = opts.profanity
+    this.profanity = toProfanity(opts.profanity)
     this.rng = opts.rng ?? Math.random
     const cooldown = opts.cooldownMs ?? ENGINE_TIMING.defaultCooldownMs
     this.cooldownMs = Math.min(ENGINE_TIMING.maxCooldownMs, Math.max(ENGINE_TIMING.minCooldownMs, cooldown))
@@ -256,8 +285,8 @@ export class CoachEngine {
     this.spice = clampSpice(spice)
   }
 
-  setProfanity(on: boolean): void {
-    this.profanity = on
+  setProfanity(level: ProfanitySetting): void {
+    this.profanity = toProfanity(level)
   }
 
   setPersona(pack: PersonaPack): void {
@@ -384,7 +413,7 @@ export class CoachEngine {
       const chosen = this.choose(index, 'distress', facts, true)
       if (chosen) return this.emit(chosen, 'distress', PRIORITY.safety, now, 'distress')
     }
-    const fallback = { line: DISTRESS_FALLBACK, text: DISTRESS_FALLBACK.text, packId: PROFESSIONAL.meta.id, specificity: 0 }
+    const fallback: Candidate = { line: DISTRESS_FALLBACK, text: DISTRESS_FALLBACK.text, packId: PROFESSIONAL.meta.id, specificity: 0, spice: DISTRESS_FALLBACK.spice, swear: null }
     return this.emit(fallback, 'distress', PRIORITY.safety, now, 'distress')
   }
 
@@ -394,18 +423,21 @@ export class CoachEngine {
     const packId = index.pack.meta.id
     const candidates: Candidate[] = []
     for (const line of index.byTrigger.get(trigger) ?? []) {
-      if (line.spice > spice) continue
-      if (line.profanity === true && !this.profanity) continue
+      if (line.profanity === true && this.profanity === 'clean') continue
+      const swear = swearing(line)
+      const lineSpice: Spice = swear === 'mild' && !line.id.startsWith('ai.') ? (Math.min(line.spice, MILD_LINE_SPICE) as Spice) : line.spice
+      if (lineSpice > spice) continue
       if (line.criteria && !line.criteria.every((c) => criterionHolds(c, facts))) continue
       const text = renderTemplate(line.text, facts)
       if (text === null) continue
-      // With profanity off, canned lines still skip banned topics and swearing.
-      // AI lines skip the topic list either way. With profanity on, nothing is filtered.
-      if (!this.profanity) {
+      // Clean and Mild: canned lines still skip banned topics, and the words
+      // must fit the setting. AI lines skip the topic list either way.
+      // Unhinged filters nothing.
+      if (this.profanity !== 'unhinged') {
         if (!line.id.startsWith('ai.') && violatesGuardrails(text) !== null) continue
-        if (detectProfanity(text) !== null) continue
+        if (!languageAllowed(text, this.profanity)) continue
       }
-      candidates.push({ line, text, packId, specificity: line.criteria?.length ?? 0 })
+      candidates.push({ line, text, packId, specificity: line.criteria?.length ?? 0, spice: lineSpice, swear })
     }
     if (candidates.length === 0) return null
 
@@ -413,8 +445,11 @@ export class CoachEngine {
     if (fresh.length > 0) {
       let top = 0
       for (const c of fresh) top = Math.max(top, c.specificity)
-      const pool = fresh.filter((c) => c.specificity === top)
-      return weightedPick(pool, (c) => (c.line.weight ?? 1) * spiceAffinity(c.line.spice, spice), this.rng)
+      // Unhinged: the sweariest lines stay in the running even when a clean one fits the moment more exactly
+      const unhinged = this.profanity === 'unhinged'
+      const pool = fresh.filter((c) => c.specificity === top || (unhinged && c.swear === 'strong'))
+      const boost = (c: Candidate) => (c.swear === 'strong' ? (unhinged ? UNHINGED_PROFANITY_BOOST : 1) : c.swear === 'mild' ? MILD_PROFANITY_BOOST : 1)
+      return weightedPick(pool, (c) => (c.line.weight ?? 1) * spiceAffinity(c.spice, spice) * boost(c), this.rng)
     }
     // Everything eligible was said recently: repeat the one said longest ago.
     let oldest = candidates[0]!

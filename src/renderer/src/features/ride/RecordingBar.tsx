@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { Circle, Flag, Pause, Play, Square, Trash2 } from 'lucide-react'
+import { Circle, Flag, Pause, Play, Square, Trash2, Volume2, VolumeX } from 'lucide-react'
 import type { RidePlan } from '@core/ride/plan'
+import { useCoachTalk } from '../../coach/talk'
 import { getRuntime } from '../../runtime/composition'
 import { useRide } from '../../stores/ride'
 import { useSettings } from '../../stores/settings'
@@ -21,6 +22,8 @@ export function RecordingBar({ plan, startLabel = 'Start recording' }: { plan?: 
   const wbal = useRide((s) => s.snapshot?.wbalPct ?? null)
   const saving = useRide((s) => s.saving)
   const units = useSettings((s) => s.units)
+  const coachOn = useSettings((s) => s.coach.enabled)
+  const muted = useCoachTalk((s) => s.muted)
   const [confirm, setConfirm] = useState(false)
   const rt = getRuntime()
 
@@ -48,6 +51,18 @@ export function RecordingBar({ plan, startLabel = 'Start recording' }: { plan?: 
       <Stat label="Work" value={`${kj} kJ`} />
       {wbal !== null && <Stat label="W′bal" value={`${wbal} %`} />}
       <div className="ml-auto flex items-center gap-2">
+        {coachOn && !saving && state !== 'finished' && (
+          <Button
+            size="sm"
+            onClick={() => rt.rides.command({ type: 'muteCoach' })}
+            aria-pressed={muted}
+            title={muted ? 'Muted for this ride. Press again, or C, to unmute.' : 'Mute the coach for this ride (C)'}
+            data-testid="mute-coach"
+          >
+            {muted ? <VolumeX className="size-3.5" /> : <Volume2 className="size-3.5" />}
+            Mute
+          </Button>
+        )}
         <Button size="sm" onClick={() => rt.rides.command({ type: 'lap' })} title="Lap (L)">
           <Flag className="size-3.5" /> Lap
         </Button>

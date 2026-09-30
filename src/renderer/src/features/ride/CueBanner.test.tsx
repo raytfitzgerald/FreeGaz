@@ -5,9 +5,12 @@ import type { LiveRide } from '@shared/live'
 import { coachTalkStore, markLine } from '../../coach/talk'
 import { LEAVE_MS, resetHeadCycles } from '../../coach/toon/motion'
 import { rideStore } from '../../stores/ride'
+import { settingsStore } from '../../stores/settings'
 import { CueBanner } from './CueBanner'
 
 const INITIAL = rideStore.getState()
+const SETTINGS = settingsStore.getState()
+const rideAlong = (mode: 'open' | 'minimized' | 'off') => settingsStore.setState({ ...SETTINGS, coach: { ...SETTINGS.coach, rideAlong: mode } })
 
 /** A coach line as the runtime delivers it: on the session snapshot and in the talk store. */
 function say(text: string, personaId: string | null, priority: number = PRIORITY.banter) {
@@ -24,6 +27,8 @@ beforeEach(() => {
   resetHeadCycles()
   rideStore.setState(INITIAL, true)
   coachTalkStore.setState({ line: null, speaking: false, words: 0 })
+  // these tests are about the banner saying coach lines: the ride-along is off
+  rideAlong('off')
 })
 afterEach(() => {
   cleanup()
@@ -96,5 +101,16 @@ describe('CueBanner', () => {
     act(() => rideStore.setState({ cue: { text: 'Stand up for 10 seconds', at: Date.now() }, snapshot: { coachLine: null } as LiveRide }))
     expect(screen.getByTestId('cue').textContent).toContain('Stand up for 10 seconds')
     expect(screen.queryByTestId('coach-toon')).toBeNull()
+  })
+
+  it('leaves the coach lines to an open ride-along, but keeps safety prompts and notices', () => {
+    rideAlong('open')
+    render(<CueBanner />)
+    say('Hold it. Hold it.', 'drill-sergeant')
+    expect(screen.queryByTestId('cue')).toBeNull()
+    say('Ease off and take a breather.', 'drill-sergeant', PRIORITY.safety)
+    expect(screen.getByTestId('cue').textContent).toContain('Ease off')
+    say('Coach muted. Press C to unmute.', null, PRIORITY.cue)
+    expect(screen.getByTestId('cue').textContent).toContain('Coach muted')
   })
 })
