@@ -5,11 +5,51 @@
   </picture>
 </h1>
 
-**A data-obsessed indoor cycling trainer for macOS.** It controls your smart trainer in ERG, level, slope or heart-rate mode, plays structured workouts and builds new ones the way zwofactory.com does. It runs a proper FTP test that saves your FTP, rides GPX routes FulGaz-style, and records every second locally as a FIT file. The optional coaches will roast you mid-interval if you ask them to.
+**The indoor trainer app that doesn't send you a bill every month.**
+
+You bought the smart trainer. You bought the bike. You turned a corner of the garage into a pain cave, complete with a fan older than your car. Then an app asked for a monthly subscription so you could pedal. In your garage. On the trainer you already paid for. Going nowhere.
+
+FreeGaz is free. No subscription, no "Premium" tier, no annual plan with the cancel button hidden four menus deep, and no "your trial has ended" email on the morning of your FTP test. ERG, workouts, FTP tests, routes, the builder, the charts and a coach who will call you a statue mid-interval: all of it, for the grand total of nothing. The only thing it charges is your legs.
+
+It's a data-obsessed indoor cycling trainer for macOS. It drives your smart trainer in ERG, level, slope or heart-rate mode, plays and builds structured workouts, runs an FTP test that actually saves your FTP, rides real routes, and records every second on your Mac as a FIT file. Your rides stay yours.
+
+<p align="center"><img src="docs/screenshots/workout.png" alt="A workout mid-ride: the coach bikes next to you on the ride-along, the big interval, target and power numbers, and the workout chart filling in as you go" width="900"></p>
 
 > FreeGaz is not affiliated with or endorsed by FulGaz, Zwift, TrainerRoad or Wahoo. Product names are trademarks of their owners.
 
-## What it does
+## A quick tour
+
+**Pick a ride and go.** One big button, four choices, no forty-tab dashboard to decode before your warm-up.
+
+<p align="center">
+  <img src="docs/screenshots/ride-picker.png" alt="The Ride picker: ride for time, free ride, route or workout, with the trainer and heart-rate status on top" width="440">
+  <img src="docs/screenshots/ride-for-time.png" alt="Ride for time: pick 20 to 90 minutes, a wattage from easy to sweet spot or your own pace, and start" width="440">
+</p>
+
+**Your coach rides with you.** They pace at your target. Ease off and they ride away and tell you about it. Push and you drop them, which is the best feeling in indoor cycling.
+
+<p align="center"><img src="docs/screenshots/ride-along.png" alt="The ride-along: the Drill Sergeant on a little bike next to you, saying 'Halfway and on target! Outstanding! Don't let it go to your head!'" width="900"></p>
+
+**Ten coaches, five spice levels, three kinds of language.** From a calm Zen master to a drill sergeant, plus two famous podium voices doing their best impressions. Profanity goes from Clean to Mild to Unhinged. Unhinged means it.
+
+<p align="center"><img src="docs/screenshots/coach.png" alt="Coach settings: the personas, a sample line, spice from gentle to feral, and profanity from clean to unhinged" width="900"></p>
+
+**Workouts you can see before they hurt you,** and a builder for the ones nobody has written yet. Drag blocks, type intervals.icu text, or describe it and let the AI write it.
+
+<p align="center">
+  <img src="docs/screenshots/workouts.png" alt="The workout library, with every workout drawn as its power profile at your FTP" width="440">
+  <img src="docs/screenshots/builder.png" alt="The builder: blocks you drag and resize, live TSS, IF and zones, and export to Zwift" width="440">
+</p>
+
+**Real roads, real gradients.** Import a GPX and the trainer climbs when the road does. Race a ghost of your last attempt if you're feeling brave.
+
+<p align="center"><img src="docs/screenshots/route.png" alt="A route ride on a 6 % climb: speed, grade and power, the ride-along, and the next two kilometres of elevation" width="900"></p>
+
+**Light mode, for the sunny garage.**
+
+<p align="center"><img src="docs/screenshots/ride-picker-light.png" alt="The Ride picker in the light theme" width="600"></p>
+
+## Everything it does
 
 **Riding**
 - **Pick a ride, then go.** The big **Ride** button at the top of the sidebar asks what kind of ride you want, with your trainer and heart-rate status up front:
