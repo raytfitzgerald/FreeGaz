@@ -73,7 +73,7 @@ export function CoachSection() {
 
   return (
     <>
-      <Section title="Coach" description="Who talks to you during rides, and how hard they roast you. The canned lines work offline. Body, weight and health are never joke material, and signs of distress switch any persona to calm, plain support.">
+      <Section title="Coach" description="Who talks to you during rides, and how hard they roast you. The canned lines work offline and never joke about body, weight or health. Signs of distress switch any canned persona to calm, plain support.">
         <Field label="Coach on">
           <Switch checked={c.enabled} onChange={(v) => set({ enabled: v })} label={c.enabled ? 'Talking' : 'Silent'} />
         </Field>
@@ -140,7 +140,7 @@ export function CoachSection() {
           <Switch checked={c.profanity} onChange={(v) => set({ profanity: v })} label={c.profanity ? 'Mild words allowed' : 'Clean'} />
         </Field>
         {ai && (
-          <Field label="Use AI for fresh lines" hint="At the start of each ride, asks your AI provider for new lines in this persona's style. Every line passes the same filters as the canned ones; if the AI is slow or says no, the canned lines carry the ride.">
+          <Field label="Use AI for fresh lines" hint="At the start of each ride, asks your AI provider for new lines in this persona's style. If the AI is slow or says no, the canned lines carry the ride.">
             <Switch checked={c.useAi} onChange={(v) => set({ useAi: v })} label={c.useAi ? 'On' : 'Off'} />
           </Field>
         )}

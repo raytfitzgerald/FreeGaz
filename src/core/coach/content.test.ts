@@ -63,6 +63,14 @@ describe('gateLine', () => {
     expect(gateLine(line('What the f*** was that.', { personaId: 'roast-comic' }), { ...opts, profanity: true })).toBeNull()
   })
 
+  it('lets AI-written lines through the topic bans, and still applies the profanity setting', () => {
+    const opts = { personaId: 'bibi', profanity: false }
+    expect(gateLine(line('A historic victory for the legs.', { lineId: 'ai.idle_banter.1' }), opts)).not.toBeNull()
+    expect(gateLine(line('Pedal off that belly.', { lineId: 'ai.idle_banter.2', personaId: 'roast-comic' }), opts)).not.toBeNull()
+    expect(gateLine(line('Damn, that cadence.', { lineId: 'ai.idle_banter.3' }), opts)).toBeNull()
+    expect(gateLine(line('Damn, that cadence.', { lineId: 'ai.idle_banter.3' }), { ...opts, profanity: true })).not.toBeNull()
+  })
+
   it('never drops a safety line: it falls back to plain words', () => {
     const bad = line('Ease off, you sick puppy.', { personaId: 'professional', priority: PRIORITY.safety, trigger: 'distress' })
     expect(gateLine(bad, { personaId: 'bibi', profanity: false })).toMatchObject({ text: SAFETY_FALLBACK_TEXT, speech: SAFETY_FALLBACK_TEXT, priority: PRIORITY.safety })

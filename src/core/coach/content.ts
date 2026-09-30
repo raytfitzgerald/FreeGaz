@@ -1,8 +1,8 @@
 // The last gate before anything is shown or spoken. The engine already checks
-// rendered lines against the global guardrails; this module adds what it does
-// not know about: persona-specific bans (the Bibi parody's list) applied to
-// the facts that get rendered into lines, and a final check of every line,
-// canned or AI-written.
+// rendered canned lines against the global guardrails; this module adds what
+// it does not know about: persona-specific bans (the Bibi parody's list)
+// applied to the facts that get rendered into lines, and a final check of
+// every canned line. AI-written lines (lineId "ai.*") skip the topic bans.
 //
 // Facts matter because workout files are user data: a Bibi line like
 // "Today's program is {workoutName}" must never render "Battle of the Bulge".
@@ -60,6 +60,15 @@ export const SAFETY_FALLBACK_TEXT = 'Ease right off and take a breather. Stop if
  * forced, lines come from Professional and only the global rules apply.
  */
 export function gateLine(line: CoachLine, opts: { personaId: string; profanity: boolean }): CoachLine | null {
+  // AI-written lines skip topic bans. The profanity setting still applies.
+  if (line.lineId.startsWith('ai.')) {
+    const level = detectProfanity(line.text)
+    if (level === 'strong' || (level === 'mild' && !opts.profanity)) {
+      if (line.priority === PRIORITY.safety) return { ...line, text: SAFETY_FALLBACK_TEXT, speech: SAFETY_FALLBACK_TEXT }
+      return null
+    }
+    return line
+  }
   const patterns = line.personaId === opts.personaId ? personaBannedPatterns(opts.personaId) : []
   if (textAllowed(line.text, patterns, opts.profanity)) return line
   if (line.priority === PRIORITY.safety) return { ...line, text: SAFETY_FALLBACK_TEXT, speech: SAFETY_FALLBACK_TEXT }
