@@ -10,6 +10,7 @@ import { PageHeader } from '../../ui/PageHeader'
 import { cn } from '../../ui/cn'
 import { formatDate, formatDurationShort } from '../../ui/format'
 import { Segmented } from '../../ui/Segmented'
+import { THIS_DEVICE } from '../../platform/where'
 import { RideCalendar } from './RideCalendar'
 
 const KIND_ICON = { free: Bike, workout: Gauge, route: Mountain, 'ftp-test': FlaskConical } as const
@@ -62,7 +63,7 @@ export function HistoryPage() {
 
   return (
     <div
-      className={cn('mx-auto max-w-6xl px-8 pb-10', dragging && 'outline-2 outline-dashed outline-accent/60')}
+      className={cn('mx-auto max-w-6xl px-4 md:px-8 pb-10', dragging && 'outline-2 outline-dashed outline-accent/60')}
       onDragOver={(e) => {
         e.preventDefault()
         setDragging(true)
@@ -72,7 +73,7 @@ export function HistoryPage() {
     >
       <PageHeader
         title="History"
-        subtitle="Every ride, every second, stored on this Mac."
+        subtitle={`Every ride, every second, stored on ${THIS_DEVICE}.`}
         actions={
           <>
             <Segmented

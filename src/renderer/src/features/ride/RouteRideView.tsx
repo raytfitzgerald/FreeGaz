@@ -65,7 +65,7 @@ export function RouteRideView() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl space-y-4 px-8 pb-10 pt-14" data-testid="route-view">
+    <div className="mx-auto max-w-7xl space-y-4 px-4 md:px-8 pb-10 pt-6 md:pt-14" data-testid="route-view">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-semibold">{name}</h1>

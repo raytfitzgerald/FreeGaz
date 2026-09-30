@@ -1,12 +1,26 @@
-// Browser-mode implementation of the preload bridge. It lets the renderer run in
-// plain Chrome (or Claude's preview pane) with simulated devices, so UI work
-// can be checked without Electron. Services that need the main process
-// (file system, secrets, Strava, AI) are replaced by in-browser stand-ins.
+// Browser-mode implementation of the preload bridge: the installable web app
+// (phones, via the browser) and `npm run dev:web`. Devices are real, over Web
+// Bluetooth where the browser has it (Chrome on Android and desktop), or the
+// simulator: always in dev, and with ?sim=1 in the built app. Services that
+// need the main process (Strava, AI keys, the file system) have in-browser
+// stand-ins.
 import type { EventChannel, EventMap, FreegazBridge, InvokeChannel, InvokeReq, InvokeRes } from '@shared/ipc/contract'
 import { AppSettingsSchema, DEFAULT_SETTINGS, mergeSettings, migrateStoredSettings, type AppSettings } from '@shared/settings'
 import { bugIssueUrl } from '@core/support/bug-report'
 
 const SETTINGS_KEY = 'freegaz.web.settings'
+const query = () => new URLSearchParams(location.search)
+/** Simulated devices: the default while developing, opt-in (?sim=1) in the built web app. */
+const webSim = () => (import.meta.env.DEV ? query().get('sim') !== '0' : query().get('sim') === '1')
+
+function webOs(): string {
+  const ua = navigator.userAgent
+  const ios = ua.match(/(?:iPhone|iPad); CPU (?:iPhone )?OS ([\d_]+)/)
+  if (ios) return `iOS ${ios[1]!.replace(/_/g, '.')}`
+  const android = ua.match(/Android ([\d.]+)/)
+  if (android) return `Android ${android[1]}`
+  return ua.match(/Mac OS X ([\d_]+)/)?.[1]?.replace(/_/g, '.') ?? 'unknown'
+}
 const JOURNAL_PREFIX = 'freegaz.web.journal.'
 
 const ls = {
@@ -61,9 +75,9 @@ export function createWebShim(): FreegazBridge {
   let wakeLock: { release(): Promise<void> } | null = null
 
   const handlers: Handlers = {
-    'app.ping': ({ msg }) => ({ pong: msg, version: '0.1.0-web', platform: 'web' }),
+    'app.ping': ({ msg }) => ({ pong: msg, version: `${__FREEGAZ_VERSION__}-web`, platform: 'web' }),
     'app.info': () => ({
-      version: '0.1.0-web',
+      version: `${__FREEGAZ_VERSION__}-web`,
       electron: 'n/a',
       chrome: navigator.userAgent.match(/Chrome\/([\d.]+)/)?.[1] ?? 'unknown',
       node: 'n/a',
@@ -71,9 +85,9 @@ export function createWebShim(): FreegazBridge {
       documents: 'Downloads (browser)',
       isPackaged: false,
       isTest: false,
-      sim: true,
-      warp: Number(new URLSearchParams(location.search).get('warp') ?? '1') || 1,
-      os: navigator.userAgent.match(/Mac OS X ([\d_]+)/)?.[1]?.replace(/_/g, '.') ?? 'unknown',
+      sim: webSim(),
+      warp: Number(query().get('warp') ?? '1') || 1,
+      os: webOs(),
       arch: 'browser',
     }),
     // the browser build opens the issue itself

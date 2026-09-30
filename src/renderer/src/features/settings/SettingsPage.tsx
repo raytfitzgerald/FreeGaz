@@ -25,15 +25,15 @@ const TABS = [
 
 export function SettingsPage() {
   return (
-    <div className="mx-auto max-w-6xl px-8 pb-12">
-      <PageHeader title="Settings" subtitle="Everything is stored on this Mac. Keys and tokens are encrypted with your macOS Keychain." />
-      <Tabs.Root defaultValue="athlete" orientation="vertical" className="flex gap-6">
-        <Tabs.List className="flex w-52 shrink-0 flex-col gap-1" aria-label="Settings sections">
+    <div className="mx-auto max-w-6xl px-4 md:px-8 pb-12">
+      <PageHeader title="Settings" subtitle={__FREEGAZ_WEB__ ? 'Everything is stored in this browser, on this device.' : 'Everything is stored on this Mac. Keys and tokens are encrypted with your macOS Keychain.'} />
+      <Tabs.Root defaultValue="athlete" orientation="vertical" className="flex flex-col gap-4 md:flex-row md:gap-6">
+        <Tabs.List className="-mx-4 flex shrink-0 gap-1 overflow-x-auto px-4 md:mx-0 md:w-52 md:flex-col md:overflow-visible md:px-0" aria-label="Settings sections">
           {TABS.map(({ id, label, icon: Icon }) => (
             <Tabs.Trigger
               key={id}
               value={id}
-              className="no-drag flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-ink-dim hover:bg-panel-2 hover:text-ink data-[state=active]:bg-panel-3 data-[state=active]:text-ink"
+              className="no-drag flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-left text-sm text-ink-dim hover:bg-panel-2 hover:text-ink data-[state=active]:bg-panel-3 data-[state=active]:text-ink"
             >
               <Icon className="size-4" /> {label}
             </Tabs.Trigger>

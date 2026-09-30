@@ -2,6 +2,7 @@ import { resolve } from 'node:path'
 import { defineConfig } from 'electron-vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import pkg from './package.json' with { type: 'json' }
 
 const alias = {
   '@core': resolve(__dirname, 'src/core'),
@@ -34,6 +35,7 @@ export default defineConfig({
   renderer: {
     root: resolve(__dirname, 'src/renderer'),
     resolve: { alias },
+    define: { __FREEGAZ_WEB__: 'false', __FREEGAZ_VERSION__: JSON.stringify(pkg.version) },
     plugins: [react(), tailwindcss()],
     server: { port: 5199, strictPort: true },
     build: {

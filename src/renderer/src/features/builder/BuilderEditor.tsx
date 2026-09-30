@@ -183,7 +183,7 @@ export function BuilderEditor({ doc, urlId, onSaved }: BuilderEditorProps) {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-8 pb-12">
+    <div className="mx-auto max-w-7xl px-4 md:px-8 pb-12">
       <PageHeader
         title="Workout builder"
         subtitle={`Targets in % of FTP, shown in watts at your FTP of ${ftpW} W${known ? '' : ' (not tested yet)'}.`}

@@ -105,7 +105,7 @@ export function FreeRidePage() {
   const value = targets[mode]
 
   return (
-    <div className="mx-auto max-w-6xl px-8 pb-10">
+    <div className="mx-auto max-w-6xl px-4 md:px-8 pb-10">
       <PageHeader
         title="Just ride"
         subtitle="No plan, just pedals. Switch modes any time."

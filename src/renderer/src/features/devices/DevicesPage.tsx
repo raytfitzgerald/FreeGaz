@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Battery, Bluetooth, Cpu, Fan, Gauge, HeartPulse, Link2Off, RefreshCw, Thermometer, Trash2, Waves, Zap } from 'lucide-react'
+import { Battery, Bluetooth, BluetoothOff, Cpu, Fan, Gauge, HeartPulse, Link2Off, RefreshCw, Thermometer, Trash2, Waves, Zap } from 'lucide-react'
 import type { ManagedDevice } from '@core/devices/manager'
 import { ROLE_LABEL, type DeviceRole } from '@core/devices/types'
 import { getRuntime } from '../../runtime/composition'
@@ -35,6 +35,22 @@ const ROLE_HINT: Record<DeviceRole, string> = {
   fan: 'Wahoo KICKR Headwind.',
 }
 
+/** The web app on a browser without Web Bluetooth (every iPhone browser, Firefox, desktop Safari). */
+function NoBluetoothNotice() {
+  return (
+    <div className="mb-4 flex gap-3 rounded-2xl border border-accent/40 bg-accent/5 px-5 py-4 text-sm" role="note" data-testid="no-bluetooth">
+      <BluetoothOff className="mt-0.5 size-4 shrink-0 text-accent" aria-hidden />
+      <div className="space-y-1">
+        <p className="font-semibold">This browser can't talk to Bluetooth trainers or heart-rate straps.</p>
+        <p className="text-ink-dim">
+          iPhone and iPad browsers don't offer Web Bluetooth. To ride with your trainer, use Chrome on Android, Chrome or Edge on a computer, or the Mac app. Workouts, history
+          and the rest still work here, or <a href="?sim=1" className="text-accent underline underline-offset-2">look around with simulated devices</a>.
+        </p>
+      </div>
+    </div>
+  )
+}
+
 export function DevicesPage() {
   const devices = useDevices((s) => s.devices)
   const [showExtra, setShowExtra] = useState(devices.some((d) => EXTRA.includes(d.role)))
@@ -42,7 +58,7 @@ export function DevicesPage() {
   const rt = getRuntime()
 
   return (
-    <div className="mx-auto max-w-6xl px-8 pb-10">
+    <div className="mx-auto max-w-6xl px-4 md:px-8 pb-10">
       <PageHeader
         title="Devices"
         subtitle={rt.sim ? 'Simulator mode: every device here is virtual.' : 'Paired devices reconnect automatically when FreeGaz starts.'}
@@ -52,6 +68,8 @@ export function DevicesPage() {
           </Button>
         }
       />
+
+      {__FREEGAZ_WEB__ && !rt.sim && !('bluetooth' in navigator) && <NoBluetoothNotice />}
 
       <div className="grid gap-4 md:grid-cols-2">
         {PRIMARY.map((role) => (

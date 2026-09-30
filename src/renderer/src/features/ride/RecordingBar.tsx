@@ -29,7 +29,7 @@ export function RecordingBar({ plan, startLabel = 'Start recording' }: { plan?: 
 
   if (!active) {
     return (
-      <div className="flex items-center justify-between rounded-2xl border border-line bg-panel px-5 py-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-panel px-4 py-3 md:px-5">
         <div className="text-sm text-ink-dim">Not recording. Everything you do on the trainer still shows live.</div>
         <Button variant="primary" onClick={() => void rt.rides.start({ plan: plan?.() })} data-testid="start-ride">
           <Circle className="size-3.5 fill-current" /> {startLabel}
@@ -39,7 +39,7 @@ export function RecordingBar({ plan, startLabel = 'Start recording' }: { plan?: 
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-x-6 gap-y-3 rounded-2xl border border-accent/40 bg-accent/5 px-5 py-3" data-testid="recording-bar">
+    <div className="flex flex-wrap items-center gap-x-6 gap-y-3 rounded-2xl border border-accent/40 bg-accent/5 px-4 py-3 md:px-5" data-testid="recording-bar">
       <div className="flex items-center gap-2 text-sm font-semibold">
         <span className={state === 'paused' ? 'size-2.5 rounded-full bg-warn' : 'size-2.5 animate-pulse rounded-full bg-bad'} />
         {state === 'paused' ? 'Paused' : 'Recording'}
@@ -50,7 +50,7 @@ export function RecordingBar({ plan, startLabel = 'Start recording' }: { plan?: 
       <Stat label="TSS" value={tss === null ? '—' : tss.toFixed(0)} />
       <Stat label="Work" value={`${kj} kJ`} />
       {wbal !== null && <Stat label="W′bal" value={`${wbal} %`} />}
-      <div className="ml-auto flex items-center gap-2">
+      <div className="ml-auto flex flex-wrap items-center gap-2">
         {coachOn && !saving && state !== 'finished' && (
           <Button
             size="sm"

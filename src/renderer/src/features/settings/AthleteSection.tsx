@@ -9,6 +9,7 @@ import { MAX_NAME, photoFromFile, riderInitials, saveRider, useRider } from '../
 import { patchSettings, useSettings } from '../../stores/settings'
 import { Button } from '../../ui/Button'
 import { Field, Input, NumberInput, Section } from '../../ui/form'
+import { THIS_DEVICE } from '../../platform/where'
 import { Segmented } from '../../ui/Segmented'
 
 const SOURCE_LABEL: Record<string, string> = {
@@ -134,7 +135,7 @@ function ProfileSection() {
     }
   }
   return (
-    <Section title="You" description="Optional. Your name and a photo put your own face on your rider: on the ride-along bike and lapping the velodrome on Home. They stay on this Mac.">
+    <Section title="You" description={`Optional. Your name and a photo put your own face on your rider: on the ride-along bike and lapping the velodrome on Home. They stay on ${THIS_DEVICE}.`}>
       <Field label="Name">
         <Input
           value={name}
