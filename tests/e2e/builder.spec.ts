@@ -204,3 +204,19 @@ test('a workout can be filed in the Training plan from the builder, ordered ther
   await page.getByTestId('workout-tab-custom').click()
   await expect(page.getByTestId('workout-card').filter({ hasText: 'E2E Plan One' })).toHaveCount(1)
 })
+
+test('importing on the Training plan tab files workouts into the plan, in file-name order', async () => {
+  const { page } = ctx
+  await page.getByRole('link', { name: 'Workouts' }).click()
+  await page.getByTestId('workout-tab-plan').click()
+  const before = await page.getByTestId('plan-item').count()
+  const file = (name: string, body: string) => ({ name, mimeType: 'text/plain', buffer: Buffer.from(body) })
+  // chosen out of order: the plan follows the numbers in the names
+  await page.locator('input[type="file"]').setInputFiles([file('02 Second.txt', '- 20m 70%'), file('01 First.txt', '- 10m 60%'), file('10 Tenth.txt', '- 30m 65%')])
+  await expect(page.getByRole('status').filter({ hasText: 'into your training plan' })).toBeVisible()
+  const items = page.getByTestId('plan-item')
+  await expect(items).toHaveCount(before + 3)
+  await expect(items.nth(before)).toContainText('01 First')
+  await expect(items.nth(before + 1)).toContainText('02 Second')
+  await expect(items.nth(before + 2)).toContainText('10 Tenth')
+})

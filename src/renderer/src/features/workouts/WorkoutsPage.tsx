@@ -19,7 +19,7 @@ type Tab = LibraryEntry['folder']
 const TABS: { id: Tab; label: string; empty: string }[] = [
   { id: 'freegaz', label: 'FreeGaz workouts', empty: 'No workouts match. Try another filter.' },
   { id: 'custom', label: 'Custom workouts', empty: 'Nothing here yet. Build one with New workout, copy a FreeGaz workout to the builder, or drop .zwo, .mrc or .erg files on this page.' },
-  { id: 'plan', label: 'Training plan', empty: 'Your training plan is empty. In the builder, set Folder to Training plan, or move one of your custom workouts here.' },
+  { id: 'plan', label: 'Training plan', empty: 'Your training plan is empty. Import workout files while this tab is open (they go in in file-name order), set Folder to Training plan in the builder, or move one of your custom workouts here.' },
 ]
 type Length = 'any' | 'short' | 'medium' | 'long'
 
@@ -79,10 +79,13 @@ export function WorkoutsPage() {
   const importFiles = async (files: FileList | File[]) => {
     const done: string[] = []
     const failed: string[] = []
-    for (const f of Array.from(files)) {
+    // on the Training plan tab, imports join the plan, in file-name order ("01 …", "02 …")
+    const toPlan = tab === 'plan'
+    const ordered = Array.from(files).sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }))
+    for (const f of ordered) {
       try {
         const { workout } = parseWorkoutFile(f.name, await f.text())
-        await saveWorkout(workout, ftpW)
+        await saveWorkout(toPlan ? { ...workout, folder: 'plan' } : workout, ftpW)
         done.push(workout.name)
       } catch (e) {
         failed.push(`${f.name}: ${e instanceof Error ? e.message : String(e)}`)
@@ -91,9 +94,9 @@ export function WorkoutsPage() {
     setNotice(
       failed.length > 0
         ? { tone: 'bad', text: `${done.length ? `Imported ${done.join(', ')}. ` : ''}Couldn't import ${failed.join('; ')}` }
-        : { tone: 'good', text: `Imported ${done.join(', ')}.` },
+        : { tone: 'good', text: done.length > 5 ? `Imported ${done.length} workouts${toPlan ? ' into your training plan' : ''}.` : `Imported ${done.join(', ')}${toPlan ? ' into your training plan' : ''}.` },
     )
-    if (done.length > 0) pickTab('custom')
+    if (done.length > 0 && !toPlan) pickTab('custom')
   }
 
   const onDrop = (e: DragEvent) => {
@@ -136,8 +139,8 @@ export function WorkoutsPage() {
                 e.target.value = ''
               }}
             />
-            <Button size="sm" onClick={() => fileInput.current?.click()} title="Or drop .zwo / .mrc / .erg / .txt files on this page">
-              <FileUp className="size-3.5" /> Import
+            <Button size="sm" onClick={() => fileInput.current?.click()} title={tab === 'plan' ? 'Into your training plan, in file-name order (or drop files on this page)' : 'Or drop .zwo / .mrc / .erg / .txt files on this page'} data-testid="import-workouts">
+              <FileUp className="size-3.5" /> {tab === 'plan' ? 'Import into plan' : 'Import'}
             </Button>
             <Button size="sm" variant="primary" asChild>
               <Link to="/builder">
