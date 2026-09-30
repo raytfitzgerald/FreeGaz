@@ -98,16 +98,3 @@ export function Cyclist({ jersey, head, cadence, height, label, testId }: Cyclis
     </svg>
   )
 }
-
-/** A round head with a monogram, for coaches without a caricature and for the rider. */
-export function MonogramHead({ text, background, color, helmet }: { text: string; background: string; color: string; helmet?: string }) {
-  return (
-    <>
-      <circle r={HEAD.r} fill={background} />
-      {helmet && <path d={`M${-HEAD.r - 1} -2 A${HEAD.r + 1} ${HEAD.r + 1} 0 0 1 ${HEAD.r + 1} -2 Z`} fill={helmet} />}
-      <text y={helmet ? 7 : 4.5} textAnchor="middle" fontSize={text.length > 2 ? 8 : 11} fontWeight={700} fill={color} className="font-display">
-        {text}
-      </text>
-    </>
-  )
-}

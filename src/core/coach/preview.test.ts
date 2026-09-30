@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { detectProfanity, violatesGuardrails } from '../persona/guardrails'
-import { BIBI, PACKS, PROFESSIONAL } from '../persona/packs'
+import { BIBI, DRILL_SERGEANT, PACKS, PROFESSIONAL } from '../persona/packs'
 import { mulberry32 } from '../persona/rng'
 import { matchesAny, personaBannedPatterns } from './content'
 import { previewLine } from './preview'
@@ -34,6 +34,16 @@ describe('previewLine', () => {
     for (let seed = 0; seed < 40; seed++) {
       const line = previewLine(BIBI, { spice: 5, profanity: true, rng: mulberry32(seed) })!
       expect(matchesAny(line.text, bans), line.text).toBe(false)
+    }
+  })
+})
+
+describe('previewLine rideKinds', () => {
+  it('keeps to the kinds of ride asked for', () => {
+    for (let i = 0; i < 40; i++) {
+      const line = previewLine(DRILL_SERGEANT, { spice: 3, profanity: 'clean', trigger: 'ride_start', rideKinds: ['workout'], withoutFacts: ['workoutName'] })
+      expect(line?.text ?? '').not.toMatch(/FTP test day|Free ride|Sweet Spot/)
+      expect(line).not.toBeNull()
     }
   })
 })

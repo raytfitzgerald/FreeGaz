@@ -6,10 +6,17 @@ import { PersonaAvatar } from './PersonaAvatar'
 afterEach(cleanup)
 
 describe('PersonaAvatar', () => {
-  it('draws a monogram for personas without a caricature', () => {
-    render(<PersonaAvatar persona={packById('drill-sergeant')!.meta} />)
-    const avatar = screen.getByRole('img', { name: 'Drill Sergeant avatar' })
-    expect(avatar.textContent).toBe('DS')
+  it('draws a cartoon face for every built-in coach without a photo caricature', () => {
+    for (const id of ['drill-sergeant', 'roast-comic', 'disappointed-dad', 'the-overlord', 'hype-coach', 'data-nerd', 'zen', 'professional']) {
+      const { container } = render(<PersonaAvatar persona={packById(id)!.meta} />)
+      expect(container.querySelector(`[data-face="${id}"]`)).not.toBeNull()
+      cleanup()
+    }
+  })
+
+  it('falls back to a monogram for a custom persona', () => {
+    render(<PersonaAvatar persona={{ id: 'my-coach', name: 'Grumpy Uncle' }} />)
+    expect(screen.getByRole('img', { name: 'Grumpy Uncle avatar' }).textContent).toBe('GU')
   })
 
   it('shows the Bibi photo head, credited', () => {

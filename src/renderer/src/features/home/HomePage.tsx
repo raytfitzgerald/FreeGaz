@@ -1,7 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from '@tanstack/react-router'
-import { Battery, BatteryLow, BatteryMedium, Bike, Calendar, Flame, Gauge, ListChecks, Moon, Mountain, Sunrise, Trophy, Zap, type LucideIcon } from 'lucide-react'
+import { Battery, BatteryLow, BatteryMedium, Bike, Calendar, Flame, Gauge, Moon, Mountain, Sunrise, Trophy, Zap, type LucideIcon } from 'lucide-react'
 import { computeAchievements, computeStreaks, type AchievementIcon, type AchievementRide } from '@core/metrics/achievements'
 import { suggestNextWorkout } from '@core/workout/suggest'
 import { BUILTINS } from '../../workouts/library'
@@ -9,17 +9,10 @@ import type { InvokeRes } from '@shared/ipc/contract'
 import { currentProfile, DEFAULT_WEIGHT_KG, ftpHistory } from '../../db/athlete-repo'
 import { db } from '../../db/db'
 import { pmcSeries, powerCurve, weeklyLoad } from '../../db/fitness'
-import { PageHeader } from '../../ui/PageHeader'
 import { cn } from '../../ui/cn'
 import { formatDate, formatDurationShort } from '../../ui/format'
 import { useNow } from '../../ui/useNow'
-
-const QUICK_START = [
-  { to: '/ride', search: { choose: 'free' }, title: 'Just ride', text: 'ERG, level or slope. No plan, just watts.', icon: Bike },
-  { to: '/workouts', search: undefined, title: 'Workouts', text: 'Structured intervals, scaled to your FTP.', icon: ListChecks },
-  { to: '/workouts', search: { filter: 'tests' }, title: 'FTP test', text: '20-minute, ramp or 8-minute. Saves your FTP.', icon: Gauge },
-  { to: '/routes', search: undefined, title: 'Routes', text: 'Ride a GPX in SIM mode: Reactive or Steady.', icon: Mountain },
-] as const
+import { HomeHero } from './HomeHero'
 
 const ICONS: Record<AchievementIcon, LucideIcon> = { bike: Bike, flame: Flame, zap: Zap, mountain: Mountain, trophy: Trophy, sunrise: Sunrise, moon: Moon, gauge: Gauge, calendar: Calendar }
 const RETEST_DAYS = 42
@@ -70,19 +63,10 @@ export function HomePage() {
 
   return (
     <div className="mx-auto max-w-6xl px-8 pb-10">
-      <PageHeader title="Ready to suffer?" subtitle="Pick your poison. Everything is recorded locally, second by second." />
+      <div className="pt-12" />
+      <HomeHero rides={data?.rides ?? []} tsb={data?.today?.tsb ?? null} now={now} suggested={derived?.suggested ?? null} reason={derived?.suggestion.reason ?? null} />
 
-      <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {QUICK_START.map(({ to, search, title, text, icon: Icon }) => (
-          <Link key={title} to={to} search={search} className="group rounded-2xl border border-line bg-panel p-5 transition-colors hover:border-line-strong hover:bg-panel-2">
-            <Icon className="mb-6 size-6 text-accent" aria-hidden />
-            <div className="font-display text-lg font-semibold">{title}</div>
-            <p className="mt-1 text-sm text-ink-dim">{text}</p>
-          </Link>
-        ))}
-      </section>
-
-      <section className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4" aria-label="Your numbers">
+      <section className="grid grid-cols-2 gap-4 lg:grid-cols-4" aria-label="Your numbers">
         <Stat
           label="FTP"
           value={ftpNow ? `${ftpNow.ftpW} W` : '—'}
@@ -113,22 +97,6 @@ export function HomePage() {
           note={derived ? `Best: ${derived.streaks.bestDays} days, ${derived.streaks.bestWeeks} weeks` : undefined}
         />
       </section>
-
-      {derived?.suggested && (
-        <Link
-          to="/workouts"
-          search={{ open: derived.suggested.id }}
-          className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-accent/40 bg-accent/5 px-5 py-3 text-sm hover:bg-accent/10"
-          data-testid="suggested-workout"
-        >
-          <span>
-            <span className="eyebrow text-ink-faint">Suggested next · </span>
-            <span className="font-semibold">{derived.suggested.name}</span>
-            <span className="text-ink-dim"> · {derived.suggestion.reason}</span>
-          </span>
-          <span className="text-accent">Open →</span>
-        </Link>
-      )}
 
       {derived?.lastRide && (
         <Link
