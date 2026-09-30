@@ -22,6 +22,23 @@ const SPICE: readonly { label: string; hint: string }[] = [
   { label: 'Savage', hint: 'No mercy for your excuses.' },
   { label: 'Unhinged', hint: 'Everything the persona has.' },
 ]
+const PROFANITY: SegmentedOption<CoachPrefs['profanity']>[] = [
+  { value: 'clean', label: 'Clean', hint: 'No swearing at all.' },
+  { value: 'mild', label: 'Mild', hint: 'Damn, hell and bloody. Every topic rule stays on.' },
+  { value: 'unhinged', label: 'Unhinged', hint: 'Maximum profanity, no language limits. The coach reaches for its sweariest lines first.' },
+]
+const PROFANITY_HINT: Record<CoachPrefs['profanity'], string> = {
+  clean: 'Every line stays clean.',
+  mild: 'Light swearing only (damn, hell, bloody). Every topic rule stays on.',
+  unhinged: 'Maximum profanity: nothing is off limits for language, canned or AI.',
+}
+
+const RIDE_ALONG: SegmentedOption<CoachPrefs['rideAlong']>[] = [
+  { value: 'open', label: 'Show', hint: 'You and your coach on a little road, the coach pacing at your target.' },
+  { value: 'minimized', label: 'Folded', hint: 'A one-line strip with the gap and the mute button.' },
+  { value: 'off', label: 'Off', hint: 'Coach lines go back to the cue banner.' },
+]
+
 const SPICE_OPTIONS: SegmentedOption<string>[] = SPICE.map((s, i) => ({ value: String(i + 1), label: `${i + 1} ${s.label}`, hint: s.hint }))
 
 const MOMENT: Partial<Record<CoachTrigger, string>> = {
@@ -166,8 +183,11 @@ export function CoachSection() {
         <Field label="Spice" hint={persona === PROFESSIONAL ? 'Professional ignores spice: always straight cues.' : spice.hint}>
           <Segmented ariaLabel="Spice level" className="flex-wrap" value={String(c.spice)} options={SPICE_OPTIONS} onChange={(v) => set({ spice: Number(v) })} />
         </Field>
-        <Field label="Profanity" hint="When on, nothing is off limits. Off keeps every line clean.">
-          <Switch checked={c.profanity} onChange={(v) => set({ profanity: v })} label={c.profanity ? 'On' : 'Clean'} />
+        <Field label="Profanity" hint={persona === PROFESSIONAL ? 'Professional never swears, whatever you pick.' : PROFANITY_HINT[c.profanity]}>
+          <Segmented ariaLabel="Profanity" value={c.profanity} options={PROFANITY} onChange={(v) => set({ profanity: v })} />
+        </Field>
+        <Field label="Ride-along" hint="A little road on the ride screen where your coach bikes next to you and says their lines. Ease off and they ride away; push and you drop them. You can fold it during a ride.">
+          <Segmented ariaLabel="Ride-along" value={c.rideAlong} options={RIDE_ALONG} onChange={(v) => set({ rideAlong: v })} />
         </Field>
         {ai && (
           <Field label="Use AI for fresh lines" hint="At the start of each ride, asks your AI provider for new lines in this persona's style. If the AI is slow or says no, the canned lines carry the ride.">
@@ -176,7 +196,7 @@ export function CoachSection() {
         )}
       </Section>
 
-      <Section title="Voice" description="Spoken with your Mac's built-in voices; nothing leaves this Mac. Press C during a ride to mute. Safety prompts still come through.">
+      <Section title="Voice" description="Spoken with your Mac's built-in voices; nothing leaves this Mac. Press C or the mute button during a ride to mute. Safety prompts still come through.">
         <Field label="Speak lines">
           <Switch checked={c.voice} onChange={(v) => set({ voice: v })} label={c.voice ? 'On' : 'Text only'} />
         </Field>

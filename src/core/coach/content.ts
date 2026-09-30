@@ -8,10 +8,10 @@
 // "Today's program is {workoutName}" must never render "Battle of the Bulge".
 // Dropping the fact makes that one line ineligible, so the engine simply picks
 // another one and no cue is lost.
-import { detectProfanity, normalizeForMatching, violatesGuardrails } from '../persona/guardrails'
+import { languageAllowed, normalizeForMatching, violatesGuardrails } from '../persona/guardrails'
 import { BIBI_BANNED_PATTERNS } from '../persona/packs/bibi'
 import { TRUMP_BANNED_PATTERNS } from '../persona/packs/trump'
-import { PRIORITY, type CoachData, type CoachLine } from '../persona/types'
+import { PRIORITY, toProfanity, type CoachData, type CoachLine, type ProfanitySetting } from '../persona/types'
 
 const BANNED_BY_PERSONA: Readonly<Record<string, readonly RegExp[]>> = {
   bibi: BIBI_BANNED_PATTERNS,
@@ -30,11 +30,12 @@ export function matchesAny(text: string, patterns: readonly RegExp[]): boolean {
   return patterns.some((p) => p.test(text) || p.test(norm))
 }
 
-/** Is this text allowed for a persona. Profanity on means no language restrictions. */
-export function textAllowed(text: string, patterns: readonly RegExp[], profanity: boolean): boolean {
-  if (profanity) return true
+/** Is this text allowed for a persona. Unhinged means no restrictions; Mild keeps every topic rule. */
+export function textAllowed(text: string, patterns: readonly RegExp[], profanity: ProfanitySetting): boolean {
+  const level = toProfanity(profanity)
+  if (level === 'unhinged') return true
   if (violatesGuardrails(text) !== null) return false
-  if (detectProfanity(text) !== null) return false
+  if (!languageAllowed(text, level)) return false
   return !matchesAny(text, patterns)
 }
 
@@ -58,22 +59,23 @@ export const SAFETY_FALLBACK_TEXT = 'Ease right off and take a breather. Stop if
 
 /**
  * The line as it may be shown and spoken, or null when it must be dropped.
- * With profanity on, the line passes through. Otherwise persona bans apply to
+ * On Unhinged, the line passes through. Otherwise persona bans apply to
  * lines from that persona; while the supportive tone is forced, lines come
  * from Professional and only the global rules apply.
  */
-export function gateLine(line: CoachLine, opts: { personaId: string; profanity: boolean }): CoachLine | null {
-  if (opts.profanity) return line
-  // AI-written lines skip topic bans. Swearing still waits for the profanity setting.
+export function gateLine(line: CoachLine, opts: { personaId: string; profanity: ProfanitySetting }): CoachLine | null {
+  const level = toProfanity(opts.profanity)
+  if (level === 'unhinged') return line
+  // AI-written lines skip topic bans. Swearing still has to fit the setting.
   if (line.lineId.startsWith('ai.')) {
-    if (detectProfanity(line.text) !== null) {
+    if (!languageAllowed(line.text, level)) {
       if (line.priority === PRIORITY.safety) return { ...line, text: SAFETY_FALLBACK_TEXT, speech: SAFETY_FALLBACK_TEXT }
       return null
     }
     return line
   }
   const patterns = line.personaId === opts.personaId ? personaBannedPatterns(opts.personaId) : []
-  if (textAllowed(line.text, patterns, opts.profanity)) return line
+  if (textAllowed(line.text, patterns, level)) return line
   if (line.priority === PRIORITY.safety) return { ...line, text: SAFETY_FALLBACK_TEXT, speech: SAFETY_FALLBACK_TEXT }
   return null
 }

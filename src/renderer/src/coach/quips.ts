@@ -2,13 +2,13 @@
 // and filtered with the same rules as every other line. Any failure, refusal
 // or timeout just means the canned lines carry the ride: nothing here throws.
 import { quipLinesFromPack, quipPackPrompt, type QuipRide } from '@core/coach'
-import type { CoachLineTemplate, PersonaMeta } from '@core/persona'
+import type { CoachLineTemplate, PersonaMeta, Profanity } from '@core/persona'
 import { bridge } from '../platform/bridge'
 
 export interface QuipRequest {
   persona: PersonaMeta
   spice: number
-  profanity: boolean
+  profanity: Profanity
   ride: QuipRide
 }
 

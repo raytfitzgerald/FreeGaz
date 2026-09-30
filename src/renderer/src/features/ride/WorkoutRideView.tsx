@@ -11,6 +11,7 @@ import { cn } from '../../ui/cn'
 import { formatDuration } from '../../ui/format'
 import { profileBlocks } from '../../workouts/profile'
 import { HudGrid } from '../../hud/HudGrid'
+import { RideAlong } from '../../coach/ride-along/RideAlong'
 import { CueBanner } from './CueBanner'
 import { NowPlaying } from './NowPlaying'
 import { RecordingBar } from './RecordingBar'
@@ -51,6 +52,7 @@ export function WorkoutRideView() {
       </div>
 
       <CueBanner />
+      <RideAlong />
       <RescueBanner />
       <FinishedBanner />
 

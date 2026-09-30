@@ -17,9 +17,11 @@ interface CoachTalkState {
   speaking: boolean
   /** Bumped at each word boundary the voice reports (not every voice does). */
   words: number
+  /** The rider muted the coach for this ride (C, the phone, or the mute button). */
+  muted: boolean
 }
 
-export const coachTalkStore = createStore<CoachTalkState>(() => ({ line: null, speaking: false, words: 0 }))
+export const coachTalkStore = createStore<CoachTalkState>(() => ({ line: null, speaking: false, words: 0, muted: false }))
 
 let nextId = 1
 
@@ -29,6 +31,10 @@ export function markLine(text: string, personaId: string | null, priority: numbe
 
 export function markSpeaking(speaking: boolean): void {
   if (coachTalkStore.getState().speaking !== speaking) coachTalkStore.setState({ speaking })
+}
+
+export function markMuted(muted: boolean): void {
+  if (coachTalkStore.getState().muted !== muted) coachTalkStore.setState({ muted })
 }
 
 export function markWord(): void {

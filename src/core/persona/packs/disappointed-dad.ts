@@ -330,6 +330,50 @@ b.add('idle_banter', [
 b.add('under_target', [[5, "Under target. I didn't raise you to put out shit watts, damn it.", P]])
 b.add('idle_banter', [[5, 'Pedal, kid. This pace is bullshit and you know it.', P]])
 
+// Unhinged: strong profanity, only for riders who asked for it. Dad finally snaps.
+b.add('ride_start', [
+  [1, "Oh, you're riding. Good. Fucking... good. Sorry. Long week.", P],
+  [4, "{workoutName}. You picked it. Don't half-ass it. Shit, I'll watch anyway.", P],
+])
+b.add(
+  'segment_start',
+  [
+    [2, "{targetW} watts. Go on. Make your old man proud, for fuck's sake.", P],
+    [5, '{targetW} watts. I built that fucking trainer with one allen key and no instructions. Pedal.', P],
+  ],
+  [HARD],
+)
+b.add('countdown_10s', [[3, "Ten seconds. Your mother says I shouldn't swear. Fucking pedal.", P]])
+b.add('halfway', [[4, "Halfway. I'm not angry. I'm just... fuck it, I'm a little angry.", P]])
+b.add('last_minute', [[2, "One minute. Finish it, kiddo. Don't make me say shit I'll regret.", P]])
+b.add('segment_end_success', [
+  [1, "That was good. That was really fucking good. I'm going to go check on the car.", P],
+  [5, 'You hit {pct}%. Well, shit. I had a whole speech prepared.', P],
+])
+b.add('segment_end_failed', [
+  [3, "{pct}%. Well. Shit. I'll be in the garage.", P],
+  [5, '{avgW} watts on a {targetW} target. I paid for this trainer, and this is the shit I get?', P],
+])
+b.add('under_target', [
+  [2, "{deficitW} watts short, kid. Come on. Don't give me that bullshit.", P],
+  [4, "{power} watts. The lawnmower puts out more than that, and it's a fucking lawnmower.", P],
+])
+b.add('cadence_sag', [[3, "Cadence {cadence}. You're grinding my good chain to shit. Spin.", P]])
+b.add('stopped_pedaling', [[4, "Stopped. Again. I'm not mad. I'm just... what the fuck, kiddo.", P]])
+b.add('skipped_interval', [[3, "Skipped. Fine. Fucking fine. I'll add it to the list.", P]])
+b.add('intensity_down', [[4, "{intensityPct}%. I set that workout up at the proper intensity, for fuck's sake. Sigh.", P]])
+b.add('wbal_low', [[3, '{wbalPct}% left. What did I say about pacing? Every. Fucking. Time.', P]])
+b.add('pr', [[2, "{prLabel} PR. Well, fuck me. That's my kid. Don't make it weird.", P]])
+b.add('ftp_test_result', [[4, "FTP {ftpNew}. I'm writing it on the garage calendar. In fucking pen.", P]])
+b.add('workout_complete', [[1, 'Done. That was a damn... no. That was a fucking great ride. There, I said it.', P]])
+b.add('ride_bailed', [[5, 'Quitting at {elapsedMin} minutes. I drove you to five a.m. practice for years. Fuck. Fine.', P]])
+b.add('fueling_reminder', [[3, 'Eat a gel. I bought a whole fucking box of them. In bulk. From the warehouse store.', P]])
+b.add('idle_banter', [
+  [2, "Keep going, kid. I'm not going to say anything. Shit, fine, pedal harder.", P],
+  [4, "You know what that flywheel cost? No. Of course you don't. Fucking nobody asks.", P],
+  [5, "I'm not disappointed. I passed disappointed years ago. This is some whole new shit.", P],
+])
+
 export const DISAPPOINTED_DAD: PersonaPack = {
   meta: {
     id: 'disappointed-dad',

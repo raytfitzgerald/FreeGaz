@@ -332,6 +332,52 @@ b.add('idle_banter', [
 b.add('segment_start', [[5, '{targetW} watts, minion! The Overlord demands you fucking pedal!', P]], [HARD])
 b.add('idle_banter', [[5, 'That cadence is shit, minion. The Ministry is not amused.', P]])
 
+// Unhinged: strong profanity, only for riders who asked for it.
+b.add('ride_start', [
+  [1, 'Welcome, minion. The Republic of Pain fucking adores a punctual servant.', P],
+  [4, "Report for duty, minion. Today's decree: {workoutName}. Complaints go straight in the shit bin.", P],
+])
+b.add(
+  'segment_start',
+  [
+    [2, '{targetW} watts, by decree. Fucking comply.', P],
+    [5, '{targetW} watts for {remainingS}. The Ministry of Watts does not accept your bullshit.', P],
+  ],
+  [HARD],
+)
+b.add('countdown_10s', [[3, "Ten seconds, minion. The Overlord's patience is a fucking finite resource.", P]])
+b.add('halfway', [[4, 'Halfway. The Five-Minute Plan demands the second half. Every fucking watt of it.', P]])
+b.add('last_minute', [[2, 'One minute, minion. Hold {targetW}. The Overlord is watching. Fucking always.', P]])
+b.add('segment_end_success', [
+  [1, 'The quota is met. Fucking splendid, minion. You may remain in my service.', P],
+  [5, '{pct}%. Acceptable. Do not let it go to your head. Your head is fucking Ministry property.', P],
+])
+b.add('segment_end_failed', [
+  [3, '{pct}%? The Ministry is drafting a strongly worded fucking memo.', P],
+  [5, '{avgW} watts against a {targetW} quota? The Bureau of Revolutions calls this shit sabotage.', P],
+])
+b.add('under_target', [
+  [2, '{deficitW} watts below quota, minion. Correct this shit at once.', P],
+  [4, "{power} watts?! The Overlord's throne produces more, and it is a fucking chair.", P],
+])
+b.add('cadence_sag', [[3, 'Cadence {cadence}! The Bureau of Revolutions per Minute demands more fucking revolutions!', P]])
+b.add('stopped_pedaling', [[4, 'Who the fuck authorized a pause? Not the Overlord. Pedal.', P]])
+b.add('skipped_interval', [[3, 'Skipped {segmentLabel}? That interval was Ministry property, you absolute tosser.', P]])
+b.add('intensity_down', [[4, '{intensityPct}%? You lowered a decree? The Ministry calls that treasonous bullshit.', P]])
+b.add('wbal_low', [[3, 'W′bal {wbalPct}%. You squandered the national reserves, you fucking spendthrift.', P]])
+b.add('pr', [[2, '{prLabel} PR! A national fucking holiday is declared! It lasts one second.', P]])
+b.add('ftp_test_result', [[4, 'FTP {ftpNew}. The Ministry will carve it on a monument. A small, shitty monument.', P]])
+b.add('workout_complete', [
+  [1, 'The session is complete. Fucking well done, minion. Rations are authorized.', P],
+  [5, "Done. The Overlord is almost impressed. Almost. Don't fucking push it.", P],
+])
+b.add('ride_bailed', [[4, 'Abandoning your post at {elapsedMin} minutes? The Ministry will hear of this shit. In triplicate.', P]])
+b.add('fueling_reminder', [[3, 'Eat a gel, minion. A hungry workforce produces shit watts.', P]])
+b.add('idle_banter', [
+  [2, 'The Ministry of Watts reports {power} watts. The Overlord is fucking unmoved.', P],
+  [5, 'The Overlord rules the flywheel, the fan and the whole fucking basement. Pedal, minion.', P],
+])
+
 export const THE_OVERLORD: PersonaPack = {
   meta: {
     id: 'the-overlord',

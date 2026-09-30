@@ -32,13 +32,16 @@ export const CoachPrefsSchema = z.object({
   enabled: z.boolean().default(true),
   personaId: z.string().max(60).default('drill-sergeant'),
   spice: z.number().int().min(1).max(5).default(3),
-  profanity: z.boolean().default(false),
+  /** Clean, Mild or Unhinged. Settings from before the three levels stored a boolean: on meant no limits. */
+  profanity: z.preprocess((v) => (v === true ? 'unhinged' : v === false ? 'clean' : v), z.enum(['clean', 'mild', 'unhinged'])).default('clean'),
   voice: z.boolean().default(true),
   voiceName: z.string().max(120).nullable().default(null),
   rate: z.number().min(0.6).max(1.6).default(1.05),
   volume: z.number().min(0).max(1).default(0.9),
   /** Use AI-generated lines (quip packs / live lines) when an AI provider is set. */
   useAi: z.boolean().default(false),
+  /** The ride-along panel where the coach bikes next to you: open, folded to a strip, or off. */
+  rideAlong: z.enum(['open', 'minimized', 'off']).default('open'),
 })
 
 export const FuelingPrefsSchema = z.object({
@@ -73,7 +76,11 @@ export const AppSettingsSchema = z.object({
   autoConnect: z.boolean().default(true),
   /** Folder for automatic FIT export; null = ~/Documents/FreeGaz/Rides. */
   exportDir: z.string().nullable().default(null),
+  /** Distance, elevation and temperature. Also the preset for speed and weight. */
   units: z.enum(['metric', 'imperial']).default('metric'),
+  /** Speed and weight can each differ from `units` (a UK rider: miles, kg). */
+  speedUnit: z.enum(['kmh', 'mph']).default('kmh'),
+  weightUnit: z.enum(['kg', 'lb']).default('kg'),
   /** Light, dark, or follow macOS. The mini-HUD stays dark so it reads over video. */
   appearance: z.enum(['system', 'light', 'dark']).default('system'),
   /** Upload finished (non-simulated) rides automatically. */
@@ -95,9 +102,26 @@ export type RememberedDeviceSetting = z.infer<typeof RememberedDeviceSchema>
 
 export const DEFAULT_SETTINGS: AppSettings = AppSettingsSchema.parse({})
 
+/**
+ * Settings saved before speed and weight had their own units: fill them from
+ * `units`, so an imperial rider keeps mph and lb. Run on stored JSON before
+ * AppSettingsSchema parses it (the schema itself stays a plain object, since
+ * AppSettingsPatchSchema is built from its shape).
+ */
+export function migrateStoredSettings(raw: unknown): unknown {
+  if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) return raw
+  const r = raw as Record<string, unknown>
+  const imperial = r.units === 'imperial'
+  return {
+    ...r,
+    speedUnit: r.speedUnit ?? (imperial ? 'mph' : 'kmh'),
+    weightUnit: r.weightUnit ?? (imperial ? 'lb' : 'kg'),
+  }
+}
+
 /** Drops a field's top-level default, so an absent key stays absent. */
 function noDefault<T extends z.ZodType>(schema: T): z.ZodOptional<z.ZodType<z.output<T>>> {
-  const inner = schema instanceof z.ZodDefault ? (schema.unwrap() as z.ZodType<z.output<T>>) : schema
+  const inner = (schema instanceof z.ZodDefault ? schema.unwrap() : schema) as z.ZodType<z.output<T>>
   return inner.optional()
 }
 

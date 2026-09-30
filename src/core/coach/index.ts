@@ -35,3 +35,15 @@ export {
   type CoachSegment,
   type SegmentResolver,
 } from './segments'
+export {
+  FREE_RIDE_PACE,
+  MAX_GAP_M,
+  START as RIDE_ALONG_START,
+  coachPaceW,
+  gapLabel,
+  rideAlongMood,
+  speedForPower,
+  stepRideAlong,
+  type RideAlongMood,
+  type RideAlongState,
+} from './ride-along'

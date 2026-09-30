@@ -868,8 +868,8 @@ export function violatesGuardrails(text: string): GuardrailCategory | null {
   return guardrailMatch(text)?.category ?? null
 }
 
-// Profanity is a user setting, not a guardrail. Mild and strong words are both
-// allowed when the rider opts in, and both are dropped when they have not.
+// Profanity is a user setting, not a guardrail. Clean drops both kinds, Mild
+// allows the mild list only, Unhinged allows everything.
 const MILD_PROFANITY = compile([
   'damn(?:s|ed|it)?',
   'dammit',
@@ -942,4 +942,11 @@ export function detectProfanity(text: string): ProfanityLevel | null {
   if (STRONG_PROFANITY_WORDS.test(norm) || CENSORED_PROFANITY.test(norm)) return 'strong'
   if (MILD_PROFANITY.test(norm)) return 'mild'
   return null
+}
+
+/** Does the text's language fit the rider's setting (Clean, Mild or Unhinged). */
+export function languageAllowed(text: string, setting: 'clean' | 'mild' | 'unhinged'): boolean {
+  if (setting === 'unhinged') return true
+  const found = detectProfanity(text)
+  return found === null || (setting === 'mild' && found === 'mild')
 }

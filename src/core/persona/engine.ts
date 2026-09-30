@@ -16,11 +16,12 @@
 //
 // A null result means "not now". Persistent conditions (under_target,
 // reminders) should simply be sent again on later ticks.
-import { detectProfanity, violatesGuardrails } from './guardrails'
+import { languageAllowed, violatesGuardrails } from './guardrails'
 import { PROFESSIONAL } from './packs/professional'
 import { buildFacts, isHardKind, renderTemplate, toSpeech, type Facts } from './template'
 import {
   PRIORITY,
+  toProfanity,
   type CoachContext,
   type CoachLine,
   type CoachLineTemplate,
@@ -28,6 +29,8 @@ import {
   type CoachTrigger,
   type Criterion,
   type PersonaPack,
+  type Profanity,
+  type ProfanitySetting,
   type Spice,
 } from './types'
 
@@ -54,6 +57,9 @@ export const ENGINE_TIMING = {
 } as const
 
 export const DEFAULT_MEMORY_SIZE = 40
+
+/** On Unhinged, a profane line is this many times likelier than a clean one of equal fit. */
+export const UNHINGED_PROFANITY_BOOST = 8
 
 /** Cue triggers repeat far more often than coaching, so they get shorter cooldowns. */
 export const DEFAULT_TRIGGER_COOLDOWNS_MS: Readonly<Partial<Record<CoachTrigger, number>>> = {
@@ -165,7 +171,8 @@ interface SegmentState {
 export interface CoachEngineOptions {
   persona: PersonaPack
   spice: Spice
-  profanity: boolean
+  /** Clean, Mild or Unhinged (a boolean means Clean or Unhinged). */
+  profanity: ProfanitySetting
   /** Uniform [0, 1). Default Math.random; pass mulberry32(seed) for reproducible output. */
   rng?: () => number
   /** Global cooldown after any line before banter may follow. Clamped to 45–90 s; default 60 s. */
@@ -183,7 +190,7 @@ export interface CoachEngineOptions {
 export class CoachEngine {
   private personaIndex: PackIndex
   private spice: Spice
-  private profanity: boolean
+  private profanity: Profanity
   private readonly rng: () => number
   private readonly cooldownMs: number
   private readonly perTriggerCooldownMs: number
@@ -207,7 +214,7 @@ export class CoachEngine {
   constructor(opts: CoachEngineOptions) {
     this.personaIndex = opts.persona === PROFESSIONAL ? PROFESSIONAL_INDEX : indexPack(opts.persona)
     this.spice = clampSpice(opts.spice)
-    this.profanity = opts.profanity
+    this.profanity = toProfanity(opts.profanity)
     this.rng = opts.rng ?? Math.random
     const cooldown = opts.cooldownMs ?? ENGINE_TIMING.defaultCooldownMs
     this.cooldownMs = Math.min(ENGINE_TIMING.maxCooldownMs, Math.max(ENGINE_TIMING.minCooldownMs, cooldown))
@@ -256,8 +263,8 @@ export class CoachEngine {
     this.spice = clampSpice(spice)
   }
 
-  setProfanity(on: boolean): void {
-    this.profanity = on
+  setProfanity(level: ProfanitySetting): void {
+    this.profanity = toProfanity(level)
   }
 
   setPersona(pack: PersonaPack): void {
@@ -395,15 +402,16 @@ export class CoachEngine {
     const candidates: Candidate[] = []
     for (const line of index.byTrigger.get(trigger) ?? []) {
       if (line.spice > spice) continue
-      if (line.profanity === true && !this.profanity) continue
+      if (line.profanity === true && this.profanity === 'clean') continue
       if (line.criteria && !line.criteria.every((c) => criterionHolds(c, facts))) continue
       const text = renderTemplate(line.text, facts)
       if (text === null) continue
-      // With profanity off, canned lines still skip banned topics and swearing.
-      // AI lines skip the topic list either way. With profanity on, nothing is filtered.
-      if (!this.profanity) {
+      // Clean and Mild: canned lines still skip banned topics, and the words
+      // must fit the setting. AI lines skip the topic list either way.
+      // Unhinged filters nothing.
+      if (this.profanity !== 'unhinged') {
         if (!line.id.startsWith('ai.') && violatesGuardrails(text) !== null) continue
-        if (detectProfanity(text) !== null) continue
+        if (!languageAllowed(text, this.profanity)) continue
       }
       candidates.push({ line, text, packId, specificity: line.criteria?.length ?? 0 })
     }
@@ -414,7 +422,8 @@ export class CoachEngine {
       let top = 0
       for (const c of fresh) top = Math.max(top, c.specificity)
       const pool = fresh.filter((c) => c.specificity === top)
-      return weightedPick(pool, (c) => (c.line.weight ?? 1) * spiceAffinity(c.line.spice, spice), this.rng)
+      const boost = (c: Candidate) => (this.profanity === 'unhinged' && c.line.profanity === true ? UNHINGED_PROFANITY_BOOST : 1)
+      return weightedPick(pool, (c) => (c.line.weight ?? 1) * spiceAffinity(c.line.spice, spice) * boost(c), this.rng)
     }
     // Everything eligible was said recently: repeat the one said longest ago.
     let oldest = candidates[0]!

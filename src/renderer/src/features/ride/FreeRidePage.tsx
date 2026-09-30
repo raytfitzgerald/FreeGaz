@@ -13,6 +13,7 @@ import { cn } from '../../ui/cn'
 import { HudGrid } from '../../hud/HudGrid'
 import { NowPlaying } from './NowPlaying'
 import { RecordingBar } from './RecordingBar'
+import { RideAlong } from '../../coach/ride-along/RideAlong'
 import { CueBanner } from './CueBanner'
 import { FtpResultCard } from './FtpResultCard'
 import { SavedRideCard } from './SavedRideCard'
@@ -126,6 +127,7 @@ export function FreeRidePage() {
       <GuardBanner />
       <div className="mb-4 space-y-3">
         <CueBanner />
+        <RideAlong />
         <FtpResultCard />
         <SavedRideCard />
         <RecordingBar />

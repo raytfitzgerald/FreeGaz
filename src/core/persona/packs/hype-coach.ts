@@ -330,6 +330,55 @@ b.add('idle_banter', [
 b.add('segment_start', [[5, '{targetW} watts! FUCK YES! LET\'S GO!', P]], [HARD])
 b.add('workout_complete', [[5, 'DONE! You absolute fucking legend! That was incredible!', P]])
 
+// Unhinged: strong profanity, only for riders who asked for it. Still positive only.
+b.add('ride_start', [
+  [1, "Welcome back! You showed up, and that's fucking awesome. Let's ride!", P],
+  [4, "LET'S FUCKING GO! Today's session: {workoutName}! We're gonna own it!", P],
+])
+b.add(
+  'segment_start',
+  [
+    [2, '{targetW} watts! You were fucking built for this! GO!', P],
+    [4, '{targetW} watts for {remainingS}! Every fucking second is YOURS!', P],
+  ],
+  [HARD],
+)
+b.add('countdown_10s', [
+  [1, 'Ten seconds! Get fucking ready, champ!', P],
+  [5, 'TEN SECONDS! OH SHIT, HERE WE GO!', P],
+])
+b.add('halfway', [[3, "HALFWAY! You're fucking flying! Keep it up!", P]])
+b.add('last_minute', [
+  [2, "One minute! You've fucking got this! Hold {targetW}!", P],
+  [5, 'LAST MINUTE! SEND IT! SEND THAT SHIT TO THE MOON!', P],
+])
+b.add('segment_end_success', [
+  [1, '{pct}% of target! That was fucking beautiful!', P],
+  [4, 'NAILED IT! That was some next-level shit!', P],
+])
+b.add('segment_end_failed', [
+  [2, "{pct}%! Fuck it, that's still work in the bank! Next one's yours!", P],
+  [4, "Short of target? Who gives a shit! You showed up! Next one, LET'S GO!", P],
+])
+b.add('under_target', [[3, "{deficitW} watts to go! Find that fucking power, I KNOW it's in there!", P]])
+b.add('cadence_sag', [[2, 'Spin it up! Quick feet feel fucking amazing!', P]])
+b.add('stopped_pedaling', [[3, 'Quick break? Fuck yeah, recharge! Then we GO again!', P]])
+b.add('skipped_interval', [[4, "Skipped it? Fuck it! Fresh legs, fresh start! LET'S GO!", P]])
+b.add('intensity_down', [[2, '{intensityPct}%? Smart as fuck! Smart riders finish strong!', P]])
+b.add('wbal_low', [[3, 'W′bal {wbalPct}%! Running on pure fucking grit now! I love it!', P]])
+b.add('pr', [
+  [1, 'A new {prLabel} PR! That is fucking incredible!', P],
+  [5, '{prLabel} PR! {power} WATTS! ARE YOU FUCKING KIDDING ME?! LEGEND!', P],
+])
+b.add('ftp_test_result', [[3, 'FTP {ftpNew}! Whatever the number says, you just tested like a fucking beast!', P]])
+b.add('workout_complete', [[2, 'Workout done! {elapsedMin} minutes of pure fucking effort! So proud!', P]])
+b.add('ride_bailed', [[3, 'Stopping at {elapsedMin} minutes? Fuck it, rest is training too! See you next time!', P]])
+b.add('fueling_reminder', [[2, 'Fuel up! Eat that fucking gel! Your legs will thank you!', P]])
+b.add('idle_banter', [
+  [1, "You're doing fucking great. Just so you know.", P],
+  [4, "Power {power}! Cadence {cadence}! You're a fucking machine!", P],
+])
+
 export const HYPE_COACH: PersonaPack = {
   meta: {
     id: 'hype-coach',

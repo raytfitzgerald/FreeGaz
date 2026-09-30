@@ -8,6 +8,7 @@ import { toonFor } from '../../coach/toon/heads'
 import { LEAVE_MS } from '../../coach/toon/motion'
 import { liveStore } from '../../stores/live'
 import { useRide } from '../../stores/ride'
+import { useSettings } from '../../stores/settings'
 import { cn } from '../../ui/cn'
 
 const SHOW_MS = 10_000
@@ -18,15 +19,18 @@ export function CueBanner() {
   const cue = useRide((s) => s.cue)
   const coach = useRide((s) => s.snapshot?.coachLine ?? null)
   const talk = useCoachTalk((s) => s.line)
+  // the open ride-along says the coach's own lines in a bubble; the banner keeps cues, notices and safety
+  const alongside = useSettings((s) => s.coach.rideAlong === 'open' && s.coach.enabled)
   const [now, setNow] = useState(() => Date.now())
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 1000)
     return () => clearInterval(id)
   }, [])
   const showCue = cue !== null && now - cue.at < SHOW_MS
-  const text = showCue ? cue.text : coach
+  const inBubble = alongside && !showCue && coach !== null && talk?.text === coach && talk.personaId !== null && talk.priority < PRIORITY.safety
+  const text = showCue ? cue.text : inBubble ? null : coach
   // safety prompts stay plain, whoever's pack they came from
-  const toonLine = !showCue && coach !== null && talk?.text === coach && talk.priority < PRIORITY.safety && toonFor(talk.personaId) ? talk : null
+  const toonLine = !showCue && !inBubble && coach !== null && talk?.text === coach && talk.priority < PRIORITY.safety && toonFor(talk.personaId) ? talk : null
   const stage = useToonStage(toonLine, text !== null)
   if (stage.line) return <ToonBanner line={stage.line} leaving={stage.leaving} />
   if (!text) return null

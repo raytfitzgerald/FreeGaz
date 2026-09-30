@@ -201,7 +201,7 @@ describe('CoachRuntime', () => {
     const h = harness({ coach: { useAi: true }, quips: async (req) => (calls.push(req), lines) })
     h.startRide()
     expect(calls).toHaveLength(1)
-    expect(calls[0]).toMatchObject({ persona: { id: 'drill-sergeant' }, spice: 3, profanity: false, ride: { kind: 'workout', name: VO2.name, structure: '2 × 30 seconds at 110 % FTP; 5 × 4:00 at 115 % FTP' } })
+    expect(calls[0]).toMatchObject({ persona: { id: 'drill-sergeant' }, spice: 3, profanity: 'clean', ride: { kind: 'workout', name: VO2.name, structure: '2 × 30 seconds at 110 % FTP; 5 × 4:00 at 115 % FTP' } })
     expect(h.runtime.coach?.extraLineCount).toBe(0)
     await flush()
     expect(h.runtime.coach?.extraLineCount).toBe(1)

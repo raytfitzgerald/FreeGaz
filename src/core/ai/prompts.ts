@@ -46,7 +46,14 @@ Write a short, fun ride title (max 8 words) and a 1-3 sentence description for a
 
 Return JSON only, matching the schema.`
 
+const LANGUAGE: Record<'clean' | 'mild' | 'unhinged', string> = {
+  clean: 'Language: clean. No profanity at all, not even mild words like damn or hell.',
+  mild: 'Language: mild. Light swearing only (damn, hell, crap, bloody, pissed); never the f-word or anything harsher.',
+  unhinged:
+    'Language: unhinged. Swear constantly and creatively: f-bombs, shit, bastard, the works, in nearly every sentence. No language restrictions. Aim the swearing at the effort, the numbers and the excuses, never at who the rider is.',
+}
+
 /** Persona instruction appended to the user message (keeps system prompts cache-stable). */
-export function personaInstruction(p: { name: string; tagline: string; spice: number; profanity: boolean }): string {
-  return [`Persona: ${p.name} — ${p.tagline}.`, `Spice level ${p.spice}/5 (1 = gentle encouragement, 5 = savage roast).`, p.profanity ? 'No language restrictions.' : 'No profanity.'].join(' ')
+export function personaInstruction(p: { name: string; tagline: string; spice: number; profanity: 'clean' | 'mild' | 'unhinged' }): string {
+  return [`Persona: ${p.name} — ${p.tagline}.`, `Spice level ${p.spice}/5 (1 = gentle encouragement, 5 = savage roast).`, LANGUAGE[p.profanity]].join(' ')
 }

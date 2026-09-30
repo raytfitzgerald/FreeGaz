@@ -335,6 +335,53 @@ b.add('segment_start', [[5, '{targetW} watts. Quit stalling and get the fuck on 
 b.add('under_target', [[5, '{power} watts. Fucking embarrassing. The target was right there.', P]])
 b.add('idle_banter', [[5, 'This pace is bullshit. Even the flywheel looks embarrassed.', P]])
 
+// Unhinged: strong profanity, only for riders who asked for it.
+b.add('ride_start', [
+  [1, "Welcome to the show, folks. Tonight's headliner is you, and it's fucking sold out. Mostly to me.", P],
+  [4, "Clip in. Tonight's set: an hour of me roasting your shit effort. Tip your trainer.", P],
+])
+b.add(
+  'segment_start',
+  [
+    [2, "{targetW} watts. Easy, right? Right? Fuck, this is going to be fun to watch.", P],
+    [5, '{targetW} watts for {remainingS}. Let me guess, you already have an excuse. Save that shit.', P],
+  ],
+  [HARD],
+)
+b.add('countdown_10s', [[3, "Ten seconds. Fuck around now and you'll find out at {targetW} watts.", P]])
+b.add('halfway', [[4, 'Halfway. Half the interval, half the effort. Your whole fucking brand.', P]])
+b.add('last_minute', [[3, "Last minute. This is the closer. Don't fuck up the closer.", P]])
+b.add('segment_end_success', [
+  [1, 'Okay, that was fucking good. Nobody tell my manager I said that.', P],
+  [5, 'You actually hit it? Fuck. I had a whole bit ready.', P],
+])
+b.add('segment_end_failed', [
+  [3, "{pct}%. That wasn't an interval, that was a shitty rough draft.", P],
+  [5, 'Average {avgW}, target {targetW}. That gap has its own fucking zip code.', P],
+])
+b.add('under_target', [
+  [2, "{deficitW} watts short. Come on, that's some bargain-bin bullshit.", P],
+  [4, '{power} watts? My fucking phone charger pulls more than that.', P],
+])
+b.add('cadence_sag', [[3, "Cadence {cadence}. You're pedaling like the crank owes you money and you're shit at collections.", P]])
+b.add('stopped_pedaling', [[4, "Oh, we're stopping? Great. Dead air. Every comic's favourite fucking thing.", P]])
+b.add('skipped_interval', [[3, "Skipped {segmentLabel}. Even your intervals are getting ghosted now. That's fucked.", P]])
+b.add('intensity_down', [[4, "{intensityPct}%? You turned it down? That's not training, that's fucking karaoke.", P]])
+b.add('wbal_low', [[3, 'W′bal {wbalPct}%. You blew your whole fucking budget on the opening joke.', P]])
+b.add('pr', [[2, '{prLabel} PR? Well, shit. Guess I have to write new material.', P]])
+b.add('ftp_test_result', [[4, 'FTP {ftpNew}. Put that shit on a T-shirt. Nobody will ask, but put it on.', P]])
+b.add('workout_complete', [
+  [1, "That's the show. Honestly? You were fucking great tonight.", P],
+  [5, "That's a wrap. {tss} TSS. Not bad for someone who opened like absolute shit.", P],
+])
+b.add('ride_bailed', [[5, 'Leaving at {elapsedMin} minutes? Walking out mid-set? Rude as fuck. I will roast you from here.', P]])
+b.add('fueling_reminder', [[3, 'Eat something. Hangry you is a shit crowd.', P]])
+b.add('idle_banter', [
+  [2, 'Power {power}, cadence {cadence}. Solid numbers. Boring as shit, but solid.', P],
+  [4, 'This ride has the energy of a Tuesday open mic. And I fucking hate open mics.', P],
+  [5, "You call this suffering? I've had shittier crowds try harder.", P],
+])
+
 export const ROAST_COMIC: PersonaPack = {
   meta: {
     id: 'roast-comic',
