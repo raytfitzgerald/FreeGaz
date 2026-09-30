@@ -65,7 +65,7 @@ void app.whenReady().then(() => {
   registerIntegrationHandlers({ secrets, userData: app.getPath('userData'), exportDir: () => settings.get().exportDir ?? defaultExportDir() })
   registerAiHandlers({ secrets })
   registerHudHandlers(() => mainWindow)
-  mainWindow = createMainWindow()
+  mainWindow = createMainWindow(() => settings.get().appearance)
   chooser.attach(mainWindow.webContents)
   // A renderer that crashed or reloaded left its ride's journal open; close it
   // so the new page offers the ride for recovery.
@@ -77,7 +77,7 @@ void app.whenReady().then(() => {
   })
 
   app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) mainWindow = createMainWindow()
+    if (BrowserWindow.getAllWindows().length === 0) mainWindow = createMainWindow(() => settings.get().appearance)
   })
 })
 
