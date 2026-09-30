@@ -13,7 +13,7 @@ import { NAV } from './nav'
 // narrow): a top bar with the wordmark and device chips, and a bottom tab
 // bar with Ride as the raised centre button. Tabs that don't fit go in More.
 
-const TABS = new Set(['/', '/workouts', '/history', '/coach'])
+const TABS = new Set(['/', '/workouts', '/coach'])
 const [left, right] = [NAV.filter((n) => TABS.has(n.to)).slice(0, 2), NAV.filter((n) => TABS.has(n.to)).slice(2)]
 const MORE = NAV.filter((n) => !TABS.has(n.to))
 

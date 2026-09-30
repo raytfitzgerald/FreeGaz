@@ -11,7 +11,7 @@ You bought the smart trainer. You bought the bike. You turned a corner of the ga
 
 FreeGaz is free. No subscription, no "Premium" tier, no annual plan with the cancel button hidden four menus deep, and no "your trial has ended" email on the morning of your FTP test. ERG, workouts, FTP tests, routes, the builder, the charts and a coach who will call you a statue mid-interval: all of it, for the grand total of nothing. The only thing it charges is your legs.
 
-It's a data-obsessed indoor cycling trainer for macOS. It drives your smart trainer in ERG, level, slope or heart-rate mode, plays and builds structured workouts, runs an FTP test that actually saves your FTP, rides real routes, and records every second on your Mac as a FIT file. Your rides stay yours.
+It's a data-obsessed indoor cycling trainer for macOS, and [for your phone](#on-your-phone). It drives your smart trainer in ERG, level, slope or heart-rate mode, plays and builds structured workouts, runs an FTP test that actually saves your FTP, rides real routes, and records every second on your Mac as a FIT file. Your rides stay yours.
 
 <p align="center"><img src="docs/screenshots/home.png" alt="Home: a velodrome seen from above with this week's rides lapping it, the Drill Sergeant shouting from the infield through a megaphone, and a headline that reads your week" width="900"></p>
 
@@ -167,6 +167,30 @@ xattr -dr com.apple.quarantine /Applications/FreeGaz.app
 npm install
 npm run dev
 ```
+
+### On your phone
+
+FreeGaz also runs as an app on your phone, no app store involved: open **[raytfitzgerald.github.io/FreeGaz](https://raytfitzgerald.github.io/FreeGaz/)** and add it to your home screen. It gets its own icon, opens full screen and works with no signal, which is handy, because the pain cave never has Wi-Fi.
+
+**Android (Chrome).** This is the full experience, trainer included.
+
+1. Open the link in **Chrome**.
+2. Tap **⋮ → Add to Home screen → Install**. Chrome may offer an **Install app** banner first, which does the same thing.
+3. Open FreeGaz from your home screen, go to **More → Devices** and tap **Pair** on the trainer and the heart-rate strap. Chrome asks which device to use. Turn on Bluetooth and Location if it asks: Android needs Location for Bluetooth scanning.
+
+**iPhone and iPad (Safari).**
+
+1. Open the link in **Safari**. Other iPhone browsers can't add a web app to the home screen.
+2. Tap **Share** (the square with the arrow), then **Add to Home Screen → Add**.
+3. Open FreeGaz from your home screen.
+
+Apple doesn't let any iPhone browser use Bluetooth devices, so the iPhone app can't control your trainer or read your strap. Everything else works: the workout library, the builder, history, fitness and the coaches. To ride with the trainer, use the Mac app or an Android phone. To see how a ride looks, open the Devices page and tap *look around with simulated devices*.
+
+**Good to know**
+
+- The phone app keeps its rides in that phone's browser, separate from the Mac app. Use **Settings → Data & backup** to move a backup zip between them.
+- AI coaching and Strava upload need the Mac app, because they keep their keys and tokens on the Mac. On the phone, the coaches use their built-in lines.
+- It updates itself: the next time it opens online, it loads the latest version.
 
 ## First ride
 
