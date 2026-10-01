@@ -15,6 +15,8 @@ import { HudGrid } from '../../hud/HudGrid'
 import { NowPlaying } from './NowPlaying'
 import { RecordingBar } from './RecordingBar'
 import { RideAlong } from '../../coach/ride-along/RideAlong'
+import { JourneyMap } from '../journeys/JourneyMap'
+import { WhereTo } from '../journeys/WhereTo'
 import { CueBanner } from './CueBanner'
 import { FtpResultCard } from './FtpResultCard'
 import { SavedRideCard } from './SavedRideCard'
@@ -133,9 +135,15 @@ export function FreeRidePage() {
         </div>
       )}
       <GuardBanner />
+      {!recording && (
+        <div className="mb-4">
+          <WhereTo />
+        </div>
+      )}
       <div className="mb-4 space-y-3">
         <CueBanner />
         <RideAlong />
+        <JourneyMap />
         <FtpResultCard />
         <SavedRideCard />
         <RecordingBar />

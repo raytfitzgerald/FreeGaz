@@ -6,6 +6,8 @@ import { finalizeRide, type FinalizeInput } from '@core/ride/finalize'
 import { parseJournal } from '@core/ride/journal'
 import type { RideSummary } from '@core/ride/types'
 import { MIN_UPLOAD_S, uploadSkipReason, type UploadSkip } from '@core/ride/upload-policy'
+import type { Journey } from '@core/journeys/progress'
+import type { SavedJourney } from '../journeys/ride'
 import type { SavedMoment } from '../moments/store'
 import { bridge } from '../platform/bridge'
 import { settingsStore } from '../stores/settings'
@@ -19,9 +21,15 @@ export interface SaveResult {
   stravaSkip: UploadSkip | null
   /** Pictures of the ride's best moments, saved next to the FIT file (added once they're written). */
   moments?: SavedMoment[]
+  /** Where the ride went, when it went on a journey. */
+  journey?: SavedJourney
+  /** The saved journey this ride finished, for the finish card. */
+  finishedJourney?: Journey
 }
 
-export async function saveFinishedRide(input: Omit<FinalizeInput, 'now' | 'utcOffsetMin' | 'softwareVersion'>): Promise<SaveResult> {
+export async function saveFinishedRide(
+  { descriptionExtra, ...input }: Omit<FinalizeInput, 'now' | 'utcOffsetMin' | 'softwareVersion'> & { /** More for the Strava description (a journey's line). */ descriptionExtra?: string },
+): Promise<SaveResult> {
   const fin = finalizeRide({
     ...input,
     now: Date.now(),
@@ -41,7 +49,7 @@ export async function saveFinishedRide(input: Omit<FinalizeInput, 'now' | 'utcOf
   const stravaConnected = auto.strava ? await bridge().invoke('strava.status', {}).then((st) => st.connected, () => false) : false
   const stravaSkip = uploadSkipReason({ simulated: fin.summary.simulated, movingS: fin.summary.movingS, hasFit: fitPath !== null, autoOn: auto.strava, connected: stravaConnected })
   if (fitPath && !fin.summary.simulated && fin.summary.movingS >= MIN_UPLOAD_S) {
-    const description = describe(fin.summary)
+    const description = descriptionExtra ? `${descriptionExtra}\n${describe(fin.summary)}` : describe(fin.summary)
     for (const provider of ['strava', 'intervals'] as const) {
       if (!auto[provider] || (provider === 'strava' && stravaSkip !== null)) continue
       await bridge().invoke('uploads.enqueue', {

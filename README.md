@@ -57,6 +57,8 @@ It's a data-obsessed indoor cycling trainer for macOS, and [for your phone](#on-
 
 <p align="center"><img src="docs/screenshots/route.png" alt="A route ride on a 6 % climb: speed, grade and power, the ride-along, and the next two kilometres of elevation" width="900"></p>
 
+**Go somewhere.** Turn on Journeys and every free ride or workout happens somewhere real. Get dropped at the Eiffel Tower, Shibuya Crossing or the foot of the Stelvio. Or take on a trip that lasts weeks: Land's End to John o' Groats, the Danube, the Pacific Coast, Route 66, coast to coast across America, or Tokyo to Hiroshima. Each ride carries on where the last one stopped. Your watts move a dot along the real road at the speed you'd actually go there, hills included, and the ride lands on Strava with a map. You get towns, state lines and summits along the way, and the coaches have opinions about all of them. The trainer is never touched: it's still your workout, just somewhere better than the garage.
+
 **Light mode, for the sunny garage.**
 
 <p align="center"><img src="docs/screenshots/home-light.png" alt="Home in the light theme" width="700"></p>
@@ -74,6 +76,12 @@ It's a data-obsessed indoor cycling trainer for macOS, and [for your phone](#on-
   - A "spiral of death" guard: resistance is released when your cadence collapses.
   - One command per second with deadbands, and targets sent a second early to hide trainer lag.
   - Everything is re-applied after a reconnect.
+- **Journeys** (Settings → Journeys, off by default).
+  - **Where to?** on the ride screen: a random famous start, a particular one, the journey you're on, a new grand journey, or any GPX you imported.
+  - Distance comes from your power, weight and bike through the same physics as route rides. Real terrain slows you on the climbs; flat is watts to distance only. No power, no progress.
+  - A mini map on the ride screen with today's trail, a whole-journey view, and the next town ("Lyon in 41 km"). It draws the road itself, with no map tiles, so nothing leaves your Mac.
+  - The FIT file gets the road as GPS, so Strava draws the map. It stays a virtual ride, so you can't take anyone's real-world KOM. The title and description say where you went ("Paris → Rome, day 9: 38.4 km today, 312 of 1421 km"). You can turn the map off.
+  - Multi-day journeys keep their progress, celebrate halfway and the finish, and end with a card showing the whole road. Simulated rides never move them.
 - **Workouts.**
   - Skip, go back or repeat an interval, and extend one by 30 s.
   - Change the intensity in 1 % steps.
@@ -290,5 +298,7 @@ FreeGaz looks like a velodrome: Stayer Blue, midnight boards, four painted lines
 ## License
 
 [MIT](LICENSE). CI checks every shipped dependency for MIT compatibility. Garmin's FIT SDK is used only in the test suite, as a reference decoder, because its license forbids redistribution. The built-in workouts and every coaching line are original.
+
+The journey roads in [`src/renderer/src/journeys/data`](src/renderer/src/journeys/data/LICENSE.md) are © OpenStreetMap contributors under the Open Database License, routed with BRouter, with NASA SRTM elevation (public domain).
 
 The typefaces, Saira and Atkinson Hyperlegible Next, are under the SIL Open Font License 1.1. The caricature photos are not covered by the MIT license: five are U.S. government works in the public domain, and one is under the Government Open Data License – India. Credits, sources and a list of changes are in [`src/renderer/src/coach/toon/heads/ATTRIBUTION.md`](src/renderer/src/coach/toon/heads/ATTRIBUTION.md). The India photo is courtesy of the Prime Minister's Office and the Press Information Bureau, Government of India.

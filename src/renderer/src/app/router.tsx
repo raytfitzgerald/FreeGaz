@@ -37,7 +37,12 @@ const routesRoute = createRoute({ getParentRoute: () => rootRoute, path: '/route
 const devicesRoute = createRoute({ getParentRoute: () => rootRoute, path: '/devices', component: DevicesPage })
 const historyRoute = createRoute({ getParentRoute: () => rootRoute, path: '/history', component: HistoryPage })
 const rideDetailRoute = createRoute({ getParentRoute: () => rootRoute, path: '/history/$rideId', component: RideDetailPage })
-const settingsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/settings', component: SettingsPage })
+const settingsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/settings',
+  validateSearch: (s: Record<string, unknown>): { tab?: string } => (typeof s.tab === 'string' ? { tab: s.tab } : {}),
+  component: SettingsPage,
+})
 const fitnessRoute = createRoute({ getParentRoute: () => rootRoute, path: '/fitness', component: FitnessPage })
 const coachRoute = createRoute({ getParentRoute: () => rootRoute, path: '/coach', component: CoachChatPage })
 

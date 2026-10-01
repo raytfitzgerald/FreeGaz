@@ -14,7 +14,7 @@
 // cases or investigations, no sexual-misconduct material, no age, health or
 // looks, and no real people (family, rivals, anyone) other than the persona.
 import type { PersonaPack } from '../types'
-import { HARD, LAST_REP, PackBuilder, eq, gt, gte, kind, lt, lte, rideKind, when } from './dsl'
+import { HARD, LAST_REP, PackBuilder, eq, gt, gte, kind, lt, lte, ne, rideKind, when } from './dsl'
 
 /**
  * Topics The Donald must never touch, on top of the global guardrails.
@@ -369,6 +369,31 @@ b.add('idle_banter', [
   [5, 'Despite the constant negative covfefe, you keep pedaling. Tremendous.'],
   [5, 'Thank you for your attention to this matter! The matter is your cadence.'],
 ])
+
+const NOT_END = [ne('milestoneKind', 'halfway'), ne('milestoneKind', 'finish')]
+b.add(
+  'journey_milestone',
+  [
+    [1, '{place}. Beautiful place. Really beautiful. Great roads.'],
+    [2, '{place}! {kmDone} km. Nobody has ever ridden this far this beautifully. People are saying it.'],
+    [3, "{place}. Tremendous town. I hear they love us here. They should, we're riding through it."],
+    [4, '{place}. Honestly, they should name a road after you. Maybe two. Big roads.'],
+    [5, '{place}! {kmLeft} km to go. We are winning so much. Thank you for your attention to this matter!'],
+  ],
+  NOT_END,
+)
+b.add('journey_milestone', [
+  [1, 'The top of {place}. Very high. One of the highest. Tremendous view.'],
+  [3, 'Top of {place}. A very steep climb, maybe the steepest. We crushed it. Believe me.'],
+], [eq('milestoneKind', 'summit')])
+b.add('journey_milestone', [
+  [1, "Halfway. {kmDone} km. We're doing numbers nobody thought possible."],
+  [3, 'Halfway through {journeyName}. The second half is going to be even better. The best half.'],
+], [eq('milestoneKind', 'halfway')])
+b.add('journey_milestone', [
+  [1, '{place}! {journeyName}, done. A tremendous journey. The best journey.'],
+  [3, "{place}. {kmDone} km. They said it couldn't be done. We did it. Big league."],
+], [eq('milestoneKind', 'finish')])
 
 export const TRUMP: PersonaPack = {
   meta: {

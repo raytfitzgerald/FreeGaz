@@ -28,6 +28,7 @@ export const SAMPLE_DATA: Readonly<Record<CoachTrigger, CoachData>> = {
   ftp_test_minute: { minute: 7, projectedFtp: 287, ftpOld: 275, remainingS: 780 },
   ftp_test_result: { ftpOld: 275, ftpNew: 287 },
   workout_complete: { elapsedMin: 62, np: 248, tss: 78, kj: 820 },
+  journey_milestone: { place: 'Lyon', milestoneKind: 'place', journeyName: 'Paris → Rome', kmDone: 465, kmLeft: 956 },
   ride_bailed: { elapsedMin: 21, remainingS: 1500 },
   fueling_reminder: { elapsedMin: 45 },
   hydration_reminder: { elapsedMin: 30 },
@@ -101,6 +102,14 @@ export function sampleVariants(trigger: CoachTrigger): CoachContext[] {
         sampleContext('ftp_test_result', 0, { ftpOld: 287, ftpNew: 275 }),
         sampleContext('ftp_test_result', 0, { ftpOld: 280, ftpNew: 280 }),
         sampleContext('ftp_test_result', 0, { ftpOld: undefined }),
+      ]
+    case 'journey_milestone':
+      return [
+        sampleContext('journey_milestone'),
+        sampleContext('journey_milestone', 0, { place: 'Italy', milestoneKind: 'border', kmDone: 702, kmLeft: 719 }),
+        sampleContext('journey_milestone', 0, { place: 'Col du Mont-Cenis', milestoneKind: 'summit', kmDone: 690, kmLeft: 731 }),
+        sampleContext('journey_milestone', 0, { place: 'Halfway', milestoneKind: 'halfway', kmDone: 711, kmLeft: 710 }),
+        sampleContext('journey_milestone', 0, { place: 'Colosseum, Rome', milestoneKind: 'finish', kmDone: 1421, kmLeft: 0 }),
       ]
     default:
       return [sampleContext(trigger)]

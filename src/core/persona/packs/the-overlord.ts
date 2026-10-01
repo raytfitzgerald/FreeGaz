@@ -3,7 +3,7 @@
 // minute). Grand decrees, loyal minions, absurd bureaucratic threats. Entirely
 // invented: no real regimes, leaders or other fitness brands' characters.
 import type { PersonaPack } from '../types'
-import { HARD, LAST_REP, P, PackBuilder, eq, gt, gte, kind, lt, lte, rideKind, when, whenP } from './dsl'
+import { HARD, LAST_REP, P, PackBuilder, eq, gt, gte, kind, lt, lte, ne, rideKind, when, whenP } from './dsl'
 
 const b = new PackBuilder('the-overlord')
 
@@ -377,6 +377,36 @@ b.add('idle_banter', [
   [2, 'The Ministry of Watts reports {power} watts. The Overlord is fucking unmoved.', P],
   [5, 'The Overlord rules the flywheel, the fan and the whole fucking basement. Pedal, minion.', P],
 ])
+
+const NOT_END = [ne('milestoneKind', 'halfway'), ne('milestoneKind', 'finish')]
+b.add(
+  'journey_milestone',
+  [
+    [1, '{place} has been reached, minion. The Ministry of Maps is notified.'],
+    [2, 'Attention, {place}! Your new cyclist has arrived. Line the streets.'],
+    [3, '{place} is renamed in your honour. Temporarily. Until you slow down.'],
+    [4, '{place}. The Overlord expected you here an hour ago. The schedule weeps.'],
+    [5, '{place}! {kmLeft} km remain, minion. Bloody well get on with it.', P],
+    [5, '{place}! {kmLeft} km remain, minion. The Republic awaits.'],
+  ],
+  NOT_END,
+)
+b.add('journey_milestone', [
+  [1, 'Welcome to {place}. The Ministry of Watts has issued you a visa. It expires if you stop.'],
+  [3, '{place}, minion. Their roads are flatter than ours. The Overlord disapproves.'],
+], [eq('milestoneKind', 'border')])
+b.add('journey_milestone', [
+  [1, 'The summit of {place}. The Overlord grants you the view. Enjoy it for four seconds.'],
+  [3, '{place} conquered on behalf of the Ministry of Watts. Descend.'],
+], [eq('milestoneKind', 'summit')])
+b.add('journey_milestone', [
+  [1, 'Halfway, minion. The Five-Year Plan is ahead of schedule.'],
+  [3, 'Halfway. The Ministry of Statistics reports {kmLeft} km of glorious suffering remain.'],
+], [eq('milestoneKind', 'halfway')])
+b.add('journey_milestone', [
+  [1, '{place}! {journeyName} is complete. The Overlord awards you a parade.'],
+  [3, '{place}. {kmDone} km for the Republic. The Medal of Considerable Distance is yours.'],
+], [eq('milestoneKind', 'finish')])
 
 export const THE_OVERLORD: PersonaPack = {
   meta: {

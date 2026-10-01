@@ -51,6 +51,8 @@ export const COACH_TRIGGERS = [
   /** Send `ftpNew` and, when known, `ftpOld`. */
   'ftp_test_result',
   'workout_complete',
+  /** A journey passed a milestone. Send `place`, `milestoneKind` (place, summit, border, halfway, finish), `journeyName`, `kmDone` and `kmLeft`. */
+  'journey_milestone',
   /** The ride ended early. */
   'ride_bailed',
   'fueling_reminder',
@@ -233,6 +235,11 @@ export const DATA_KEYS = {
   tss: 'Training stress score so far.',
   kj: 'Work so far, kJ.',
   workoutName: 'Workout name.',
+  place: 'Journey milestone: the town, summit or region (border) just reached, or "Halfway".',
+  milestoneKind: 'Journey milestone kind: place, summit, border, halfway or finish.',
+  journeyName: 'Journey name, e.g. "Paris → Rome".',
+  kmDone: 'Journey distance done at the milestone, km.',
+  kmLeft: 'Journey distance left after the milestone, km.',
   erg: 'Whether ERG mode is on.',
   // Derived by the engine when their inputs are present.
   deficitW: 'Derived: targetW − power (only rendered when positive).',

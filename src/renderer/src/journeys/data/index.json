@@ -1,0 +1,252 @@
+[
+ {
+  "id": "eiffel-tower",
+  "name": "Eiffel Tower to Rambouillet",
+  "kind": "drop",
+  "blurb": "Out of Paris past the palace of Versailles, into the forest of Rambouillet.",
+  "start": "Eiffel Tower",
+  "end": "Rambouillet",
+  "lengthM": 50876,
+  "gainM": 277
+ },
+ {
+  "id": "golden-gate",
+  "name": "Golden Gate Bridge to Point Reyes",
+  "kind": "drop",
+  "blurb": "Across the bridge, through Sausalito and Fairfax, and over the hills to Point Reyes Station.",
+  "start": "Golden Gate Bridge",
+  "end": "Point Reyes Station",
+  "lengthM": 54853,
+  "gainM": 476
+ },
+ {
+  "id": "shibuya",
+  "name": "Shibuya Crossing to Kamakura",
+  "kind": "drop",
+  "blurb": "From the busiest crossing on earth, down through Yokohama to the Great Buddha.",
+  "start": "Shibuya Crossing",
+  "end": "Kamakura",
+  "lengthM": 53566,
+  "gainM": 221
+ },
+ {
+  "id": "colosseum",
+  "name": "Colosseum to Lake Nemi",
+  "kind": "drop",
+  "blurb": "Out of Rome on the old Appian Way, up into the Alban Hills.",
+  "start": "Colosseum",
+  "end": "Nemi",
+  "lengthM": 31638,
+  "gainM": 673
+ },
+ {
+  "id": "table-mountain",
+  "name": "Table Mountain to Cape Point",
+  "kind": "drop",
+  "blurb": "Camps Bay, Hout Bay, Chapman’s Peak and on to the bottom of Africa.",
+  "start": "Table Mountain",
+  "end": "Cape Point",
+  "lengthM": 70988,
+  "gainM": 808
+ },
+ {
+  "id": "stelvio",
+  "name": "Bormio over the Stelvio",
+  "kind": "drop",
+  "blurb": "Up the Stelvio’s 40-odd hairpins from Bormio, over the top at 2,758 m, and down to Prato.",
+  "start": "Bormio",
+  "end": "Prato allo Stelvio",
+  "lengthM": 45009,
+  "gainM": 1544
+ },
+ {
+  "id": "alpe-dhuez",
+  "name": "Alpe d’Huez and Col de Sarenne",
+  "kind": "drop",
+  "blurb": "The 21 hairpins from Bourg d’Oisans, then over the Col de Sarenne and back down the valley.",
+  "start": "Le Bourg-d’Oisans",
+  "end": "Le Bourg-d’Oisans",
+  "lengthM": 60947,
+  "gainM": 2755
+ },
+ {
+  "id": "ventoux",
+  "name": "Mont Ventoux from Bédoin",
+  "kind": "drop",
+  "blurb": "The classic side: through the forest, out onto the moonscape, and down to Malaucène.",
+  "start": "Bédoin",
+  "end": "Malaucène",
+  "lengthM": 43090,
+  "gainM": 1587
+ },
+ {
+  "id": "central-park",
+  "name": "Central Park to Nyack",
+  "kind": "drop",
+  "blurb": "Up Manhattan, over the George Washington Bridge and along the Hudson to Nyack.",
+  "start": "Central Park",
+  "end": "Nyack",
+  "lengthM": 43882,
+  "gainM": 341
+ },
+ {
+  "id": "sydney",
+  "name": "Sydney Opera House to Palm Beach",
+  "kind": "drop",
+  "blurb": "Over the Harbour Bridge and up the Northern Beaches to Palm Beach.",
+  "start": "Sydney Opera House",
+  "end": "Palm Beach",
+  "lengthM": 49664,
+  "gainM": 490
+ },
+ {
+  "id": "tower-bridge",
+  "name": "Tower Bridge to Box Hill",
+  "kind": "drop",
+  "blurb": "Along the Thames, through Richmond Park and out to the Zig Zag road up Box Hill.",
+  "start": "Tower Bridge",
+  "end": "Box Hill",
+  "lengthM": 48208,
+  "gainM": 331
+ },
+ {
+  "id": "brandenburg-gate",
+  "name": "Brandenburg Gate to Potsdam",
+  "kind": "drop",
+  "blurb": "Through the Tiergarten and the Grunewald forest to the palaces of Potsdam.",
+  "start": "Brandenburg Gate",
+  "end": "Sanssouci, Potsdam",
+  "lengthM": 29885,
+  "gainM": 116
+ },
+ {
+  "id": "copacabana",
+  "name": "Copacabana to Grumari",
+  "kind": "drop",
+  "blurb": "Copacabana, Ipanema and the coast road west to the wild beaches of Grumari.",
+  "start": "Copacabana",
+  "end": "Grumari",
+  "lengthM": 46364,
+  "gainM": 260
+ },
+ {
+  "id": "big-sur",
+  "name": "Carmel down Big Sur",
+  "kind": "drop",
+  "blurb": "Highway 1 from Carmel over the Bixby Bridge to Nepenthe.",
+  "start": "Carmel-by-the-Sea",
+  "end": "Nepenthe",
+  "lengthM": 48905,
+  "gainM": 722
+ },
+ {
+  "id": "banff",
+  "name": "Banff to Lake Louise",
+  "kind": "drop",
+  "blurb": "The Bow Valley Parkway, past Johnston Canyon, to Lake Louise.",
+  "start": "Banff",
+  "end": "Lake Louise",
+  "lengthM": 58262,
+  "gainM": 473
+ },
+ {
+  "id": "amsterdam",
+  "name": "Rijksmuseum to Zandvoort",
+  "kind": "drop",
+  "blurb": "Out of Amsterdam on the bike paths, through Haarlem to the dunes and the sea.",
+  "start": "Rijksmuseum",
+  "end": "Zandvoort",
+  "lengthM": 28424,
+  "gainM": 28
+ },
+ {
+  "id": "red-rock",
+  "name": "Las Vegas to Red Rock Canyon",
+  "kind": "drop",
+  "blurb": "Off the Strip and out to the Red Rock scenic loop.",
+  "start": "Bellagio, Las Vegas",
+  "end": "Blue Diamond",
+  "lengthM": 42848,
+  "gainM": 557
+ },
+ {
+  "id": "kyoto-nara",
+  "name": "Kyoto to Nara",
+  "kind": "drop",
+  "blurb": "From the Golden Pavilion past Fushimi Inari and Uji to the deer of Nara.",
+  "start": "Kinkaku-ji, Kyoto",
+  "end": "Tōdai-ji, Nara",
+  "lengthM": 55035,
+  "gainM": 206
+ },
+ {
+  "id": "paris-rome",
+  "name": "Paris → Rome",
+  "kind": "grand",
+  "blurb": "Burgundy, Lyon, over the Alps at the Col du Mont-Cenis, then Turin, the Ligurian coast and Tuscany.",
+  "start": "Notre-Dame, Paris",
+  "end": "Colosseum, Rome",
+  "lengthM": 1822447,
+  "gainM": 10294
+ },
+ {
+  "id": "lejog",
+  "name": "Land’s End → John o’ Groats",
+  "kind": "grand",
+  "blurb": "The length of Britain: Cornwall, the Welsh borders, the Lakes, Glencoe and the far north.",
+  "start": "Land’s End",
+  "end": "John o’ Groats",
+  "lengthM": 1597730,
+  "gainM": 9378
+ },
+ {
+  "id": "danube",
+  "name": "The Danube: Donaueschingen → Budapest",
+  "kind": "grand",
+  "blurb": "The river from its source in the Black Forest, through Ulm, Passau, Vienna and Bratislava to Budapest.",
+  "start": "Donaueschingen",
+  "end": "Budapest",
+  "lengthM": 1094041,
+  "gainM": 2746
+ },
+ {
+  "id": "pacific-coast",
+  "name": "Pacific Coast: Seattle → Los Angeles",
+  "kind": "grand",
+  "blurb": "The Oregon coast, the redwoods, the Golden Gate, Big Sur and down to the Santa Monica Pier.",
+  "start": "Seattle",
+  "end": "Santa Monica Pier",
+  "lengthM": 2409058,
+  "gainM": 20871
+ },
+ {
+  "id": "route-66",
+  "name": "Route 66: Chicago → Santa Monica",
+  "kind": "grand",
+  "blurb": "The Mother Road across eight states, from Lake Michigan to the Pacific.",
+  "start": "Chicago",
+  "end": "Santa Monica Pier",
+  "lengthM": 4065452,
+  "gainM": 17588
+ },
+ {
+  "id": "coast-to-coast",
+  "name": "Coast to coast: San Francisco → New York",
+  "kind": "grand",
+  "blurb": "Over the Sierra, along America’s loneliest road, across the Rockies and the plains, and into Times Square.",
+  "start": "Golden Gate Bridge",
+  "end": "Times Square",
+  "lengthM": 5888824,
+  "gainM": 27430
+ },
+ {
+  "id": "tokyo-hiroshima",
+  "name": "Tokyo → Hiroshima",
+  "kind": "grand",
+  "blurb": "The old Tōkaidō road past Mount Fuji to Kyoto, then west along the Inland Sea to Hiroshima.",
+  "start": "Nihonbashi, Tokyo",
+  "end": "Hiroshima Peace Memorial",
+  "lengthM": 989328,
+  "gainM": 3937
+ }
+]

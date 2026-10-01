@@ -18,6 +18,8 @@ import { bestPowers } from '../db/bests'
 import { db } from '../db/db'
 import { powerCurve } from '../db/fitness'
 import { discardRecovery, pendingRecoveries, recoverRide, saveFinishedRide } from '../db/rides-repo'
+import { finishRideJourney, prepareRideJourney, type RideJourney } from '../journeys/ride'
+import { getJourney } from '../journeys/repo'
 import { dropMoments } from '../moments/store'
 import { saveMoments } from '../moments/save'
 import { bridge } from '../platform/bridge'
@@ -46,6 +48,7 @@ export interface RideRunnerDeps {
 
 export class RideRunner {
   session: RideSession | null = null
+  private journey: RideJourney | null = null
   private offTick: (() => void) | null = null
   private offSession: (() => void) | null = null
   private lastPublish = 0
@@ -91,6 +94,7 @@ export class RideRunner {
     const bests = await bestPowers([5, 60, 300, 1200]).catch(() => ({}))
     const rideId = newRideId()
     const name = opts.plan?.name ?? opts.name ?? defaultName()
+    const journey = await prepareRideJourney({ plan: opts.plan, athlete })
     const session = new RideSession(
       { clock: this.deps.clock, hub: this.deps.hub, controller: this.deps.controller, journal, setPaused: (p) => this.deps.engine.setPaused(p) },
       {
@@ -101,10 +105,13 @@ export class RideRunner {
         athlete,
         autoPause: settingsStore.getState().trainer.autoPause,
         plan: opts.plan,
+        ...(journey ? { layer: journey.layer } : {}),
         bests,
       },
     )
     this.session = session
+    this.journey = journey
+    rideStore.setState({ journeyCourse: journey?.course ?? null })
     const workout = opts.plan instanceof WorkoutPlan ? opts.plan : null
     this.actualSeen = 0
     this.actualRev = -1
@@ -119,7 +126,7 @@ export class RideRunner {
     const fueling = new FuelingTimer(settingsStore.getState().fueling)
     this.offTick = this.deps.engine.onTick((now) => {
       session.tick(now)
-      if (opts.plan) rideStore.setState({ plan: session.planTick })
+      if (opts.plan || journey) rideStore.setState({ plan: session.planTick })
       if (workout) this.trackActual(session, workout)
       for (const r of fueling.due(session.movingSeconds)) {
         pushToast(r.kind === 'drink' ? { tone: 'fuel', title: 'Drink', body: 'A few good sips.' } : { tone: 'fuel', title: `Eat about ${r.grams} g of carbs`, body: 'A gel, a bar or a banana.' })
@@ -193,9 +200,12 @@ export class RideRunner {
       }
       const plan = session.options.plan
       if (plan instanceof WorkoutPlan && plan.workout.ftpTest) await this.applyFtpTest(session, plan, records)
+      const endedAt = records.at(-1)!.ts
+      const rj = this.journey ? await finishRideJourney(this.journey, { rideId: session.rideId, endedAt, simulated: session.options.simulated }).catch(() => null) : null
       const saved = await saveFinishedRide({
         rideId: session.rideId,
-        name: session.options.name,
+        name: rj ? `${session.options.name} · ${rj.title}` : session.options.name,
+        ...(rj ? { descriptionExtra: rj.description } : {}),
         kind: session.kind,
         simulated: session.options.simulated,
         startedAt: records[0]!.ts - 1000,
@@ -207,7 +217,16 @@ export class RideRunner {
       })
       await recordTestOnRide(session.rideId)
       const moments = await saveMoments(session.rideId, (saved.summary.fit?.fileName ?? saved.summary.name).replace(/\.fit$/i, ''))
-      rideStore.setState({ active: false, rideId: null, snapshot: null, metrics: null, saving: false, lastSaved: { ...saved, moments }, ...ENDED })
+      const finishedJourney = rj?.saved.justFinished && rj.saved.journeyId ? await getJourney(rj.saved.journeyId) : null
+      rideStore.setState({
+        active: false,
+        rideId: null,
+        snapshot: null,
+        metrics: null,
+        saving: false,
+        lastSaved: { ...saved, moments, ...(rj ? { journey: rj.saved } : {}), ...(finishedJourney ? { finishedJourney } : {}) },
+        ...ENDED,
+      })
     } catch (e) {
       // the session is over either way: leave the recording screen and offer the journal for recovery now
       this.detach()
@@ -223,6 +242,7 @@ export class RideRunner {
       void this.loadRecoveries()
     } finally {
       this.session = null
+      this.journey = null
       void bridge().invoke('power.keepAwake', { on: false })
     }
   }
@@ -236,6 +256,7 @@ export class RideRunner {
     dropMoments()
     await bridge().invoke('journal.remove', { rideId: session.rideId })
     this.session = null
+    this.journey = null
     rideStore.setState({ active: false, rideId: null, snapshot: null, metrics: null, ...ENDED })
     void bridge().invoke('power.keepAwake', { on: false })
   }
@@ -331,7 +352,7 @@ async function recordTestOnRide(rideId: string): Promise<void> {
   })
 }
 
-const ENDED = { plan: null, workout: null, actual: null, rescue: null, planFinished: false } as const
+const ENDED = { plan: null, workout: null, actual: null, rescue: null, planFinished: false, journeyCourse: null } as const
 
 async function saveTestFtp(session: RideSession, plan: WorkoutPlan, ftpW: number, basisW: number): Promise<number> {
   return recordFtp({

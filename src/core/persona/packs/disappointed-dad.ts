@@ -1,7 +1,7 @@
 // Disappointed Dad: sighs, passive-aggressive remarks about the trainer he set
 // up, and very rare, very awkward pride.
 import type { PersonaPack } from '../types'
-import { HARD, LAST_REP, P, PackBuilder, eq, gt, gte, kind, lt, lte, rideKind, when, whenP } from './dsl'
+import { HARD, LAST_REP, P, PackBuilder, eq, gt, gte, kind, lt, lte, ne, rideKind, when, whenP } from './dsl'
 
 const b = new PackBuilder('disappointed-dad')
 
@@ -373,6 +373,36 @@ b.add('idle_banter', [
   [4, "You know what that flywheel cost? No. Of course you don't. Fucking nobody asks.", P],
   [5, "I'm not disappointed. I passed disappointed years ago. This is some whole new shit.", P],
 ])
+
+const NOT_END = [ne('milestoneKind', 'halfway'), ne('milestoneKind', 'finish')]
+b.add(
+  'journey_milestone',
+  [
+    [1, '{place}. Nice. Send your mother a postcard.'],
+    [2, "{place}. We drove through here on holiday once. You slept the whole way."],
+    [3, '{place}. {kmDone} km. I did that in a day in the station wagon, just saying.'],
+    [4, "{place}. Your cousin cycled here last summer. He didn't stop to complain either."],
+    [5, "{place}. {kmLeft} km to go. Damn, I'm actually impressed. Don't get used to it.", P],
+    [5, "{place}. {kmLeft} km to go. I'm actually impressed. Don't get used to it."],
+  ],
+  NOT_END,
+)
+b.add('journey_milestone', [
+  [1, 'Welcome to {place}. Did you bring your passport? Of course you did. I packed it.'],
+  [3, '{place}. New country. Same posture, unfortunately.'],
+], [eq('milestoneKind', 'border')])
+b.add('journey_milestone', [
+  [1, 'Top of {place}. Well done, kiddo. Take a picture for the fridge.'],
+  [3, "Top of {place}. I'd have stopped for a sandwich, but sure, keep going."],
+], [eq('milestoneKind', 'summit')])
+b.add('journey_milestone', [
+  [1, 'Halfway. {kmLeft} km to go. Are we there yet? No. No, we are not.'],
+  [3, "Halfway. That's further than you got with the piano lessons."],
+], [eq('milestoneKind', 'halfway')])
+b.add('journey_milestone', [
+  [1, "{place}. You made it, kiddo. I'm proud of you. I'll say it once."],
+  [3, "{place}. {journeyName}, all of it. Now call your mother, she's been worried."],
+], [eq('milestoneKind', 'finish')])
 
 export const DISAPPOINTED_DAD: PersonaPack = {
   meta: {

@@ -9,6 +9,7 @@ import type { Clock } from '../time/clock'
 import type { LiveRide, RideCommand } from '../../shared/live'
 import { encodeEvent, encodeMeta, encodeRecord, type JournalEvent } from './journal'
 import { IDLE_TICK, type PlanTick, type RescueOffer, type RidePlan, freeRidePlan } from './plan'
+import type { PlanLayer } from '../journeys/layer'
 import { RideRecorder, type RideRecord } from './recorder'
 
 export type SessionState = 'ready' | 'riding' | 'paused' | 'finished'
@@ -29,6 +30,8 @@ export interface SessionOptions {
   athlete: AthleteSnapshot
   autoPause: boolean
   plan?: RidePlan
+  /** Applied on top of each plan tick: a journey's road, position and milestones. */
+  layer?: PlanLayer
   /** Best powers before this ride, for live PR detection. */
   bests?: Partial<Record<number, number>>
 }
@@ -332,7 +335,7 @@ export class RideSession {
 
   private applyPlan(now: number, dtS: number): void {
     const hub = this.deps.hub
-    const tick = this.plan.tick({
+    const input = {
       now,
       movingS: this.movingPrecise(now),
       dtS,
@@ -340,7 +343,9 @@ export class RideSession {
       cadence: hub.value('cadence', now),
       hr: hub.value('hr', now),
       intensityPct: this.deps.controller.currentSettings.intensityPct,
-    })
+    }
+    const planned = this.plan.tick(input)
+    const tick = this.options.layer ? this.options.layer.tick(input, planned) : planned
     this.lastTick = tick
     if (tick.desired) this.deps.controller.setDesired(tick.desired)
     if (tick.segmentIndex !== null && tick.segmentIndex !== this.lastSegment) {

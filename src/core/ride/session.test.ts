@@ -5,6 +5,9 @@ import { SensorHub } from '../sensors/hub'
 import { FakeClock } from '../time/clock'
 import { finalizeRide, fitFileName } from './finalize'
 import { parseJournal } from './journal'
+import { courseFromData } from '../journeys/course'
+import { JourneyLayer, type PlanLayer } from '../journeys/layer'
+import { encodePolyline } from '../journeys/polyline'
 import type { RidePlan } from './plan'
 import { RideSession, type JournalSink, type SessionEvent } from './session'
 
@@ -30,7 +33,7 @@ function memoryJournal(opts: { failFirstAppend?: boolean } = {}) {
   return { sink, files, seqs }
 }
 
-function setup(opts: { autoPause?: boolean; plan?: RidePlan; bests?: Record<number, number>; failFirstAppend?: boolean } = {}) {
+function setup(opts: { autoPause?: boolean; plan?: RidePlan; layer?: PlanLayer; bests?: Record<number, number>; failFirstAppend?: boolean } = {}) {
   const clock = new FakeClock(Date.UTC(2026, 8, 29, 13, 0, 0))
   const hub = new SensorHub()
   const controller = new TrainerController()
@@ -46,6 +49,7 @@ function setup(opts: { autoPause?: boolean; plan?: RidePlan; bests?: Record<numb
       athlete: { ftpW: 250, weightKg: 75, lthr: 165 },
       autoPause: opts.autoPause ?? true,
       plan: opts.plan,
+      ...(opts.layer ? { layer: opts.layer } : {}),
       bests: opts.bests,
     },
   )
@@ -217,5 +221,28 @@ describe('RideSession', () => {
     expect(fitFileName({ startedAt: Date.UTC(2026, 8, 29, 13, 5), name: 'Sweet Spot' }, -420)).toBe('2026-09-29 0605 - Sweet Spot.fit')
     // a very long route name still makes a file name the IPC contract accepts
     expect(fitFileName({ startedAt: 0, name: 'x'.repeat(400) }).length).toBeLessThanOrEqual(200)
+  })
+})
+
+describe('RideSession on a journey', () => {
+  // 30 km due north from the Eiffel Tower, flat
+  const pts: [number, number][] = Array.from({ length: 61 }, (_, i) => [48.8584 + (i * 500) / 111_195, 2.2945])
+  const course = courseFromData({
+    v: 1, id: 't', name: 'Test Road', kind: 'drop', blurb: '', start: 'Eiffel Tower', end: 'North', lengthM: 30_000, gainM: 0,
+    line: encodePolyline(pts), ele: { stepM: 50, m: Array(601).fill(35) }, milestones: [{ m: 30_000, name: 'North', kind: 'finish' }],
+  })
+
+  it('records the virtual road: GPS on every record, and distance from the physics speed', async () => {
+    const layer = new JourneyLayer({ course, journeyId: null, startM: 0, terrain: 'real', rider: { riderKg: 75 }, gps: true })
+    const { session, ride } = setup({ layer })
+    session.start()
+    await ride(300, 200)
+    const { records } = await session.finish()
+    expect(records.length).toBeGreaterThan(290)
+    expect(records.every((r) => typeof r.lat === 'number' && typeof r.lon === 'number')).toBe(true)
+    const last = records.at(-1)!
+    expect(last.distance).toBeCloseTo(layer.riddenM, -1)
+    expect(last.lat!).toBeGreaterThan(48.8584 + 1000 / 111_195)
+    expect(last.speed!).toBeGreaterThan(8)
   })
 })

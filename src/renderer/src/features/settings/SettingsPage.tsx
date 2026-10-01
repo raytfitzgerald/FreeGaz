@@ -1,5 +1,6 @@
 import { Tabs } from 'radix-ui'
-import { Bot, Database, Gauge, Info, Link2, Megaphone, Smartphone, SlidersHorizontal, SunMoon } from 'lucide-react'
+import { useSearch } from '@tanstack/react-router'
+import { Bot, Database, Gauge, Info, Link2, MapPinned, Megaphone, Smartphone, SlidersHorizontal, SunMoon } from 'lucide-react'
 import { PageHeader } from '../../ui/PageHeader'
 import { AthleteSection } from './AthleteSection'
 import { TrainerSection } from './TrainerSection'
@@ -10,12 +11,14 @@ import { AppearanceSection } from './AppearanceSection'
 import { RemoteSection } from './RemoteSection'
 import { AboutSection } from './AboutSection'
 import { DataSection } from './DataSection'
+import { JourneysSection } from './JourneysSection'
 
 const TABS = [
   { id: 'athlete', label: 'Athlete & FTP', icon: Gauge, el: <AthleteSection /> },
   { id: 'trainer', label: 'Trainer feel', icon: SlidersHorizontal, el: <TrainerSection /> },
   { id: 'coach', label: 'Coach', icon: Megaphone, el: <CoachSection /> },
   { id: 'integrations', label: 'Strava & sync', icon: Link2, el: <IntegrationsSection /> },
+  { id: 'journeys', label: 'Journeys', icon: MapPinned, el: <JourneysSection /> },
   { id: 'ai', label: 'AI', icon: Bot, el: <AiSection /> },
   { id: 'remote', label: 'Remote & mini-HUD', icon: Smartphone, el: <RemoteSection /> },
   { id: 'appearance', label: 'Appearance', icon: SunMoon, el: <AppearanceSection /> },
@@ -24,10 +27,12 @@ const TABS = [
 ] as const
 
 export function SettingsPage() {
+  const { tab } = useSearch({ from: '/settings' })
+  const initial = TABS.some((t) => t.id === tab) ? tab! : 'athlete'
   return (
     <div className="mx-auto max-w-6xl px-4 md:px-8 pb-12">
       <PageHeader title="Settings" subtitle={__FREEGAZ_WEB__ ? 'Everything is stored in this browser, on this device.' : 'Everything is stored on this Mac. Keys and tokens are encrypted with your macOS Keychain.'} />
-      <Tabs.Root defaultValue="athlete" orientation="vertical" className="flex flex-col gap-4 md:flex-row md:gap-6">
+      <Tabs.Root defaultValue={initial} orientation="vertical" className="flex flex-col gap-4 md:flex-row md:gap-6">
         <Tabs.List className="-mx-4 flex shrink-0 gap-1 overflow-x-auto px-4 md:mx-0 md:w-52 md:flex-col md:overflow-visible md:px-0" aria-label="Settings sections">
           {TABS.map(({ id, label, icon: Icon }) => (
             <Tabs.Trigger

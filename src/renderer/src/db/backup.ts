@@ -84,7 +84,7 @@ function decodeStreams(o: Record<string, unknown>): RideStreams {
 
 export async function createBackup(): Promise<Uint8Array> {
   const d = db()
-  const [rides, streams, workouts, ftpHistory, profile, kv, routes, routeRides] = await Promise.all([
+  const [rides, streams, workouts, ftpHistory, profile, kv, routes, routeRides, journeys] = await Promise.all([
     d.rides.toArray(),
     d.rideStreams.toArray(),
     d.workouts.toArray(),
@@ -93,6 +93,7 @@ export async function createBackup(): Promise<Uint8Array> {
     d.kv.toArray(),
     d.routes.toArray(),
     d.routeRides.toArray(),
+    d.journeys.toArray(),
   ])
   const files: Zippable = {
     'manifest.json': strToU8(JSON.stringify({ format: BACKUP_FORMAT, version: BACKUP_VERSION, createdAt: Date.now(), counts: { rides: rides.length, workouts: workouts.length, routes: routes.length } })),
@@ -103,6 +104,7 @@ export async function createBackup(): Promise<Uint8Array> {
     'kv.json': strToU8(JSON.stringify(kv)),
     'routes.json': strToU8(JSON.stringify(routes, typedReplacer)),
     'routeRides.json': strToU8(JSON.stringify(routeRides, typedReplacer)),
+    'journeys.json': strToU8(JSON.stringify(journeys)),
   }
   for (const s of streams) files[`streams/${s.rideId}.json`] = strToU8(JSON.stringify(encodeStreams(s)))
   return zipSync(files, { level: 6 })
@@ -133,11 +135,12 @@ export async function restoreBackup(zip: Uint8Array): Promise<RestoreResult> {
   const kv = json<unknown[]>('kv.json', [])
   const routes = typedJson<unknown[]>('routes.json', [])
   const routeRides = typedJson<unknown[]>('routeRides.json', [])
+  const journeys = json<unknown[]>('journeys.json', [])
   const streams = Object.keys(files)
     .filter((n) => n.startsWith('streams/') && n.endsWith('.json'))
     .map((n) => decodeStreams(JSON.parse(strFromU8(files[n]!)) as Record<string, unknown>))
 
-  await d.transaction('rw', [d.rides, d.rideStreams, d.workouts, d.ftpHistory, d.profile, d.kv, d.routes, d.routeRides], async () => {
+  await d.transaction('rw', [d.rides, d.rideStreams, d.workouts, d.ftpHistory, d.profile, d.kv, d.routes, d.routeRides, d.journeys], async () => {
     await d.rides.bulkPut(rides as never[])
     await d.rideStreams.bulkPut(streams)
     await d.workouts.bulkPut(workouts as never[])
@@ -146,6 +149,7 @@ export async function restoreBackup(zip: Uint8Array): Promise<RestoreResult> {
     await d.kv.bulkPut(kv as never[])
     await d.routes.bulkPut(routes as never[])
     await d.routeRides.bulkPut(routeRides as never[])
+    await d.journeys.bulkPut(journeys as never[])
   })
   return { rides: rides.length, workouts: workouts.length, ftpEntries: ftpHistory.length, routes: routes.length }
 }

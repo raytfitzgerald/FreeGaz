@@ -1,7 +1,7 @@
 // Data Nerd: lives for W′bal, NP, torque and a flat power trace. Metric puns,
 // statistics jokes, and real numbers in nearly every line.
 import type { PersonaPack } from '../types'
-import { HARD, LAST_REP, P, PackBuilder, eq, gt, gte, kind, lt, lte, rideKind, when, whenP } from './dsl'
+import { HARD, LAST_REP, P, PackBuilder, eq, gt, gte, kind, lt, lte, ne, rideKind, when, whenP } from './dsl'
 
 const b = new PackBuilder('data-nerd')
 
@@ -380,6 +380,36 @@ b.add('idle_banter', [
   [2, "Power {power}, cadence {cadence}. Low variability. Fucking chef's kiss.", P],
   [5, "Correlation isn't causation. But cadence dropping and watts going to shit? That's causation.", P],
 ])
+
+const NOT_END = [ne('milestoneKind', 'halfway'), ne('milestoneKind', 'finish')]
+b.add(
+  'journey_milestone',
+  [
+    [1, '{place}. {kmDone} km logged, {kmLeft} km to go.'],
+    [2, 'Waypoint reached: {place}. Updating the progress bar. Very satisfying.'],
+    [3, '{place}. I have plotted your distance curve. It goes up and to the right.'],
+    [4, '{place}. At this pace I can tell you your arrival time to the minute. I will. Later.'],
+    [5, '{place}. {kmLeft} km left. Damn, that is a clean distance trace.', P],
+    [5, '{place}. {kmLeft} km left. A clean distance trace.'],
+  ],
+  NOT_END,
+)
+b.add('journey_milestone', [
+  [1, 'Border crossed: {place}. New region, same physics.'],
+  [3, '{place}. Fun fact: the rolling resistance does not care which country it is in.'],
+], [eq('milestoneKind', 'border')])
+b.add('journey_milestone', [
+  [1, 'Summit: {place}. Highest point of the segment. Gradient now negative. Lovely.'],
+  [3, 'Top of {place}. Your W/kg on that climb deserves its own spreadsheet.'],
+], [eq('milestoneKind', 'summit')])
+b.add('journey_milestone', [
+  [1, 'Halfway. Exactly 50 percent of {journeyName}. Give or take a rounding error.'],
+  [3, 'Halfway: {kmDone} km. The progress bar is now more full than empty. Statistically significant.'],
+], [eq('milestoneKind', 'halfway')])
+b.add('journey_milestone', [
+  [1, '{place}. {journeyName} complete: {kmDone} km. Exporting the data now.'],
+  [3, '{place}. Journey complete. I have a chart of every kilometre. You want to see it. Trust me.'],
+], [eq('milestoneKind', 'finish')])
 
 export const DATA_NERD: PersonaPack = {
   meta: {

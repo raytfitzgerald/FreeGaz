@@ -19,6 +19,7 @@ import { Notice, type NoticeMessage } from '../builder/Notice'
 import { RouteDetailDialog } from '../routes/RouteDetailDialog'
 import { WorkoutDetailDialog } from '../workouts/WorkoutDetailDialog'
 import { startWorkout } from '../workouts/start'
+import { WhereTo } from '../journeys/WhereTo'
 import { FtpResultCard } from './FtpResultCard'
 import { SavedRideCard } from './SavedRideCard'
 import { chooseRide, type RideChoice } from './setup'
@@ -54,6 +55,11 @@ export function RideLauncher({ choice }: { choice: RideChoice | null }) {
         <SavedRideCard />
         <Readiness />
       </div>
+      {(choice === 'time' || choice === 'workout') && (
+        <div className="mb-4">
+          <WhereTo />
+        </div>
+      )}
       {current ? (
         <div className="rounded-2xl border border-line bg-panel p-5">
           {choice === 'time' && <TimeSetup />}
