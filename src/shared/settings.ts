@@ -85,6 +85,8 @@ export const AppSettingsSchema = z.object({
   appearance: z.enum(['system', 'light', 'dark']).default('system'),
   /** Upload finished (non-simulated) rides automatically. */
   autoUpload: z.object({ strava: z.boolean().default(false), intervals: z.boolean().default(false) }).default({ strava: false, intervals: false }),
+  /** Capture the hardest effort and a coach line from each ride as images, saved next to its FIT file. */
+  rideSnapshots: z.boolean().default(true),
   trainer: TrainerPrefsSchema.default(TrainerPrefsSchema.parse({})),
   coach: CoachPrefsSchema.default(CoachPrefsSchema.parse({})),
   fueling: FuelingPrefsSchema.default(FuelingPrefsSchema.parse({})),

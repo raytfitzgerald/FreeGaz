@@ -223,6 +223,8 @@ Apple doesn't let any iPhone browser use Bluetooth devices, so the iPhone app ca
 
 FreeGaz only uploads. It never reads your Strava data. Without a subscription, use **Strava upload** on any ride: it opens Strava's upload page and shows you the FIT file to drag in.
 
+**Ride moments.** Every ride also saves two pictures next to its FIT file: your hardest 30 seconds, and a coach line picked at random, speech bubble included. They show the ride-along, the big numbers and the workout chart, like the shots Zwift adds to your post. Strava only lets partner apps attach photos, so FreeGaz can't add them itself. The saved-ride card has **Copy** and **Open on Strava**, so adding one takes a paste. Turn them off in **Settings → Strava & sync**.
+
 **intervals.icu.** Paste your API key and athlete ID (from intervals.icu → Settings → Developer) in **Settings → Strava & sync**.
 
 **Garmin Connect.** Drag a ride's FIT file into Garmin Connect's import page. There is no automatic upload.

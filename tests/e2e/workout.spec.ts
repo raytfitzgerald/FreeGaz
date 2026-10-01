@@ -1,3 +1,5 @@
+import { readdirSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
 import { launchApp, type Launched } from './launch'
 
@@ -57,6 +59,25 @@ test('rides a built-in workout: live HUD, skip to the next interval, finish and 
 
   await finishRide(page)
   await expect(page.getByTestId('saved-ride')).toContainText('Race Openers')
+})
+
+test('captures the hardest effort as a picture, saved next to the FIT file', async () => {
+  const { page } = ctx
+  await openWorkout(page, 'Race Openers')
+  // moments start after two minutes of riding: at 30x that's a few seconds
+  await expect(page.getByTestId('workout-progress')).toContainText(/^(2:[3-5]\d|[3-9]:\d\d) elapsed/, { timeout: 30_000 })
+  await finishRide(page)
+  const moments = page.getByTestId('ride-moments')
+  await expect(moments).toBeVisible()
+  await expect(moments.getByRole('img', { name: /^Hardest effort: Hardest 30 s · \d+ W/ })).toBeVisible()
+  await expect(page.getByTestId('copy-moment-hard')).toBeVisible()
+
+  const dir = join(ctx.userData, 'Documents', 'FreeGaz', 'Rides')
+  const pic = readdirSync(dir).find((f) => f.includes('Race Openers') && f.endsWith(' - hardest effort.jpg'))
+  expect(pic).toBeDefined()
+  const bytes = readFileSync(join(dir, pic!))
+  expect([...bytes.subarray(0, 3)]).toEqual([0xff, 0xd8, 0xff])
+  expect(bytes.length).toBeGreaterThan(20_000)
 })
 
 test('20-minute FTP test: ERG off for the effort, and the result appears after the ride', async () => {

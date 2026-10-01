@@ -126,6 +126,15 @@ export const invoke = {
     req: z.object({ fileName: z.string().min(1).max(200), bytes: z.instanceof(Uint8Array) }),
     res: z.object({ path: z.string(), fileName: z.string() }),
   },
+  /** A ride-moment image (JPEG) into the export folder, next to the ride's FIT file. */
+  'files.saveImage': {
+    req: z.object({ fileName: z.string().min(5).max(200).regex(/\.jpe?g$/i), bytes: z.instanceof(Uint8Array) }),
+    res: z.object({ path: z.string(), fileName: z.string() }),
+  },
+  /** Puts an image from the export folder on the clipboard, ready to paste into a Strava post. */
+  'files.copyImage': { req: z.object({ path: z.string().max(2000) }), res: Ok },
+  /** The window as it looks now (JPEG), for ride moments; null when it's hidden or minimized. */
+  'ride.capture': { req: Empty, res: z.object({ image: z.instanceof(Uint8Array).nullable(), width: z.number(), height: z.number() }) },
   'files.exportDir': { req: Empty, res: z.object({ dir: z.string() }) },
   'files.chooseExportDir': { req: Empty, res: z.object({ dir: z.string().nullable() }) },
   'files.reveal': { req: z.object({ path: z.string().max(2000) }), res: Ok },

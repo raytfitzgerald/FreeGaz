@@ -18,6 +18,8 @@ import { bestPowers } from '../db/bests'
 import { db } from '../db/db'
 import { powerCurve } from '../db/fitness'
 import { discardRecovery, pendingRecoveries, recoverRide, saveFinishedRide } from '../db/rides-repo'
+import { dropMoments } from '../moments/store'
+import { saveMoments } from '../moments/save'
 import { bridge } from '../platform/bridge'
 import { pushToast, rideStore } from '../stores/ride'
 import { settingsStore } from '../stores/settings'
@@ -184,6 +186,7 @@ export class RideRunner {
       const { records } = await session.finish()
       this.detach()
       if (records.length < 5) {
+        dropMoments()
         await bridge().invoke('journal.remove', { rideId: session.rideId })
         rideStore.setState({ active: false, rideId: null, snapshot: null, metrics: null, saving: false, ...ENDED })
         return
@@ -203,7 +206,8 @@ export class RideRunner {
         workoutJson: plan?.workoutJson,
       })
       await recordTestOnRide(session.rideId)
-      rideStore.setState({ active: false, rideId: null, snapshot: null, metrics: null, saving: false, lastSaved: saved, ...ENDED })
+      const moments = await saveMoments(session.rideId, (saved.summary.fit?.fileName ?? saved.summary.name).replace(/\.fit$/i, ''))
+      rideStore.setState({ active: false, rideId: null, snapshot: null, metrics: null, saving: false, lastSaved: { ...saved, moments }, ...ENDED })
     } catch (e) {
       // the session is over either way: leave the recording screen and offer the journal for recovery now
       this.detach()
@@ -229,6 +233,7 @@ export class RideRunner {
     if (!session) return
     await session.finish()
     this.detach()
+    dropMoments()
     await bridge().invoke('journal.remove', { rideId: session.rideId })
     this.session = null
     rideStore.setState({ active: false, rideId: null, snapshot: null, metrics: null, ...ENDED })

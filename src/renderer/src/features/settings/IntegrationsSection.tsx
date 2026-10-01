@@ -12,6 +12,7 @@ const loadStatus = () => Promise.all([bridge().invoke('strava.status', {}), brid
 
 export function IntegrationsSection() {
   const autoUpload = useSettings((s) => s.autoUpload)
+  const rideSnapshots = useSettings((s) => s.rideSnapshots)
   const [strava, setStrava] = useState<InvokeRes<'strava.status'> | null>(null)
   const [icu, setIcu] = useState<InvokeRes<'intervals.status'> | null>(null)
   const [exportDir, setExportDir] = useState('')
@@ -120,6 +121,12 @@ export function IntegrationsSection() {
         )}
         <Field label="Auto-upload" hint="Upload every real (non-simulated) ride when you finish.">
           <Switch checked={autoUpload.strava} disabled={!strava?.connected} onChange={(v) => void patchSettings({ autoUpload: { ...autoUpload, strava: v } })} label={autoUpload.strava ? 'On' : 'Off'} />
+        </Field>
+        <Field
+          label="Ride moments"
+          hint="Capture your hardest effort and a coach line as pictures, saved next to the FIT file. Strava doesn't let apps add photos, so copy one from the saved-ride card and paste it into the post."
+        >
+          <Switch checked={rideSnapshots} onChange={(v) => void patchSettings({ rideSnapshots: v })} label={rideSnapshots ? 'On' : 'Off'} />
         </Field>
         {msg && <div className="py-2 text-sm text-ink-dim">{msg}</div>}
       </Section>

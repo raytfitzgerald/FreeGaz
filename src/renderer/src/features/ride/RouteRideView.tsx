@@ -90,13 +90,13 @@ export function RouteRideView() {
         </div>
       )}
 
-      <div className="grid gap-3 md:grid-cols-3">
+      <div className="grid gap-3 md:grid-cols-3" data-snap>
         <SpeedTile r={r} />
         <GradeTile r={r} />
         <PowerTile />
       </div>
 
-      <div className="rounded-2xl border border-line bg-panel p-4" data-testid="route-strip">
+      <div className="rounded-2xl border border-line bg-panel p-4" data-testid="route-strip" data-snap>
         <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
           <div className="eyebrow text-ink-faint">
             {r.finished ? 'The last of the route' : `The next ${formatKm(Math.min(AHEAD_M, r.remainingM), 1, units)} ${distanceUnit(units)}`}

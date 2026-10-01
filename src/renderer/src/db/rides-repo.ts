@@ -6,6 +6,7 @@ import { finalizeRide, type FinalizeInput } from '@core/ride/finalize'
 import { parseJournal } from '@core/ride/journal'
 import type { RideSummary } from '@core/ride/types'
 import { MIN_UPLOAD_S, uploadSkipReason, type UploadSkip } from '@core/ride/upload-policy'
+import type { SavedMoment } from '../moments/store'
 import { bridge } from '../platform/bridge'
 import { settingsStore } from '../stores/settings'
 import { db } from './db'
@@ -16,6 +17,8 @@ export interface SaveResult {
   uploads: string[]
   /** Why the ride wasn't queued for Strava, or null if it was. */
   stravaSkip: UploadSkip | null
+  /** Pictures of the ride's best moments, saved next to the FIT file (added once they're written). */
+  moments?: SavedMoment[]
 }
 
 export async function saveFinishedRide(input: Omit<FinalizeInput, 'now' | 'utcOffsetMin' | 'softwareVersion'>): Promise<SaveResult> {
