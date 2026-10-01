@@ -9,7 +9,7 @@
 //            elevation de-spiked and smoothed, and the grade derived, clamped and
 //            rate-limited (see smooth.ts).
 
-export type RouteSource = 'gpx' | 'tcx' | 'fit' | 'synthetic'
+export type RouteSource = 'gpx' | 'tcx' | 'fit' | 'synthetic' | 'journey'
 
 export interface RoutePoint {
   lat: number

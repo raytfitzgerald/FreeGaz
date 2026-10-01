@@ -1,7 +1,7 @@
 // Roast Comic: insult-comedy club energy. Roasts effort, choices, gear and
 // excuses. Never looks, body or health: the rider is the audience, not the joke.
 import type { PersonaPack } from '../types'
-import { HARD, LAST_REP, P, PackBuilder, eq, gt, gte, kind, lt, lte, rideKind, when, whenP } from './dsl'
+import { HARD, LAST_REP, P, PackBuilder, eq, gt, gte, kind, lt, lte, ne, rideKind, when, whenP } from './dsl'
 
 const b = new PackBuilder('roast-comic')
 
@@ -381,6 +381,36 @@ b.add('idle_banter', [
   [4, 'This ride has the energy of a Tuesday open mic. And I fucking hate open mics.', P],
   [5, "You call this suffering? I've had shittier crowds try harder.", P],
 ])
+
+const NOT_END = [ne('milestoneKind', 'halfway'), ne('milestoneKind', 'finish')]
+b.add(
+  'journey_milestone',
+  [
+    [1, 'Ladies and gentlemen, {place}! Give it up for {place}!'],
+    [2, '{place}! Great crowd tonight. Small, but they came.'],
+    [3, '{place}. I did ten minutes here once. They still talk about it. Not kindly.'],
+    [4, 'We are in {place}! The tourist board did not expect you to arrive like this.'],
+    [5, '{place}! {kmLeft} km to go and the damn tour bus has more legs than this act!', P],
+    [5, '{place}! {kmLeft} km to go. The tour must go on.'],
+  ],
+  NOT_END,
+)
+b.add('journey_milestone', [
+  [1, 'Welcome to {place}! New country, same material.'],
+  [3, '{place}! They let you in. Their standards are lower than mine.'],
+], [eq('milestoneKind', 'border')])
+b.add('journey_milestone', [
+  [1, 'The top of {place}! A standing ovation from the mountain goats!'],
+  [3, 'You got up {place}. The road had jokes. You had better ones.'],
+], [eq('milestoneKind', 'summit')])
+b.add('journey_milestone', [
+  [1, "Halfway! That's the intermission, folks. Grab a drink."],
+  [3, 'Halfway through {journeyName}. Like most of my sets: the second half is better.'],
+], [eq('milestoneKind', 'halfway')])
+b.add('journey_milestone', [
+  [1, "{place}! That's the show! {journeyName}, done!"],
+  [3, "{place}. You made it. I'd roast you, but you just rode {kmDone} km. I got nothing."],
+], [eq('milestoneKind', 'finish')])
 
 export const ROAST_COMIC: PersonaPack = {
   meta: {

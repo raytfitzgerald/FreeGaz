@@ -309,6 +309,7 @@ export class TriggerDetector {
     this.trackSegments(t, out, dtS)
     this.trackAbnormalHr(t, out)
     if (!this.stop && t.state === 'riding') {
+      this.trackMilestone(t, out)
       this.trackCues(t, out)
       this.trackPower(t, out)
       this.trackCadence(t, out, dtS)
@@ -921,6 +922,13 @@ export class TriggerDetector {
   private segData(): CoachData {
     const s = this.seg?.seg
     return s ? { segmentKind: s.kind, hard: s.hard, rep: s.rep, reps: s.reps } : {}
+  }
+
+  /** A journey passed a town, border, summit, halfway or its finish. */
+  private trackMilestone(t: DetectorTick, out: CoachContext[]): void {
+    const m = t.plan.milestone
+    if (!m) return
+    this.push(out, t.now, 'journey_milestone', { place: m.name, milestoneKind: m.kind, journeyName: m.journeyName, kmDone: m.kmDone, kmLeft: m.kmLeft })
   }
 
   private push(out: CoachContext[], now: number, trigger: CoachTrigger, data: CoachData): void {

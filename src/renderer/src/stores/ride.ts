@@ -1,5 +1,6 @@
 import { createStore, useStore } from 'zustand'
 import type { FtpUpdateDecision } from '@core/ride/ftp-update'
+import type { JourneyCourse } from '@core/journeys/course'
 import type { PlanTick, RescueOffer } from '@core/ride/plan'
 import type { RideSession } from '@core/ride/session'
 import type { WorkoutPlan } from '@core/ride/workout-plan'
@@ -43,6 +44,8 @@ interface RideStoreState {
   plan: PlanTick | null
   /** The workout being ridden, with its timeline revision (bumped by extend/rescue). */
   workout: { plan: WorkoutPlan; rev: number } | null
+  /** The road of the ride's journey, for the mini map (positions come in on `plan.journey`). */
+  journeyCourse: JourneyCourse | null
   /** Recorded power per second of workout timeline (for the chart overlay). */
   actual: (number | null)[] | null
   rescue: (RescueOffer & { at: number }) | null
@@ -63,6 +66,7 @@ export const rideStore = createStore<RideStoreState>(() => ({
   cue: null,
   plan: null,
   workout: null,
+  journeyCourse: null,
   actual: null,
   rescue: null,
   planFinished: false,

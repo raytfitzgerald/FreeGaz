@@ -1,7 +1,7 @@
 // Zen: calm, breath and attention, with gentle humour. Secular mindfulness only:
 // no religious figures, practices or teachings, and no borrowed quotes.
 import type { PersonaPack } from '../types'
-import { HARD, LAST_REP, P, PackBuilder, eq, gt, gte, kind, lt, lte, rideKind, when, whenP } from './dsl'
+import { HARD, LAST_REP, P, PackBuilder, eq, gt, gte, kind, lt, lte, ne, rideKind, when, whenP } from './dsl'
 
 const b = new PackBuilder('zen')
 
@@ -368,6 +368,36 @@ b.add('idle_banter', [
   [4, 'The mind says stop. Thank it for sharing. Then tell it to fuck off, gently.', P],
   [5, 'I am a calm lake. You are a rock. This is a shit metaphor. Keep pedaling.', P],
 ])
+
+const NOT_END = [ne('milestoneKind', 'halfway'), ne('milestoneKind', 'finish')]
+b.add(
+  'journey_milestone',
+  [
+    [1, '{place}. Notice it. Then let it pass behind you.'],
+    [2, '{place}. {kmDone} km of the path behind you. The rest unfolds as you pedal.'],
+    [3, '{place}. The town does not know you are here. The road does.'],
+    [4, '{place}. Somewhere here, a person is eating a pastry. You are not. Breathe.'],
+    [5, '{place}. {kmLeft} km to go. Damn, the road is long. And so is your patience.', P],
+    [5, '{place}. {kmLeft} km to go. The road is long. So is your patience.'],
+  ],
+  NOT_END,
+)
+b.add('journey_milestone', [
+  [1, '{place}. A line on a map. The road continues, unconcerned.'],
+  [3, 'Welcome to {place}. The air is the same. Breathe it anyway.'],
+], [eq('milestoneKind', 'border')])
+b.add('journey_milestone', [
+  [1, 'The top of {place}. Pause in the mind, not the legs.'],
+  [3, '{place}. The mountain did not get smaller. You got there anyway.'],
+], [eq('milestoneKind', 'summit')])
+b.add('journey_milestone', [
+  [1, 'Halfway. The beginning and the end are equally far. Only now is close.'],
+  [3, 'Halfway through {journeyName}. Do not count the rest. Ride it.'],
+], [eq('milestoneKind', 'halfway')])
+b.add('journey_milestone', [
+  [1, '{place}. The journey is complete. Every turn of the pedals brought you here.'],
+  [3, '{place}. {kmDone} km. Sit with it for a moment. You earned the stillness.'],
+], [eq('milestoneKind', 'finish')])
 
 export const ZEN: PersonaPack = {
   meta: {

@@ -42,3 +42,4 @@ FreeGaz backup *.zip
 
 # local Claude Code tooling
 .claude/
+scripts/journeys/.cache/

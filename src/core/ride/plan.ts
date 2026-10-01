@@ -3,6 +3,7 @@
 import type { Desired } from '../control/trainer-controller'
 import type { CadenceTarget } from '../workout/model'
 import type { RideCommand } from '../../shared/live'
+import type { JourneyTick, MilestoneEvent } from '../journeys/types'
 import type { RideKind } from './types'
 
 export interface PlanInput {
@@ -83,6 +84,10 @@ export interface PlanTick {
   rescue?: RescueOffer | null
   /** FTP tests only, during the effort. */
   effort?: EffortProgress | null
+  /** Journeys: where on the virtual road the rider is. */
+  journey?: JourneyTick | null
+  /** Journeys: set on the one tick that passes a milestone. */
+  milestone?: MilestoneEvent | null
 }
 
 export interface RidePlan {

@@ -1,7 +1,7 @@
 // Hype Coach: high energy, all-caps moments, positive only. Spice turns the
 // volume up, never the meanness: even a skipped interval gets a cheer.
 import type { PersonaPack } from '../types'
-import { HARD, LAST_REP, P, PackBuilder, eq, gt, gte, kind, lt, lte, rideKind, when, whenP } from './dsl'
+import { HARD, LAST_REP, P, PackBuilder, eq, gt, gte, kind, lt, lte, ne, rideKind, when, whenP } from './dsl'
 
 const b = new PackBuilder('hype-coach')
 
@@ -378,6 +378,36 @@ b.add('idle_banter', [
   [1, "You're doing fucking great. Just so you know.", P],
   [4, "Power {power}! Cadence {cadence}! You're a fucking machine!", P],
 ])
+
+const NOT_END = [ne('milestoneKind', 'halfway'), ne('milestoneKind', 'finish')]
+b.add(
+  'journey_milestone',
+  [
+    [1, '{place}! WE MADE IT TO {place}!'],
+    [2, '{place}! {kmDone} km down! Wave to the people!'],
+    [3, 'Welcome to {place}! This town has never seen watts like these!'],
+    [4, '{place}! THEY SHOULD BUILD YOU A STATUE HERE!'],
+    [5, '{place}! {kmLeft} km to go and you are looking damn unstoppable!', P],
+    [5, '{place}! {kmLeft} km to go and you are UNSTOPPABLE!'],
+  ],
+  NOT_END,
+)
+b.add('journey_milestone', [
+  [1, 'NEW COUNTRY! Welcome to {place}! Look at you go!'],
+  [3, '{place}! Another one on the map! You are a whole travel show!'],
+], [eq('milestoneKind', 'border')])
+b.add('journey_milestone', [
+  [1, 'TOP OF {place}! You climbed the whole thing!'],
+  [3, 'Summit! {place}! That climb never stood a chance!'],
+], [eq('milestoneKind', 'summit')])
+b.add('journey_milestone', [
+  [1, 'HALFWAY! {kmDone} km! The second half is yours!'],
+  [3, 'Halfway through {journeyName}! It only gets better from here!'],
+], [eq('milestoneKind', 'halfway')])
+b.add('journey_milestone', [
+  [1, '{place}! YOU DID IT! {journeyName}, COMPLETE!'],
+  [3, '{kmDone} km! {place}! I am literally crying! LEGEND!'],
+], [eq('milestoneKind', 'finish')])
 
 export const HYPE_COACH: PersonaPack = {
   meta: {

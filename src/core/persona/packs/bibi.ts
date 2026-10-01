@@ -10,7 +10,7 @@
 // nationality, no war, military operations, hostages or casualties, no trial
 // or corruption allegations, and no real people other than the persona itself.
 import type { PersonaPack } from '../types'
-import { HARD, LAST_REP, PackBuilder, eq, gt, gte, kind, lt, lte, rideKind, when } from './dsl'
+import { HARD, LAST_REP, PackBuilder, eq, gt, gte, kind, lt, lte, ne, rideKind, when } from './dsl'
 
 /**
  * Topics Bibi must never touch, on top of the global guardrails.
@@ -367,6 +367,31 @@ b.add('idle_banter', [
   [5, 'As the longest-serving coach on this bike, I can tell you: your excuses are fake news. All of them.'],
   [5, 'History will judge this ride. History is already yawning. Pick it up.'],
 ])
+
+const NOT_END = [ne('milestoneKind', 'halfway'), ne('milestoneKind', 'finish')]
+b.add(
+  'journey_milestone',
+  [
+    [1, '{place}. A historic arrival. I have prepared a chart.'],
+    [2, '{place}. {kmDone} km. Let me be absolutely clear: this is progress.'],
+    [3, '{place}. If this were Congress, the town would be on its feet.'],
+    [4, '{place}. I will now give a forty-minute speech about this town. It begins with a slide.'],
+    [5, '{place}. {kmLeft} km remain. The critics said you would never see {place}. The ride file says otherwise.'],
+  ],
+  NOT_END,
+)
+b.add('journey_milestone', [
+  [1, 'The summit of {place}. I will mark it on the chart with a red line.'],
+  [3, 'Top of {place}. A podium moment. Unfortunately, there is no podium.'],
+], [eq('milestoneKind', 'summit')])
+b.add('journey_milestone', [
+  [1, 'Halfway. {kmDone} km. I have a chart, and the chart is very encouraging.'],
+  [3, 'Halfway through {journeyName}. Let me be absolutely clear: the second half is also important.'],
+], [eq('milestoneKind', 'halfway')])
+b.add('journey_milestone', [
+  [1, '{place}. {journeyName} is complete. A historic journey. Thank you. You may be seated.'],
+  [3, '{place}. {kmDone} km. Twenty-nine standing ovations, at minimum.'],
+], [eq('milestoneKind', 'finish')])
 
 export const BIBI: PersonaPack = {
   meta: {

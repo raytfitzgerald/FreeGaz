@@ -2,7 +2,7 @@
 // fallback when a persona has no line for a moment, and the forced tone for five
 // minutes after a distress event, so every line here must be calm and kind.
 import type { PersonaPack } from '../types'
-import { HARD, LAST_REP, PackBuilder, eq, gt, gte, kind, lt, lte, rideKind, when } from './dsl'
+import { HARD, LAST_REP, PackBuilder, eq, gt, gte, kind, lt, lte, ne, rideKind, when } from './dsl'
 
 const b = new PackBuilder('professional')
 
@@ -323,6 +323,32 @@ b.add('idle_banter', [
   [1, 'Cadence {cadence}, power {power}. All steady.'],
   [1, 'Stay relaxed. Tension wastes watts.'],
 ])
+
+const NOT_END = [ne('milestoneKind', 'halfway'), ne('milestoneKind', 'finish')]
+b.add(
+  'journey_milestone',
+  [
+    [1, '{place}. {kmDone} km done, {kmLeft} km to go.'],
+    [1, 'Reached {place}. {kmLeft} km remaining on {journeyName}.'],
+  ],
+  NOT_END,
+)
+b.add('journey_milestone', [
+  [1, 'Now in {place}. {kmLeft} km to go.'],
+  [1, '{place}. {kmDone} km into {journeyName}.'],
+], [eq('milestoneKind', 'border')])
+b.add('journey_milestone', [
+  [1, 'Top of {place}. Recover on the descent.'],
+  [1, 'Summit: {place}. Keep the pressure smooth over the top.'],
+], [eq('milestoneKind', 'summit')])
+b.add('journey_milestone', [
+  [1, 'Halfway: {kmDone} km done, {kmLeft} km to go.'],
+  [1, 'Halfway through {journeyName}. Pace yourself for the second half.'],
+], [eq('milestoneKind', 'halfway')])
+b.add('journey_milestone', [
+  [1, '{place}. {journeyName} complete: {kmDone} km.'],
+  [1, 'Journey complete at {place}. Well done.'],
+], [eq('milestoneKind', 'finish')])
 
 export const PROFESSIONAL: PersonaPack = {
   meta: {

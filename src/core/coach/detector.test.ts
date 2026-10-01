@@ -871,3 +871,14 @@ describe('every moment carries data that matches its trigger', () => {
     }
   })
 })
+
+describe('journey milestones', () => {
+  it('passes a milestone on to the coach once, with the place and the distances', () => {
+    const det = detector(null)
+    const milestone = { name: 'Lyon', kind: 'place' as const, atM: 465_000, journeyName: 'Paris → Rome', kmDone: 465, kmLeft: 956 }
+    const said = ride(det, null, { toS: 20, rider: (t) => (Math.abs(t - 10) < 1e-9 ? { plan: { ...IDLE_TICK, milestone } } : {}) })
+    const hit = of(said, 'journey_milestone')
+    expect(hit).toHaveLength(1)
+    expect(hit[0]!.data).toEqual({ place: 'Lyon', milestoneKind: 'place', journeyName: 'Paris → Rome', kmDone: 465, kmLeft: 956 })
+  })
+})

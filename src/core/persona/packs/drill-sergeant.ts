@@ -1,7 +1,7 @@
 // Drill Sergeant: a yelling cadence-caller. Ridicule for slacking, grudging
 // praise for work. Roasts effort and excuses, never the rider's body.
 import type { PersonaPack } from '../types'
-import { HARD, LAST_REP, P, PackBuilder, eq, gt, gte, kind, lt, lte, rideKind, when, whenP } from './dsl'
+import { HARD, LAST_REP, P, PackBuilder, eq, gt, gte, kind, lt, lte, ne, rideKind, when, whenP } from './dsl'
 
 const b = new PackBuilder('drill-sergeant')
 
@@ -385,6 +385,36 @@ b.add('idle_banter', [
   [2, 'Shoulders down, recruit. Eyes forward. Pedal like you give a shit.', P],
   [4, 'Nobody ever got faster by fucking coasting, recruit!', P],
 ])
+
+const NOT_END = [ne('milestoneKind', 'halfway'), ne('milestoneKind', 'finish')]
+b.add(
+  'journey_milestone',
+  [
+    [1, '{place}, recruit! {kmDone} km down. Eyes front, keep moving!'],
+    [2, 'We just rolled into {place}. No sightseeing, recruit. {kmLeft} km to go!'],
+    [3, '{place}! Nice town. You are not stopping in it.'],
+    [4, '{place}, recruit. The locals are staring. Give them something to stare at!'],
+    [5, '{place}! {kmLeft} km left and I want every damn one of them!', P],
+    [5, '{place}! {kmLeft} km left. March, recruit!'],
+  ],
+  NOT_END,
+)
+b.add('journey_milestone', [
+  [1, 'Welcome to {place}, recruit! New ground, same orders: pedal!'],
+  [3, '{place}! Different map, same drill. Move it!'],
+], [eq('milestoneKind', 'border')])
+b.add('journey_milestone', [
+  [1, 'Top of {place}! Outstanding, recruit! Now get down the other side!'],
+  [3, 'You conquered {place}. Do not let it go to your head. Descend!'],
+], [eq('milestoneKind', 'summit')])
+b.add('journey_milestone', [
+  [1, 'Halfway, recruit! {kmDone} km done, {kmLeft} to go. Keep marching!'],
+  [3, 'Halfway! The easy half is over. I am lying. Both halves are hard.'],
+], [eq('milestoneKind', 'halfway')])
+b.add('journey_milestone', [
+  [1, '{place}! Mission complete, recruit! {journeyName}, done!'],
+  [3, 'You made it to {place}. I never doubted you. I doubted you constantly.'],
+], [eq('milestoneKind', 'finish')])
 
 export const DRILL_SERGEANT: PersonaPack = {
   meta: {

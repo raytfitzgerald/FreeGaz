@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { CheckCircle2, Copy, ExternalLink, FolderOpen, X } from 'lucide-react'
 import { uploadSkipText } from '@core/ride/upload-policy'
 import type { SavedMoment } from '../../moments/store'
+import { JourneyFinishCard, SavedJourneyLine } from '../journeys/JourneyCards'
 import { bridge } from '../../platform/bridge'
 import { rideStore, useRide } from '../../stores/ride'
 import { Button } from '../../ui/Button'
@@ -57,6 +58,7 @@ export function SavedRideCard() {
         )}
         {s.simulated && <span className="text-accent">Simulated: not uploaded or counted in fitness.</span>}
       </div>
+      {saved.journey && <SavedJourneyLine j={saved.journey} />}
       {uploadSkipText(saved.stravaSkip) && (
         <p className="mt-2 text-sm text-ink-dim" data-testid="strava-skip">
           {uploadSkipText(saved.stravaSkip)}
@@ -80,6 +82,7 @@ export function SavedRideCard() {
         )}
         {saved.uploads.length > 0 && <span className="self-center text-xs text-ink-dim">Queued for {saved.uploads.join(' + ')} upload.</span>}
       </div>
+      {saved.finishedJourney && <JourneyFinishCard journey={saved.finishedJourney} />}
       {saved.moments && saved.moments.length > 0 && <Moments rideId={s.id} moments={saved.moments} />}
     </div>
   )

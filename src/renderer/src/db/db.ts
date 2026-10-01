@@ -4,6 +4,7 @@ import Dexie, { type EntityTable } from 'dexie'
 import type { RideStreams } from '@core/ride/streams'
 import type { RideSummary } from '@core/ride/types'
 import type { Workout } from '@core/workout/model'
+import type { Journey } from '@core/journeys/progress'
 import type { StoredRoute, StoredRouteRide } from '../routes/route-codec'
 
 export interface StoredWorkout {
@@ -61,6 +62,7 @@ export class FreeGazDb extends Dexie {
   kv!: EntityTable<KvEntry, 'key'>
   routes!: EntityTable<StoredRoute, 'id'>
   routeRides!: EntityTable<StoredRouteRide, 'rideId'>
+  journeys!: EntityTable<Journey, 'id'>
 
   constructor(name = 'freegaz') {
     super(name)
@@ -77,6 +79,10 @@ export class FreeGazDb extends Dexie {
     this.version(2).stores({
       routes: 'id, name, importedAt',
       routeRides: 'rideId, routeId, startedAt',
+    })
+    // v3: journeys in progress (grand journeys and imported routes; drops are one-offs)
+    this.version(3).stores({
+      journeys: 'id, courseId, updatedAt',
     })
   }
 }

@@ -68,6 +68,19 @@ export const HudPrefsSchema = z.object({
   route: z.array(z.string().max(40)).max(24).nullable().default(null),
 })
 
+/** Journeys: free rides and workouts go somewhere real (see src/core/journeys). */
+export const JourneyPrefsSchema = z.object({
+  enabled: z.boolean().default(false),
+  /** What a free ride or workout does when the rider doesn't choose: carry on the active journey, drop somewhere, or nothing. */
+  mode: z.enum(['continue', 'drop', 'none']).default('drop'),
+  /** Real terrain slows you on climbs; flat is watts to distance only. The trainer is never changed by a journey. */
+  terrain: z.enum(['real', 'flat']).default('real'),
+  /** Write the track into the FIT file, so Strava draws the map. */
+  gps: z.boolean().default(true),
+  /** The journey "continue" carries on. */
+  activeId: z.string().max(80).nullable().default(null),
+})
+
 export const AppSettingsSchema = z.object({
   version: z.literal(1).default(1),
   /** One remembered device per role, auto-selected on launch. */
@@ -92,6 +105,7 @@ export const AppSettingsSchema = z.object({
   fueling: FuelingPrefsSchema.default(FuelingPrefsSchema.parse({})),
   hud: HudPrefsSchema.default(HudPrefsSchema.parse({})),
   fan: FanPrefsSchema.default(FanPrefsSchema.parse({})),
+  journeys: JourneyPrefsSchema.default(JourneyPrefsSchema.parse({})),
 })
 
 export type AppSettings = z.infer<typeof AppSettingsSchema>
@@ -100,6 +114,7 @@ export type CoachPrefs = z.infer<typeof CoachPrefsSchema>
 export type FuelingPrefs = z.infer<typeof FuelingPrefsSchema>
 export type HudPrefs = z.infer<typeof HudPrefsSchema>
 export type FanPrefs = z.infer<typeof FanPrefsSchema>
+export type JourneyPrefs = z.infer<typeof JourneyPrefsSchema>
 export type RememberedDeviceSetting = z.infer<typeof RememberedDeviceSchema>
 
 export const DEFAULT_SETTINGS: AppSettings = AppSettingsSchema.parse({})
