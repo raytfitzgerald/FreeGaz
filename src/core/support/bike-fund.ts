@@ -10,8 +10,8 @@ export type TipService = 'venmo' | 'buymeacoffee' | 'kofi'
 
 /** The handles to tip. Set one to show its button; leave '' to hide it. */
 export const BIKE_FUND_HANDLES: Readonly<Record<TipService, string>> = {
-  venmo: '',
-  buymeacoffee: '',
+  venmo: 'raymond-fitzgerald',
+  buymeacoffee: 'raytfitzgeo',
   kofi: '',
 }
 
