@@ -147,14 +147,15 @@ describe('Strava upload', () => {
     return strava
   }
 
-  it('uploads as a VirtualRide on a trainer and polls until processed', async () => {
+  it('uploads as a VirtualRide, without the trainer flag that would hide its map, and polls until processed', async () => {
     const strava = await connected()
     const res = await strava.uploadFit(upload, { sleep: async () => undefined })
     expect(res).toEqual({ activityId: '123456789', duplicate: false })
     const fields = state.uploads[0]!.fields
     expect(fields).toContain('name="data_type"\r\n\r\nfit')
     expect(fields).toContain('name="sport_type"\r\n\r\nVirtualRide')
-    expect(fields).toContain('name="trainer"\r\n\r\n1')
+    expect(fields).not.toContain('name="trainer"')
+    expect(fields).toContain('name="sport_type"\r\n\r\nVirtualRide')
     expect(fields).toContain('name="external_id"\r\n\r\nfreegaz-abc123')
     expect(state.uploads[0]!.auth).toBe('Bearer access-1')
   })
