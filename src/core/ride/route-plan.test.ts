@@ -29,6 +29,18 @@ function run(plan: RoutePlan, from: number, to: number, feed: Feed | ((m: number
 const plan = (route: Route, opts: Partial<RoutePlanOptions> = {}) => new RoutePlan(route, { mode: 'reactive', rider: RIDER, ...opts })
 const cues = (ticks: RouteTick[]) => ticks.flatMap((t) => (t.cue ? [t.cue] : []))
 
+describe('RoutePlan: GPS for the FIT file', () => {
+  it('gives the position on a real course, and none on a demo shape', () => {
+    const real: Route = { ...flat(2000), source: 'gpx' }
+    const t = run(plan(real), 0, 30).at(-1)!
+    expect(t.lat).toBeTypeOf('number')
+    expect(t.lon).toBeTypeOf('number')
+    expect(t.lat).toBeCloseTo(t.route.lat, 9)
+    const demoTick = run(plan(flat(2000)), 0, 30).at(-1)!
+    expect(demoTick.lat).toBeUndefined()
+  })
+})
+
 describe('RoutePlan: Reactive', () => {
   it('moves at the physics speed for the rider’s power, weight and bike', () => {
     const p = plan(flat(5000))

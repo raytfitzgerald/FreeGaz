@@ -66,6 +66,9 @@ export interface PlanTick {
   altitude?: number | null
   speed?: number | null
   distanceM?: number | null
+  /** Where on a real-world route, degrees (routes only). */
+  lat?: number | null
+  lon?: number | null
   /** An on-screen / spoken cue that fires now. */
   cue?: string | null
   /** Workouts: position on the (possibly edited) timeline, s. */

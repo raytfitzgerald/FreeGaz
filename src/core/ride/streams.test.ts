@@ -19,6 +19,14 @@ describe('ride streams', () => {
     expect(back[4]?.ts).toBe(records[4]?.ts)
   })
 
+  it('stores positions only for rides that have them', () => {
+    expect(recordsToStreams('r', [rec(0), rec(1)]).lat).toBeUndefined()
+    const s = recordsToStreams('r', [rec(0, { lat: 48.8583701, lon: 2.2944813 }), rec(1)])
+    const back = streamsToRecords(s)
+    expect(back[0]).toMatchObject({ lat: 48.8583701, lon: 2.2944813 })
+    expect(back[1]).not.toHaveProperty('lat')
+  })
+
   it('extracts a column for metrics', () => {
     const s = recordsToStreams('r', [rec(0), rec(1, { power: null })])
     expect(column(s, 'power')).toEqual([200, null])

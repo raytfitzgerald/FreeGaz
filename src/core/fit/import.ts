@@ -150,6 +150,8 @@ function toRecord(t: number, sec: number, r: DecodedRecord, lap: number): RideRe
     smo2: num(r.saturated_hemoglobin_percent),
     lap,
     rr: [],
+    // the parser hands positions back in degrees
+    ...(typeof r.position_lat === 'number' && typeof r.position_long === 'number' ? { lat: r.position_lat, lon: r.position_long } : {}),
   }
 }
 

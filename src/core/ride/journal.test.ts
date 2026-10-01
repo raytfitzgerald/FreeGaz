@@ -34,6 +34,14 @@ describe('ride journal', () => {
     expect(j.ended).toBe(true)
   })
 
+  it('keeps positions, and reads older journals that have none', () => {
+    const withGps = { ...rec(0, 200), lat: 48.8583701, lon: 2.2944813 }
+    const text = [meta, encodeRecord(withGps), encodeRecord(rec(1, 210))].join('\n')
+    const j = parseJournal(text)
+    expect(j.records[0]).toMatchObject({ lat: 48.8583701, lon: 2.2944813 })
+    expect(j.records[1]).not.toHaveProperty('lat')
+  })
+
   it('ignores a torn final line from a crash mid-write', () => {
     const full = encodeRecord(rec(5, 250))
     const text = [meta, encodeRecord(rec(4, 240)), full.slice(0, full.length - 7)].join('\n')

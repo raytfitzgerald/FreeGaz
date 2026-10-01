@@ -27,6 +27,21 @@ describe('RideRecorder', () => {
     expect(records.map((r) => r.t)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
   })
 
+  it('records the route position the session supplies, and nothing when there is none', () => {
+    const clock = new FakeClock(Date.UTC(2026, 8, 29, 6, 0, 0))
+    const hub = new SensorHub()
+    let at: { lat?: number; lon?: number } = { lat: 48.858370123, lon: 2.294481345 }
+    const rec = new RideRecorder(hub, clock, () => at)
+    rec.start(0)
+    clock.advance(2_000)
+    const before = rec.collect(2_000)
+    at = {}
+    clock.advance(1_000)
+    const after = rec.collect(3_000)
+    expect(before[0]).toMatchObject({ lat: 48.8583701, lon: 2.2944813 })
+    expect(after[0]).not.toHaveProperty('lat')
+  })
+
   it('catches up correctly after a late tick', () => {
     const { hub, rec } = setup()
     feed(hub, 0, 6000, 4, (t) => 150 + Math.floor(t / 1000) * 10)

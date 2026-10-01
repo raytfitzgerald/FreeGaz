@@ -97,6 +97,19 @@ describe('FIT activity encoder', () => {
     expect(Object.values(dev)).toEqual(expect.arrayContaining([150]))
   })
 
+  it('writes GPS positions where the ride has them, and none where it does not', () => {
+    const { input } = ride()
+    const records = input.records.map((r, i) => (i < 300 ? { ...r, lat: 48.8583701 + i * 1e-5, lon: 2.2944813 } : r))
+    const m = decode(encodeFitActivity({ ...input, records }))
+    const recs = m.recordMesgs!
+    const deg = (semi: unknown) => ((semi as number) * 180) / 2 ** 31
+    expect(deg(recs[0]!.positionLat)).toBeCloseTo(48.8583701, 6)
+    expect(deg(recs[0]!.positionLong)).toBeCloseTo(2.2944813, 6)
+    expect(deg(recs[299]!.positionLat)).toBeCloseTo(48.8583701 + 299e-5, 6)
+    expect(recs[300]!.positionLat).toBeUndefined()
+    expect(recs).toHaveLength(600)
+  })
+
   it('rejects an empty ride', () => {
     const { input } = ride()
     expect(() => encodeFitActivity({ ...input, records: [] })).toThrow()
