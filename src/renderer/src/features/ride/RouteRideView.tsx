@@ -19,6 +19,7 @@ import { GradeLegend } from '../routes/GradeLegend'
 import { RouteOutline } from '../routes/RouteOutline'
 import { RideAlong } from '../../coach/ride-along/RideAlong'
 import { CueBanner } from './CueBanner'
+import { GuardBanner } from './GuardBanner'
 import { RecordingBar } from './RecordingBar'
 
 type TrainerControl = 'sim' | 'resistance' | 'erg'
@@ -82,6 +83,7 @@ export function RouteRideView() {
         </div>
       </div>
 
+      <GuardBanner />
       <CueBanner />
       <RideAlong />
       {r.finished && (

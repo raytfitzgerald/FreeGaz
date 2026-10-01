@@ -107,16 +107,38 @@ describe('spiral-of-death guard', () => {
     const cfg = { ...settings, ergSoftStartS: 10 }
     const g = cfg.spiralGuard
     let r = run(withDesired({ mode: 'erg', watts: 300 }), 12, () => ({ power: 300, cadence: 85 }), cfg)
-    // cadence sags below 55 for >3 s
-    r = run(r.state, 4, () => ({ power: 280, cadence: 45 }), cfg, r.end)
+    // cadence sags below 45 for >4 s
+    r = run(r.state, 5, () => ({ power: 280, cadence: 38 }), cfg, r.end)
     expect(r.state.guard).toBe('spiral')
     expect(r.sent.at(-1)?.cmd).toEqual({ kind: 'resistance', pct: g.releasePct })
-    // rider spins back up above 70 for >5 s
-    r = run(r.state, 6, () => ({ power: 120, cadence: 85 }), cfg, r.end)
+    // rider spins back up to 55+ for >3 s
+    r = run(r.state, 4, () => ({ power: 120, cadence: 60 }), cfg, r.end)
     expect(r.state.guard).toBe('soft-start')
     const last = r.sent.at(-1)?.cmd as { kind: string; watts: number }
     expect(last.kind).toBe('erg')
     expect(last.watts).toBeLessThan(300)
+  })
+
+  it('never trips on a standing start or a slow spin-up: it arms once the rider is pedalling', () => {
+    // the ride starts with the cranks still, then the rider pedals at 50: the trainer holds the target throughout
+    let r = run(withDesired({ mode: 'erg', watts: 150 }), 10, () => ({ power: 0, cadence: 0 }))
+    r = run(r.state, 20, () => ({ power: 150, cadence: 50 }), settings, r.end)
+    expect(r.state.guard).not.toBe('spiral')
+    expect(r.state.effective).toMatchObject({ kind: 'erg', watts: 150 })
+  })
+
+  it('holds ERG at a steady 60 rpm, and only releases on a real collapse after pedalling', () => {
+    let r = run(withDesired({ mode: 'erg', watts: 200 }), 15, () => ({ power: 200, cadence: 60 }))
+    expect(r.state.guard).toBe('none')
+    r = run(r.state, 6, () => ({ power: 150, cadence: 30 }), settings, r.end)
+    expect(r.state.guard).toBe('spiral')
+  })
+
+  it('re-arms after a pause, so restarting from a stop does not release ERG', () => {
+    let r = run(withDesired({ mode: 'erg', watts: 200 }), 15, () => ({ power: 200, cadence: 85 }))
+    r = run(r.state, 3, () => ({ power: 0, cadence: 0, paused: true }), settings, r.end)
+    r = run(r.state, 10, () => ({ power: 30, cadence: 20 }), settings, r.end)
+    expect(r.state.guard).not.toBe('spiral')
   })
 
   it('does not trigger on a brief dip', () => {

@@ -73,7 +73,7 @@ It's a data-obsessed indoor cycling trainer for macOS, and [for your phone](#on-
 - **Just ride.** ERG (the trainer holds the watts), Level (fixed resistance), Slope (a virtual gradient) or HR (the trainer adjusts watts to hold your heart rate). Switch any time with `M`.
 - **ERG manners.**
   - A 10-second soft start.
-  - A "spiral of death" guard: resistance is released when your cadence collapses.
+  - A "spiral of death" guard: once you're riding, resistance is released if your cadence collapses below 45 rpm, and comes back once you hold 55. A standing start never trips it.
   - One command per second with deadbands, and targets sent a second early to hide trainer lag.
   - Everything is re-applied after a reconnect.
 - **Journeys** (Settings → Journeys, off by default).

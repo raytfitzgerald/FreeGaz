@@ -148,7 +148,8 @@ export class StravaClient {
     form.set('data_type', 'fit')
     form.set('name', upload.name)
     if (upload.description) form.set('description', upload.description)
-    form.set('trainer', '1')
+    // No trainer flag: Strava hides the map of anything marked as a trainer ride, and a
+    // VirtualRide is indoor already (it's how journeys and route rides keep their map).
     form.set('sport_type', 'VirtualRide')
     form.set('external_id', upload.externalId)
 

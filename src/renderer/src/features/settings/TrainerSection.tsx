@@ -28,7 +28,7 @@ export function TrainerSection() {
         <Field label="Soft start" hint="Ramp into the target after starting, resuming or recovering.">
           <Slider ariaLabel="Soft start" value={t.ergSoftStartS} min={0} max={30} step={1} format={(v) => (v === 0 ? 'off' : `${v} s`)} onChange={(v) => set({ ergSoftStartS: v })} />
         </Field>
-        <Field label="Spiral-of-death guard" hint="If cadence collapses under a high ERG load, release resistance so you can spin back up.">
+        <Field label="Spiral-of-death guard" hint="In ERG, if your cadence collapses below 45 rpm after you’ve got going, the resistance is released so you can spin back up. It takes the load back once you hold 55 rpm. A standing start never trips it.">
           <Switch checked={t.spiralGuard} onChange={(v) => set({ spiralGuard: v })} label={t.spiralGuard ? 'On' : 'Off'} />
         </Field>
         <Field label="PowerMatch" hint="With power pedals connected, ERG is corrected so your pedals read the target instead of the trainer's own sensor.">

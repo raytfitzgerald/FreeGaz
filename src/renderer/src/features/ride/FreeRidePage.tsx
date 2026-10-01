@@ -17,6 +17,7 @@ import { RecordingBar } from './RecordingBar'
 import { RideAlong } from '../../coach/ride-along/RideAlong'
 import { JourneyMap } from '../journeys/JourneyMap'
 import { WhereTo } from '../journeys/WhereTo'
+import { GuardBanner } from './GuardBanner'
 import { CueBanner } from './CueBanner'
 import { FtpResultCard } from './FtpResultCard'
 import { SavedRideCard } from './SavedRideCard'
@@ -134,7 +135,9 @@ export function FreeRidePage() {
           </Button>
         </div>
       )}
-      <GuardBanner />
+      <div className="mb-4 empty:hidden">
+        <GuardBanner />
+      </div>
       {!recording && (
         <div className="mb-4">
           <WhereTo />
@@ -253,22 +256,3 @@ function SentToTrainer({ mode }: { mode: Mode }) {
   return <div className="h-5 text-center text-xs text-ink-dim">{text}</div>
 }
 
-function GuardBanner() {
-  const guard = useLive((f) => f.trainer.guard)
-  const controlLost = useLive((f) => f.trainer.controlLost)
-  if (controlLost) {
-    return (
-      <div className="mb-4 rounded-2xl border border-bad/40 bg-bad/10 px-5 py-3 text-sm">
-        Another app has control of your trainer. Close Zwift, the Wahoo app or any head unit paired as a controller.
-      </div>
-    )
-  }
-  if (guard === 'none') return null
-  const text =
-    guard === 'spiral'
-      ? 'Low cadence: ERG released so you can spin back up. It re-engages smoothly above 70 rpm.'
-      : guard === 'soft-start'
-        ? 'Easing into the target…'
-        : 'Paused: resistance released.'
-  return <div className={cn('mb-4 rounded-2xl border px-5 py-3 text-sm', guard === 'spiral' ? 'border-warn/40 bg-warn/10' : 'border-line bg-panel-2')}>{text}</div>
-}

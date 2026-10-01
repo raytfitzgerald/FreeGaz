@@ -63,7 +63,9 @@ export const DEFAULT_CONTROLLER_SETTINGS: ControllerSettings = {
   ergOffsetW: 0,
   powerMatchFactor: 1,
   ergSoftStartS: 10,
-  spiralGuard: { enabled: true, lowCadenceRpm: 55, lowForS: 3, recoverCadenceRpm: 70, recoverForS: 5, releasePct: 10 },
+  // Armed only once the rider is pedalling (at least recoverCadenceRpm), so a standing start or a slow
+  // spin-up never trips it; 45 rpm is a real collapse, and 55 rpm is enough to take the load back.
+  spiralGuard: { enabled: true, lowCadenceRpm: 45, lowForS: 4, recoverCadenceRpm: 55, recoverForS: 3, releasePct: 10 },
   pausedResistancePct: 5,
   slope: { uphillPct: 100, downhillPct: 50, limitPct: 20 },
   sim: { crr: 0.0033, cwKgPerM: 0.51, windMps: 0 },
@@ -93,7 +95,8 @@ export interface ControllerState {
   /** After a failed send nothing goes out before this time (another app holding control is retried slowly). */
   retryAt: number | null
   softStart: { fromW: number; startedAt: number } | null
-  spiral: { lowSince: number | null; active: boolean; recoverSince: number | null }
+  /** `armed` once the rider has pedalled at recoverCadenceRpm since ERG began or the ride resumed. */
+  spiral: { lowSince: number | null; active: boolean; recoverSince: number | null; armed: boolean }
   hrErg: { watts: number | null; integral: number; lastUpdate: number | null }
   guard: Guard
   /** What the trainer is being asked to do right now after guards (for the HUD). */
@@ -109,7 +112,7 @@ export function initialControllerState(): ControllerState {
     lastSentAt: null,
     retryAt: null,
     softStart: null,
-    spiral: { lowSince: null, active: false, recoverSince: null },
+    spiral: { lowSince: null, active: false, recoverSince: null, armed: false },
     hrErg: { watts: null, integral: 0, lastUpdate: null },
     guard: 'none',
     effective: { kind: 'idle' },
@@ -193,7 +196,7 @@ export function setDesired(prev: ControllerState, desired: Desired): ControllerS
   if (desired.mode !== 'hr') next.hrErg = { watts: null, integral: 0, lastUpdate: null }
   if (desired.mode !== 'erg' && desired.mode !== 'hr') {
     next.softStart = null
-    next.spiral = { lowSince: null, active: false, recoverSince: null }
+    next.spiral = { lowSince: null, active: false, recoverSince: null, armed: false }
   }
   return next
 }
@@ -237,6 +240,8 @@ function computeEffective(s: ControllerState, input: ControllerInputs, ctx: Deci
     s.guard = 'paused'
     s.wantsSoftStart = true
     s.softStart = null
+    // starting again from a stop is not a spiral: re-arm once they're pedalling
+    s.spiral = { lowSince: null, active: false, recoverSince: null, armed: false }
     return { kind: 'resistance', pct: settings.pausedResistancePct }
   }
 
@@ -253,10 +258,12 @@ function computeEffective(s: ControllerState, input: ControllerInputs, ctx: Deci
   if (settings.spiralGuard.enabled && input.cadence !== null) {
     const g = settings.spiralGuard
     if (!s.spiral.active) {
-      if (input.cadence < g.lowCadenceRpm) {
+      if (!s.spiral.armed) {
+        if (input.cadence >= g.recoverCadenceRpm) s.spiral.armed = true
+      } else if (input.cadence < g.lowCadenceRpm) {
         s.spiral.lowSince ??= input.now
         if (input.now - s.spiral.lowSince >= g.lowForS * 1000) {
-          s.spiral = { lowSince: null, active: true, recoverSince: null }
+          s.spiral = { lowSince: null, active: true, recoverSince: null, armed: true }
         }
       } else {
         s.spiral.lowSince = null
@@ -264,7 +271,7 @@ function computeEffective(s: ControllerState, input: ControllerInputs, ctx: Deci
     } else if (input.cadence >= g.recoverCadenceRpm) {
       s.spiral.recoverSince ??= input.now
       if (input.now - s.spiral.recoverSince >= g.recoverForS * 1000) {
-        s.spiral = { lowSince: null, active: false, recoverSince: null }
+        s.spiral = { lowSince: null, active: false, recoverSince: null, armed: true }
         s.wantsSoftStart = true
       }
     } else {
