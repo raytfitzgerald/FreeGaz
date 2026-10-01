@@ -4,6 +4,8 @@ import { Wordmark } from '../../brand/Wordmark'
 import { bridge } from '../../platform/bridge'
 import { Button } from '../../ui/Button'
 import { openBugReport } from '../support/open'
+import { BIKE_FUND_BLURB, hasBikeFund } from '@core/support/bike-fund'
+import { BikeFundButtons } from '../support/BikeFund'
 import { Field, Section } from '../../ui/form'
 import { UpdatesField } from '../updates/UpdatesField'
 
@@ -38,6 +40,13 @@ export function AboutSection() {
           Report a bug
         </Button>
       </Field>
+      {hasBikeFund() && (
+        <Field label="Bike fund" hint={BIKE_FUND_BLURB}>
+          <div className="pt-1">
+            <BikeFundButtons />
+          </div>
+        </Field>
+      )}
       <Field label="Type">
         <div className="pt-2 text-sm text-ink-dim">
           Saira (the Saira Project Authors) and Atkinson Hyperlegible Next (the Atkinson Hyperlegible Next Project Authors), both under the SIL Open Font License 1.1.

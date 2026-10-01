@@ -1,5 +1,6 @@
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { join, normalize, sep } from 'node:path'
+import { BIKE_FUND_HOSTS } from '@core/support/bike-fund'
 
 /** Hosts FreeGaz may open in the system browser. */
 export const EXTERNAL_ALLOWLIST = [
@@ -12,6 +13,7 @@ export const EXTERNAL_ALLOWLIST = [
   'console.anthropic.com',
   'platform.openai.com',
   'ollama.com',
+  ...BIKE_FUND_HOSTS,
 ]
 
 export function isAllowedExternal(url: string): boolean {

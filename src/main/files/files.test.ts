@@ -34,6 +34,7 @@ describe('file helpers', () => {
     expect(isAllowedExternal('https://www.strava.com/upload/select')).toBe(true)
     expect(isAllowedExternal('https://connect.garmin.com/modern/import-data')).toBe(true)
     expect(isAllowedExternal('http://www.strava.com/')).toBe(false)
+    expect(isAllowedExternal('https://ko-fi.com/someone')).toBe(true)
     expect(isAllowedExternal('https://evil.example/')).toBe(false)
     expect(isAllowedExternal('file:///etc/passwd')).toBe(false)
   })

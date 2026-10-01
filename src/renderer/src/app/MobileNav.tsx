@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { Link, useRouterState } from '@tanstack/react-router'
-import { Bug, Menu } from 'lucide-react'
+import { Bike, Bug, Menu } from 'lucide-react'
 import { Wordmark } from '../brand/Wordmark'
 import { DeviceStatusBar } from '../features/devices/DeviceStatusBar'
 import { openBugReport } from '../features/support/open'
+import { hasBikeFund } from '@core/support/bike-fund'
+import { BikeFundDialog } from '../features/support/BikeFund'
 import { useRide } from '../stores/ride'
 import { Dialog } from '../ui/Dialog'
 import { cn } from '../ui/cn'
@@ -46,6 +48,7 @@ function MobileRideTab() {
 
 export function MobileTabBar() {
   const [more, setMore] = useState(false)
+  const [fund, setFund] = useState(false)
   const path = useRouterState({ select: (s) => s.location.pathname })
   const inMore = MORE.some((n) => path.startsWith(n.to))
   const tab = ({ to, label, icon: Icon }: (typeof NAV)[number]) => (
@@ -89,8 +92,21 @@ export function MobileTabBar() {
           >
             <Bug className="size-4" aria-hidden /> Report a bug
           </button>
+          {hasBikeFund() && (
+            <button
+              type="button"
+              onClick={() => {
+                setMore(false)
+                setFund(true)
+              }}
+              className="flex items-center gap-3 rounded-xl border border-line bg-panel-2 px-3 py-3 text-sm text-ink-dim"
+            >
+              <Bike className="size-4" aria-hidden /> Bike fund
+            </button>
+          )}
         </div>
       </Dialog>
+      <BikeFundDialog open={fund} onOpenChange={setFund} />
     </>
   )
 }
