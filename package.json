@@ -27,6 +27,7 @@
     "check": "npm run typecheck && npm run lint && npm run test",
     "e2e": "npm run build && playwright test",
     "dist": "npm run build && electron-builder --mac --publish never",
+    "dist:signed": "node scripts/dist-signed.mjs",
     "licenses": "node scripts/check-licenses.mjs",
     "selftest:packaged": "FREEGAZ_SELFTEST=1 FREEGAZ_TEST=1 FREEGAZ_USER_DATA=$(mktemp -d) release/$npm_package_version/mac-arm64/FreeGaz.app/Contents/MacOS/FreeGaz",
     "postinstall": "install-electron",

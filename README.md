@@ -267,6 +267,7 @@ Use **Report a bug** at the bottom of the sidebar (or **Settings → About**). I
 | `npm run check` | Typecheck + lint (with architecture boundaries) + unit and simulator tests |
 | `npm run e2e` | Build, then run the Playwright Electron end-to-end suite |
 | `npm run dist` | Build `release/<version>/FreeGaz-<version>-arm64.dmg` |
+| `npm run dist:signed` | The same DMG, signed with a Developer ID, notarized and stapled (see below) |
 | `npm run selftest:packaged` | Boot the packaged app and round-trip one IPC call |
 | `npm run licenses` | Verify every shipped dependency is MIT-compatible |
 | `npm run icon` | Re-render the app icon |
@@ -274,6 +275,27 @@ Use **Report a bug** at the bottom of the sidebar (or **Settings → About**). I
 To try it without hardware, `FREEGAZ_SIM=1 npm run dev` runs the app against a simulated KICKR and HR strap that speak real Bluetooth bytes. Add `FREEGAZ_WARP=10` to speed up time ten-fold; simulated and time-warped rides are always flagged, and never count towards Strava, fitness or FTP.
 
 Ad-hoc signatures change on every build, so macOS forgets permission grants such as Bluetooth and Automation. To keep them, create a self-signed "Code Signing" certificate named `FreeGaz Local` in Keychain Access and build with `CSC_NAME="FreeGaz Local" npm run dist`.
+
+### Releasing a signed build
+
+`npm run dist` makes an ad-hoc signed DMG, which macOS blocks on first launch. `npm run dist:signed` makes the same DMG signed with a Developer ID, with the hardened runtime, notarized by Apple and stapled, so it opens with only the usual "downloaded from the Internet" prompt. It needs a paid Apple Developer Program membership, and two things set up once per Mac:
+
+1. **A Developer ID Application certificate** in your login keychain. Create it at [developer.apple.com → Certificates](https://developer.apple.com/account/resources/certificates/add) from a certificate request made in Keychain Access. Without Xcode, also install Apple's [Developer ID G2 intermediate](https://www.apple.com/certificateauthority/DeveloperIDG2CA.cer), or the certificate shows as not valid. `security find-identity -v -p codesigning` should list it.
+2. **Notarization credentials** in a keychain profile named `freegaz` (set `FREEGAZ_NOTARY_PROFILE` to use another name). Make an app-specific password at [account.apple.com](https://account.apple.com), then run:
+
+   ```bash
+   xcrun notarytool store-credentials freegaz --apple-id YOUR_APPLE_ID --team-id YOUR_TEAM_ID
+   ```
+
+The script checks both before it builds. Then it signs, notarizes and staples the app and the DMG, and runs `spctl` the way Gatekeeper will. Notarization usually takes a few minutes. CI keeps building the ad-hoc DMG, because the certificate never leaves your Mac. For a release, upload the signed DMG over the one CI attached:
+
+```bash
+gh release upload vX.Y.Z release/X.Y.Z/FreeGaz-X.Y.Z-arm64.dmg --clobber
+```
+
+If signing fails with "A timestamp was expected but was not found", `codesign` can't reach Apple's timestamp server. On some home routers that happens only over IPv6. Turn IPv6 off for the build (`sudo networksetup -setv6off Wi-Fi`, then `-setv6automatic Wi-Fi` afterwards) and run it again.
+
+The first signed build is a new code identity, so macOS asks once more for Bluetooth, and once to let FreeGaz read "FreeGaz Safe Storage" in the keychain (choose **Always Allow**). Rides, settings and saved keys carry over.
 
 ### Architecture
 
