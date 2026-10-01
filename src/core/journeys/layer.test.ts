@@ -55,6 +55,28 @@ describe('JourneyLayer', () => {
   it('goes nowhere without power: missing is not progress', () => {
     const last = ride(plan(), 0, 120, null).at(-1)!
     expect(last.journey!.rideM).toBe(0)
+    expect(last.speed).toBe(0)
+  })
+
+  it('does not roll downhill without a power reading, but a trainer reading 0 W freewheels', () => {
+    // past the end the dot rides back down the 5 % climb
+    const noPower = ride(plan({ startM: 20_500 }), 0, 60, null).at(-1)!
+    expect(noPower.journey!.gradePct).toBeLessThan(-3)
+    expect(noPower.journey!.rideM).toBe(0)
+    expect(noPower.speed).toBe(0)
+    const coasting = ride(plan({ startM: 20_500 }), 0, 60, 0).at(-1)!
+    expect(coasting.journey!.speedMps).toBeGreaterThan(5)
+  })
+
+  it('shows a stopped dot while the ride is paused', () => {
+    const p = plan()
+    ride(p, 0, 60, 200)
+    // moving time stops at 60 s while the wall clock runs on
+    let t = p.tick({ now: 61_000, movingS: 60, dtS: 0.25, power: 200, cadence: 90, hr: 140 }, IDLE_TICK)
+    expect(t.speed).toBeGreaterThan(5)
+    t = p.tick({ now: 63_000, movingS: 60, dtS: 0.25, power: 0, cadence: 0, hr: 140 }, IDLE_TICK)
+    expect(t.speed).toBe(0)
+    expect(t.journey!.speedMps).toBe(0)
   })
 
   it('leaves out GPS when the rider turned the track off', () => {

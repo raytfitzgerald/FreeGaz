@@ -31,6 +31,9 @@ export interface JourneyLayerOptions {
   gps: boolean
 }
 
+/** Moving time standing still this long (a pause) means the dot has stopped. */
+const STOPPED_AFTER_MS = 1500
+
 const positiveOr = (v: number | undefined, fallback: number) => (v !== undefined && Number.isFinite(v) && v > 0 ? v : fallback)
 
 /** Position on an out-and-back of a course: past the end, ride back; past the start again, turn again. */
@@ -51,6 +54,7 @@ export interface PlanLayer {
 export class JourneyLayer implements PlanLayer {
   private readonly bike: BikeParams
   private lastMovingS = 0
+  private lastAdvanceAt = 0
   private rideM = 0
   private speedMps = 0
   private passed: number
@@ -93,10 +97,19 @@ export class JourneyLayer implements PlanLayer {
       this.lastMovingS = t
       const before = foldPosition(this.opts.startM + this.rideM, course.lengthM)
       const grade = terrain === 'flat' ? 0 : sampleAt(course.route.profile, before.positionM).gradePct * (before.reversed ? -1 : 1)
-      const power = input.power !== null && Number.isFinite(input.power) ? Math.max(0, input.power) : 0
-      // stepSpeed is stable for any dt, but long gaps (a stall) shouldn't fling the rider forward
-      this.speedMps = stepSpeed(this.speedMps, power, grade, Math.min(dt, 2), this.bike)
-      this.rideM += this.speedMps * dt
+      this.lastAdvanceAt = input.now
+      if (input.power === null || !Number.isFinite(input.power)) {
+        // no power reading (no trainer, a dropout): you go nowhere, not even downhill
+        this.speedMps = 0
+      } else {
+        // a trainer reading 0 W freewheels, like a real descent
+        // stepSpeed is stable for any dt, but long gaps (a stall) shouldn't fling the rider forward
+        this.speedMps = stepSpeed(this.speedMps, Math.max(0, input.power), grade, Math.min(dt, 2), this.bike)
+        this.rideM += this.speedMps * dt
+      }
+    } else if (input.now - this.lastAdvanceAt > STOPPED_AFTER_MS) {
+      // moving time has stopped (paused): the dot is standing still
+      this.speedMps = 0
     }
 
     const { positionM, reversed } = foldPosition(this.opts.startM + this.rideM, course.lengthM)
