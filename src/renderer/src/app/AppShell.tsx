@@ -7,6 +7,7 @@ import { ChooserDialog } from '../features/devices/ChooserDialog'
 import { DeviceStatusBar } from '../features/devices/DeviceStatusBar'
 import { RecoveryBanner } from '../features/ride/RecoveryBanner'
 import { ReportBugDialog, ReportBugLink } from '../features/support/ReportBugDialog'
+import { BikeFundLink } from '../features/support/BikeFund'
 import { UpdateReadyLink } from '../features/updates/UpdatesField'
 import { useGlobalHotkeys } from './hotkeys'
 import { ToastHost } from './ToastHost'
@@ -43,6 +44,7 @@ export function AppShell() {
         </nav>
         <UpdateReadyLink />
         <ReportBugLink />
+        <BikeFundLink />
       </aside>
       <main className="relative flex min-h-0 min-w-0 flex-1 flex-col">
         <div className="drag-region absolute inset-x-0 top-0 z-10 hidden h-11 items-center justify-end px-4 md:flex">
