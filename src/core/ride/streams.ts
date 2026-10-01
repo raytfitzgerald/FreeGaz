@@ -24,6 +24,9 @@ export interface RideStreams {
   /** All RR intervals concatenated; rrOffsets[i]..rrOffsets[i+1] belong to record i. */
   rr: Float32Array
   rrOffsets: Uint32Array
+  /** Positions in degrees (NaN where unknown), only on rides that had any. */
+  lat?: Float64Array
+  lon?: Float64Array
 }
 
 type NumericKey = 'power' | 'cadence' | 'hr' | 'speed' | 'distance' | 'altitude' | 'grade' | 'targetW' | 'lrBalance' | 'coreTemp' | 'skinTemp' | 'smo2'
@@ -63,6 +66,10 @@ export function recordsToStreams(rideId: string, records: RideRecord[]): RideStr
     for (const v of r.rr) s.rr[rrAt++] = v
   })
   s.rrOffsets[n] = rrAt
+  if (records.some((r) => r.lat != null && r.lon != null)) {
+    s.lat = Float64Array.from(records, (r) => nn(r.lat ?? null))
+    s.lon = Float64Array.from(records, (r) => nn(r.lon ?? null))
+  }
   return s
 }
 
@@ -87,6 +94,9 @@ export function streamsToRecords(s: RideStreams): RideRecord[] {
       lap: s.lap[i]!,
       rr: Array.from(s.rr.subarray(s.rrOffsets[i]!, s.rrOffsets[i + 1]!)),
     }
+    const lat = back(s.lat?.[i])
+    const lon = back(s.lon?.[i])
+    if (lat !== null && lon !== null) Object.assign(r, { lat, lon })
     out.push(r)
   }
   return out

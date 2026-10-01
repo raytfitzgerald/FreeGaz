@@ -1,4 +1,7 @@
+import { readdirSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { expect, test } from '@playwright/test'
+import FitParser from 'fit-file-parser'
 import { launchApp, type Launched } from './launch'
 
 // M6 flows against the simulator at 30× time warp: import a route, ride a
@@ -66,4 +69,26 @@ test('rides a demo route in Reactive mode: speed and grade follow the road, then
   await page.getByTestId('finish-ride').click()
   await page.getByTestId('confirm-finish').click()
   await expect(page.getByTestId('saved-ride')).toContainText('FreeGaz Six Percent', { timeout: 15_000 })
+})
+
+test('a ride on an imported GPX writes GPS into the FIT file, so Strava draws the map', async () => {
+  const { page } = ctx
+  await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Routes' }).click()
+  await page.getByTestId('route-card').filter({ hasText: 'E2E Synthetic Hill' }).click()
+  await page.getByTestId('ride-route-reactive').click()
+  await expect(page.getByTestId('route-view')).toBeVisible()
+  await expect.poll(async () => Number(await page.getByTestId('route-distance-value').textContent()), { timeout: 20_000 }).toBeGreaterThan(0.3)
+  await page.getByTestId('finish-ride').click()
+  await page.getByTestId('confirm-finish').click()
+  await expect(page.getByTestId('saved-ride')).toContainText('E2E Synthetic Hill', { timeout: 15_000 })
+
+  const dir = join(ctx.userData, 'Documents', 'FreeGaz', 'Rides')
+  const file = readdirSync(dir).find((f) => f.includes('E2E Synthetic Hill') && f.endsWith('.fit'))!
+  const fit = (await new FitParser({ mode: 'list', force: true }).parseAsync(readFileSync(join(dir, file)))) as unknown as { records: { position_lat?: number; position_long?: number }[] }
+  const withGps = fit.records.filter((r) => typeof r.position_lat === 'number')
+  expect(withGps.length).toBeGreaterThan(fit.records.length * 0.9)
+  expect(withGps[0]!.position_lat).toBeCloseTo(46, 3)
+  const lons = withGps.map((r) => r.position_long!)
+  expect(Math.min(...lons)).toBeGreaterThanOrEqual(8 - 1e-6)
+  expect(Math.max(...lons)).toBeGreaterThan(Math.min(...lons)) // the dot moved east along the road
 })

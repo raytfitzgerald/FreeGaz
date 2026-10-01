@@ -111,6 +111,8 @@ export class RideSession {
       targetW: this.targetW(),
       grade: this.lastTick.grade ?? null,
       altitude: this.lastTick.altitude ?? null,
+      lat: this.lastTick.lat ?? null,
+      lon: this.lastTick.lon ?? null,
       ...(this.lastTick.speed !== undefined ? { speed: this.lastTick.speed } : {}),
     }))
   }

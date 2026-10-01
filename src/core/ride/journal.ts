@@ -47,6 +47,9 @@ type RecordTuple = [
   number | null,
   number,
   number[],
+  // appended later: position (absent on rides with none, and in older journals)
+  number?,
+  number?,
 ]
 
 export function encodeMeta(meta: Omit<JournalMeta, 'type' | 'v'>): string {
@@ -58,6 +61,7 @@ export function encodeRecord(r: RideRecord): string {
     r.t, r.ts, r.power, r.cadence, r.hr, r.speed, r.distance, r.altitude, r.grade,
     r.targetW, r.lrBalance, r.coreTemp, r.skinTemp, r.smo2, r.lap, r.rr,
   ]
+  if (r.lat != null && r.lon != null) tuple.push(r.lat, r.lon)
   return JSON.stringify(tuple)
 }
 
@@ -78,11 +82,10 @@ export function decodeLine(line: string): JournalLine | null {
   }
   if (Array.isArray(v)) {
     if (v.length < 16) return null
-    const [t, ts, power, cadence, hr, speed, distance, altitude, grade, targetW, lrBalance, coreTemp, skinTemp, smo2, lap, rr] = v as RecordTuple
-    return {
-      kind: 'record',
-      record: { t, ts, power, cadence, hr, speed, distance, altitude, grade, targetW, lrBalance, coreTemp, skinTemp, smo2, lap, rr: Array.isArray(rr) ? rr : [] },
-    }
+    const [t, ts, power, cadence, hr, speed, distance, altitude, grade, targetW, lrBalance, coreTemp, skinTemp, smo2, lap, rr, lat, lon] = v as RecordTuple
+    const record: RideRecord = { t, ts, power, cadence, hr, speed, distance, altitude, grade, targetW, lrBalance, coreTemp, skinTemp, smo2, lap, rr: Array.isArray(rr) ? rr : [] }
+    if (typeof lat === 'number' && typeof lon === 'number') Object.assign(record, { lat, lon })
+    return { kind: 'record', record }
   }
   if (v && typeof v === 'object') {
     const o = v as { type?: string }

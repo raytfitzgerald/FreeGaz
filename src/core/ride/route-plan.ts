@@ -455,6 +455,8 @@ export class RoutePlan implements RidePlan {
       altitude: Math.round(s.ele * 10) / 10,
       speed: this.recordSpeed(t, speedMps),
       distanceM: position,
+      // a real course goes in the FIT as GPS; the demo routes are shapes at an arbitrary spot, so they stay off the map
+      ...(this.route.source !== 'synthetic' ? { lat: s.lat, lon: s.lon } : {}),
       cue: this.cues.shift() ?? null,
       route: progress,
     }

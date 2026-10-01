@@ -36,6 +36,9 @@ export interface RideRecord {
   lap: number
   /** RR intervals (ms) that arrived during the slot. */
   rr: number[]
+  /** Position on a real-world route, degrees (absent on rides with nowhere to be). */
+  lat?: number | null
+  lon?: number | null
 }
 
 /** Extra per-slot values the ride session provides (workout target, route state...). */
@@ -45,6 +48,9 @@ export interface SlotExtras {
   grade?: number | null
   /** Overrides trainer speed (virtual speed from physics on routes). */
   speed?: number | null
+  /** Where on the route the rider is, degrees. */
+  lat?: number | null
+  lon?: number | null
 }
 
 export class RideRecorder {
@@ -178,6 +184,8 @@ export class RideRecorder {
       smo2: roundOrNull(at('smo2'), 1),
       lap: this.lap,
       rr: hub.rrBetween(a, b),
+      // 7 decimals is about 1 cm: plenty, and it keeps the journal lines short
+      ...(ex.lat != null && ex.lon != null ? { lat: roundOrNull(ex.lat, 7), lon: roundOrNull(ex.lon, 7) } : {}),
     }
   }
 }

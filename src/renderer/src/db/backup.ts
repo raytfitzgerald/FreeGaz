@@ -25,6 +25,8 @@ const TYPED: Record<TypedKey, 'f64' | 'f32' | 'u16' | 'u32'> = {
   lap: 'u16',
   rr: 'f32',
   rrOffsets: 'u32',
+  lat: 'f64',
+  lon: 'f64',
 }
 
 const b64 = (u8: Uint8Array): string => {
@@ -61,7 +63,8 @@ function typedReviver(_key: string, v: unknown): unknown {
 function encodeStreams(s: RideStreams): Record<string, unknown> {
   const out: Record<string, unknown> = { rideId: s.rideId, length: s.length }
   for (const k of Object.keys(TYPED) as TypedKey[]) {
-    const arr = s[k] as ArrayBufferView
+    const arr = s[k] as ArrayBufferView | undefined
+    if (!arr) continue // optional columns (positions) only exist on some rides
     out[k] = b64(new Uint8Array(arr.buffer, arr.byteOffset, arr.byteLength))
   }
   return out
@@ -70,6 +73,7 @@ function encodeStreams(s: RideStreams): Record<string, unknown> {
 function decodeStreams(o: Record<string, unknown>): RideStreams {
   const s = { rideId: String(o.rideId), length: Number(o.length) } as RideStreams
   for (const [k, t] of Object.entries(TYPED) as [TypedKey, string][]) {
+    if (o[k] === undefined && (k === 'lat' || k === 'lon')) continue
     const bytes = unb64(String(o[k] ?? ''))
     const buf = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)
     ;(s as unknown as Record<string, ArrayBufferView>)[k] =

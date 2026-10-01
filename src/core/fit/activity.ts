@@ -157,6 +157,7 @@ export function encodeFitActivity(input: FitActivityInput): Uint8Array {
         distance: round(r.distance, 2),
         enhanced_speed: round(r.speed, 3),
         enhanced_altitude: round(r.altitude, 1),
+        ...(r.lat != null && r.lon != null ? { position_lat: w.latlng((r.lat * Math.PI) / 180), position_long: w.latlng((r.lon * Math.PI) / 180) } : {}),
         grade: round(r.grade, 2),
         core_temperature: round(r.coreTemp, 2),
         saturated_hemoglobin_percent: round(r.smo2, 1),
