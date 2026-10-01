@@ -5,6 +5,10 @@
 export const INVOKE_CHANNELS = [
   'app.ping',
   'app.info',
+  'update.status',
+  'update.check',
+  'update.download',
+  'update.install',
   'settings.get',
   'settings.patch',
   'ble.prepare',
@@ -60,4 +64,4 @@ export const INVOKE_CHANNELS = [
 
 export const SEND_CHANNELS = ['live.publish'] as const
 
-export const EVENT_CHANNELS = ['app.log', 'settings.changed', 'ble.chooser', 'ble.chosen', 'power.suspend', 'uploads.changed', 'ai.stream.delta', 'ai.stream.end', 'live.broadcast', 'ride.command'] as const
+export const EVENT_CHANNELS = ['app.log', 'settings.changed', 'ble.chooser', 'ble.chosen', 'power.suspend', 'uploads.changed', 'update.status', 'ai.stream.delta', 'ai.stream.end', 'live.broadcast', 'ride.command'] as const

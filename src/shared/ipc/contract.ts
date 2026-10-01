@@ -47,6 +47,21 @@ const RemoteStatusSchema = z.object({
   allowControl: z.boolean(),
   clients: z.array(z.object({ id: z.string(), address: z.string(), connectedAt: z.number() })),
 })
+/**
+ * Where the in-app updater is. `unsupported` covers dev, test, web and
+ * ad-hoc signed builds, which can't update themselves; `reason` says which.
+ */
+export const UpdateStatusSchema = z.discriminatedUnion('state', [
+  z.object({ state: z.literal('unsupported'), reason: z.enum(['dev', 'web', 'unsigned', 'platform', 'failed']) }),
+  z.object({ state: z.literal('idle'), checkedAt: z.number().nullable() }),
+  z.object({ state: z.literal('checking') }),
+  z.object({ state: z.literal('up-to-date'), checkedAt: z.number() }),
+  z.object({ state: z.literal('available'), version: z.string() }),
+  z.object({ state: z.literal('downloading'), version: z.string(), percent: z.number().min(0).max(100) }),
+  z.object({ state: z.literal('ready'), version: z.string() }),
+  z.object({ state: z.literal('error'), message: z.string() }),
+])
+export type UpdateStatus = z.infer<typeof UpdateStatusSchema>
 const AiProviderSchema = z.enum(['anthropic', 'openai', 'grok', 'ollama'])
 const AiStatusSchema = z.object({
   provider: AiProviderSchema.nullable(),
@@ -88,6 +103,15 @@ export const invoke = {
     req: z.object({ title: z.string().min(1).max(200), body: z.string().min(1).max(30_000) }),
     res: z.object({ ok: z.boolean(), trimmed: z.boolean() }),
   },
+
+  // ---- in-app updates (signed Mac builds only) ----
+  'update.status': { req: Empty, res: UpdateStatusSchema },
+  /** Checks GitHub now; with auto updates on, an update found starts downloading. */
+  'update.check': { req: Empty, res: UpdateStatusSchema },
+  /** Downloads an update found while automatic updates were off. */
+  'update.download': { req: Empty, res: UpdateStatusSchema },
+  /** Quits and installs a downloaded update. Refused (ok: false) unless one is ready. */
+  'update.install': { req: Empty, res: Ok },
 
   // ---- settings (main-owned JSON) ----
   'settings.get': { req: Empty, res: AppSettingsSchema },
@@ -246,6 +270,7 @@ export interface EventMap {
   /** The system is about to sleep / just woke: pause the ride. */
   'power.suspend': { suspended: boolean }
   'uploads.changed': OutboxItemDto
+  'update.status': UpdateStatus
   'ai.stream.delta': { streamId: string; text: string }
   'ai.stream.end': { streamId: string; text: string | null; error: string | null; code: string | null; model: string | null }
   /** Live data relayed from the main window to the mini-HUD. */

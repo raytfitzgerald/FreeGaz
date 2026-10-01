@@ -29,6 +29,9 @@ mac:
   target:
     - target: dmg
       arch: [arm64]
+    # The in-app updater (electron-updater / Squirrel.Mac) installs from the zip.
+    - target: zip
+      arch: [arm64]
   category: public.app-category.healthcare-fitness
   identity: "-"
   hardenedRuntime: false
@@ -52,4 +55,10 @@ electronFuses:
   enableEmbeddedAsarIntegrityValidation: true
   onlyLoadAppFromAsar: true
 
-publish: null
+# Never published by electron-builder itself (every build passes --publish never),
+# but the provider makes it write latest-mac.yml, the feed the in-app updater reads.
+# `npm run dist:signed -- --upload` attaches it to the GitHub release.
+publish:
+  provider: github
+  owner: raytfitzgerald
+  repo: FreeGaz

@@ -10,12 +10,15 @@ import { defaultExportDir, registerRideHandlers } from './ipc/ride-handlers'
 import { registerIntegrationHandlers } from './ipc/integration-handlers'
 import { registerAiHandlers } from './ipc/ai-handlers'
 import { registerHudHandlers } from './ipc/hud-handlers'
+import { registerUpdateHandlers } from './ipc/update-handlers'
 import { SecretStore, type Cipher } from './secrets/secret-store'
 import { JournalStore } from './ride/journal-store'
 import { emit } from './ipc/register'
 import { BluetoothChooser } from './ble/chooser'
 import { SettingsStore } from './store/settings-store'
 import { runSelfTestIfRequested } from './selftest'
+import { UpdateService } from './updater/update-service'
+import { loadUpdater } from './updater/electron-updater'
 
 // ---- pre-ready setup -------------------------------------------------------
 app.setName('FreeGaz')
@@ -65,6 +68,22 @@ void app.whenReady().then(() => {
   registerIntegrationHandlers({ secrets, userData: app.getPath('userData'), exportDir: () => settings.get().exportDir ?? defaultExportDir() })
   registerAiHandlers({ secrets })
   registerHudHandlers(() => mainWindow)
+  const updates = loadUpdater()
+    .catch((err: unknown) => {
+      console.error('[update] the updater failed to start', err)
+      return { updater: null, reason: 'failed' as const }
+    })
+    .then(({ updater, reason }) => {
+      const service = new UpdateService({
+        updater,
+        unsupportedReason: reason,
+        prefs: () => settings.get().updates,
+        onStatus: (status) => mainWindow && emit(mainWindow.webContents, 'update.status', status),
+      })
+      service.start()
+      return service
+    })
+  registerUpdateHandlers(updates)
   mainWindow = createMainWindow(() => settings.get().appearance)
   chooser.attach(mainWindow.webContents)
   // A renderer that crashed or reloaded left its ride's journal open; close it
