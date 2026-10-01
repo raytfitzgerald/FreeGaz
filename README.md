@@ -187,6 +187,12 @@ npm install
 npm run dev
 ```
 
+### Updates
+
+From 0.5.0, the Mac app updates itself. It checks GitHub's releases a little after launch and every six hours, downloads a new version in the background, and installs it the next time you quit, or straight away from **Restart to update** in the sidebar. Nothing restarts during a ride. **Settings → About** has **Check for updates**, a switch to turn automatic updates off, and one for pre-releases (every 0.x release is one). The check only asks GitHub which release is newest; it sends nothing about you or your rides.
+
+0.4.0 and earlier can't update themselves: download 0.5.0 from [freegaz.app](https://freegaz.app) once, and it takes over from there.
+
 ### On your phone
 
 FreeGaz also runs as an app on your phone, no app store involved: open **[raytfitzgerald.github.io/FreeGaz](https://raytfitzgerald.github.io/FreeGaz/)** and add it to your home screen. It gets its own icon, opens full screen and works with no signal, which is handy, because the pain cave never has Wi-Fi.
@@ -258,7 +264,7 @@ Keys are encrypted with your macOS Keychain and never reach the app's UI process
 
 ## Your data
 
-Everything stays on this Mac. Rides live in the app's database, plus a FIT file per ride in `~/Documents/FreeGaz/Rides`; you can change that folder, for example to one in iCloud Drive for free sync. **Settings → Data & backup** saves or restores a full backup zip, or scans the FIT folder to rebuild your history on a new Mac. Nothing leaves the machine unless you connect Strava or intervals.icu, turn on an AI provider, or send a bug report.
+Everything stays on this Mac. Rides live in the app's database, plus a FIT file per ride in `~/Documents/FreeGaz/Rides`; you can change that folder, for example to one in iCloud Drive for free sync. **Settings → Data & backup** saves or restores a full backup zip, or scans the FIT folder to rebuild your history on a new Mac. Nothing leaves the machine unless you connect Strava or intervals.icu, turn on an AI provider, or send a bug report. The update check asks GitHub for the newest release and sends no data of yours.
 
 ## Reporting a bug
 
@@ -293,11 +299,10 @@ Ad-hoc signatures change on every build, so macOS forgets permission grants such
    xcrun notarytool store-credentials freegaz --apple-id YOUR_APPLE_ID --team-id YOUR_TEAM_ID
    ```
 
-The script checks both before it builds. Then it signs, notarizes and staples the app and the DMG, and runs `spctl` the way Gatekeeper will. Notarization usually takes a few minutes. CI keeps building the ad-hoc DMG, because the certificate never leaves your Mac. For a release, upload the signed DMG over the one CI attached:
+The script checks both before it builds. Then it signs, notarizes and staples the app and the DMG, builds the zip and `latest-mac.yml` that the in-app updater installs from, and runs `spctl` the way Gatekeeper will. Notarization usually takes a few minutes. CI keeps building the ad-hoc DMG, because the certificate never leaves your Mac. To release:
 
-```bash
-gh release upload vX.Y.Z release/X.Y.Z/FreeGaz-X.Y.Z-arm64.dmg --clobber
-```
+1. Merge the version bump and push the tag (`v0.5.0`). CI creates the GitHub release with its ad-hoc DMG.
+2. Run `npm run dist:signed -- --upload`. It replaces CI's DMG with the signed one and attaches the zip, its blockmap and `latest-mac.yml`. Once `latest-mac.yml` is on the release, installed copies (0.5.0 and later) find the update within six hours, or right away from **Settings → About → Check for updates**.
 
 If signing fails with "A timestamp was expected but was not found", `codesign` can't reach Apple's timestamp server. On some home routers that happens only over IPv6. Turn IPv6 off for the build (`sudo networksetup -setv6off Wi-Fi`, then `-setv6automatic Wi-Fi` afterwards) and run it again.
 

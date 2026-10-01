@@ -17,7 +17,8 @@ export function runSelfTestIfRequested(win: BrowserWindow): void {
   win.webContents.once('did-finish-load', () => {
     win.webContents
       .executeJavaScript(
-        "window.freegaz.invoke('app.ping', { msg: 'selftest' }).then((r) => JSON.stringify({ r, url: location.href }))",
+        // the updater's status shows whether this build can update itself (packaged, Developer ID signed)
+        "Promise.all([window.freegaz.invoke('app.ping', { msg: 'selftest' }), window.freegaz.invoke('update.status', {})]).then(([r, update]) => JSON.stringify({ r, update, url: location.href }))",
       )
       .then((json: string) => {
         clearTimeout(timer)

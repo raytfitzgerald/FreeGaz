@@ -96,6 +96,11 @@ export function createWebShim(): FreegazBridge {
       window.open(url, '_blank', 'noopener')
       return { ok: true, trimmed }
     },
+    // the web app updates itself through its service worker
+    'update.status': () => ({ state: 'unsupported', reason: 'web' }),
+    'update.check': () => ({ state: 'unsupported', reason: 'web' }),
+    'update.download': () => ({ state: 'unsupported', reason: 'web' }),
+    'update.install': () => ({ ok: false }),
     'settings.get': () => settings,
     'settings.patch': (patch) => {
       settings = mergeSettings(settings, patch)

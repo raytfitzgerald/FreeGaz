@@ -5,6 +5,7 @@ import { bridge } from '../../platform/bridge'
 import { Button } from '../../ui/Button'
 import { openBugReport } from '../support/open'
 import { Field, Section } from '../../ui/form'
+import { UpdatesField } from '../updates/UpdatesField'
 
 export function AboutSection() {
   const [info, setInfo] = useState<InvokeRes<'app.info'> | null>(null)
@@ -19,6 +20,7 @@ export function AboutSection() {
       <Field label="Version">
         <div className="pt-2 text-sm">{info ? `${info.version} · Electron ${info.electron} · Chrome ${info.chrome} · Node ${info.node}` : '…'}</div>
       </Field>
+      <UpdatesField />
       <Field label="Your data">
         <div className="pt-2 text-sm text-ink-dim">
           App data: <code className="text-xs">{info?.userData}</code>

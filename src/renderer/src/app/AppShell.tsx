@@ -7,6 +7,7 @@ import { ChooserDialog } from '../features/devices/ChooserDialog'
 import { DeviceStatusBar } from '../features/devices/DeviceStatusBar'
 import { RecoveryBanner } from '../features/ride/RecoveryBanner'
 import { ReportBugDialog, ReportBugLink } from '../features/support/ReportBugDialog'
+import { UpdateReadyLink } from '../features/updates/UpdatesField'
 import { useGlobalHotkeys } from './hotkeys'
 import { ToastHost } from './ToastHost'
 import { MobileTabBar, MobileTopBar } from './MobileNav'
@@ -40,6 +41,7 @@ export function AppShell() {
             </Link>
           ))}
         </nav>
+        <UpdateReadyLink />
         <ReportBugLink />
       </aside>
       <main className="relative flex min-h-0 min-w-0 flex-1 flex-col">

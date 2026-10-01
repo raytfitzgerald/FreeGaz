@@ -81,6 +81,14 @@ export const JourneyPrefsSchema = z.object({
   activeId: z.string().max(80).nullable().default(null),
 })
 
+/** In-app updates of the signed Mac app (electron-updater, from GitHub releases). */
+export const UpdatePrefsSchema = z.object({
+  /** Check at launch and every few hours, and download in the background. Installing waits for a restart or quit. */
+  auto: z.boolean().default(true),
+  /** Take pre-releases too. Every 0.x release is a pre-release, so this is on by default. */
+  prereleases: z.boolean().default(true),
+})
+
 export const AppSettingsSchema = z.object({
   version: z.literal(1).default(1),
   /** One remembered device per role, auto-selected on launch. */
@@ -106,6 +114,7 @@ export const AppSettingsSchema = z.object({
   hud: HudPrefsSchema.default(HudPrefsSchema.parse({})),
   fan: FanPrefsSchema.default(FanPrefsSchema.parse({})),
   journeys: JourneyPrefsSchema.default(JourneyPrefsSchema.parse({})),
+  updates: UpdatePrefsSchema.default(UpdatePrefsSchema.parse({})),
 })
 
 export type AppSettings = z.infer<typeof AppSettingsSchema>
@@ -115,6 +124,7 @@ export type FuelingPrefs = z.infer<typeof FuelingPrefsSchema>
 export type HudPrefs = z.infer<typeof HudPrefsSchema>
 export type FanPrefs = z.infer<typeof FanPrefsSchema>
 export type JourneyPrefs = z.infer<typeof JourneyPrefsSchema>
+export type UpdatePrefs = z.infer<typeof UpdatePrefsSchema>
 export type RememberedDeviceSetting = z.infer<typeof RememberedDeviceSchema>
 
 export const DEFAULT_SETTINGS: AppSettings = AppSettingsSchema.parse({})
