@@ -6,8 +6,39 @@ import type { RoutePoint } from '../routes/model'
 export interface MapFrame {
   /** Projects lat/lon to x/y inside the box (y down). */
   project(lat: number, lon: number): [number, number]
+  /** Back from x/y to lat/lon. */
+  unproject(x: number, y: number): [number, number]
+  /** Ground metres per pixel, for the scale bar and the grid. */
+  metersPerPx: number
   /** The road from fromM to toM as an SVG points list. */
   path(fromM: number, toM: number): string
+}
+
+/** Metres in a degree of latitude. */
+const M_PER_DEG = 111_195
+
+/** A round ground distance (1, 2 or 5 × 10ⁿ m) close to `targetPx` pixels at this scale. */
+export function niceStepM(metersPerPx: number, targetPx: number): number {
+  const raw = metersPerPx * targetPx
+  const p = 10 ** Math.floor(Math.log10(raw))
+  const f = raw / p
+  return (f < 1.5 ? 1 : f < 3.5 ? 2 : f < 7.5 ? 5 : 10) * p
+}
+
+/**
+ * Grid lines every `stepM` metres, anchored to the ground (lat/lon multiples),
+ * so the grid slides with the map as the dot moves, like a real map's.
+ */
+export function gridLines(frame: MapFrame, width: number, height: number, stepM: number): { xs: number[]; ys: number[] } {
+  const [latTop, lonLeft] = frame.unproject(0, 0)
+  const [latBottom, lonRight] = frame.unproject(width, height)
+  const dLat = stepM / M_PER_DEG
+  const dLon = dLat / Math.max(0.05, Math.cos(((latTop + latBottom) / 2) * (Math.PI / 180)))
+  const xs: number[] = []
+  const ys: number[] = []
+  for (let lon = Math.ceil(lonLeft / dLon) * dLon; lon <= lonRight && xs.length < 200; lon += dLon) xs.push(frame.project(latTop, lon)[0])
+  for (let lat = Math.ceil(latBottom / dLat) * dLat; lat <= latTop && ys.length < 200; lat += dLat) ys.push(frame.project(lat, lonLeft)[1])
+  return { xs, ys }
 }
 
 /** Index of the last point at or before `distM` (binary search). */
@@ -61,9 +92,10 @@ export function mapFrame(points: readonly RoutePoint[], fromM: number, toM: numb
   const cx = (minLon + maxLon) / 2
   const cy = (minLat + maxLat) / 2
   const project = (lat: number, lon: number): [number, number] => [width / 2 + (lon - cx) * k * scale, height / 2 - (lat - cy) * scale]
+  const unproject = (x: number, y: number): [number, number] => [cy - (y - height / 2) / scale, cx + (x - width / 2) / (k * scale)]
   const path = (a: number, b: number) =>
     pointsBetween(points, a, b)
       .map((p) => project(p.lat, p.lon).map((v) => v.toFixed(1)).join(','))
       .join(' ')
-  return { project, path }
+  return { project, unproject, metersPerPx: M_PER_DEG / scale, path }
 }
