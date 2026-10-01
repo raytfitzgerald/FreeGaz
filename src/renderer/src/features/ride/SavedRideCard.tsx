@@ -1,5 +1,7 @@
-import { CheckCircle2, ExternalLink, FolderOpen, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { CheckCircle2, Copy, ExternalLink, FolderOpen, X } from 'lucide-react'
 import { uploadSkipText } from '@core/ride/upload-policy'
+import type { SavedMoment } from '../../moments/store'
 import { bridge } from '../../platform/bridge'
 import { rideStore, useRide } from '../../stores/ride'
 import { Button } from '../../ui/Button'
@@ -78,6 +80,68 @@ export function SavedRideCard() {
         )}
         {saved.uploads.length > 0 && <span className="self-center text-xs text-ink-dim">Queued for {saved.uploads.join(' + ')} upload.</span>}
       </div>
+      {saved.moments && saved.moments.length > 0 && <Moments rideId={s.id} moments={saved.moments} />}
     </div>
   )
+}
+
+const MOMENT_LABEL = { hard: 'Hardest effort', coach: 'Coach' } as const
+
+/** The ride's pictures, ready to paste into the Strava post (Strava's API can't attach photos). */
+function Moments({ rideId, moments }: { rideId: string; moments: SavedMoment[] }) {
+  const activityId = useStravaActivity(rideId)
+  const [copied, setCopied] = useState<string | null>(null)
+  const copy = async (m: SavedMoment) => {
+    const { ok } = await bridge().invoke('files.copyImage', { path: m.path })
+    setCopied(ok ? m.path : null)
+  }
+  return (
+    <div className="mt-4 border-t border-good/20 pt-3" data-testid="ride-moments">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <div className="text-sm font-semibold">Moments for your Strava post</div>
+        {activityId && (
+          <Button size="sm" variant="ghost" onClick={() => void bridge().invoke('files.openUrl', { url: `https://www.strava.com/activities/${activityId}` })}>
+            <ExternalLink className="size-3.5" /> Open on Strava
+          </Button>
+        )}
+      </div>
+      <p className="mt-0.5 text-xs text-ink-dim">Strava doesn't let apps add photos, so copy one here and paste it into the post.</p>
+      <div className="mt-3 flex flex-wrap gap-4">
+        {moments.map((m) => (
+          <figure key={m.path} className="w-60">
+            <img src={m.url} alt={`${MOMENT_LABEL[m.kind]}: ${m.caption}`} className="aspect-video w-full rounded-lg border border-line object-cover object-top" />
+            <figcaption className="mt-1.5 text-xs text-ink-dim">
+              {m.kind === 'coach' && <b className="text-ink">Coach · </b>}
+              {m.caption}
+            </figcaption>
+            <div className="mt-1.5 flex gap-1.5">
+              <Button size="sm" onClick={() => void copy(m)} data-testid={`copy-moment-${m.kind}`}>
+                <Copy className="size-3.5" /> {copied === m.path ? 'Copied' : 'Copy'}
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => void bridge().invoke('files.reveal', { path: m.path })}>
+                <FolderOpen className="size-3.5" /> Show
+              </Button>
+            </div>
+          </figure>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/** The Strava activity this ride became, once its upload finishes. */
+function useStravaActivity(rideId: string): string | null {
+  const [id, setId] = useState<string | null>(null)
+  useEffect(() => {
+    const done = (items: { rideId: string; provider: string; status: string; activityId?: string }[]) => {
+      const hit = items.find((i) => i.rideId === rideId && i.provider === 'strava' && i.status === 'done' && i.activityId)
+      if (hit?.activityId) setId(hit.activityId)
+    }
+    void bridge()
+      .invoke('uploads.list', {})
+      .then((r) => done(r.items))
+      .catch(() => undefined)
+    return bridge().on('uploads.changed', (item) => done([item]))
+  }, [rideId])
+  return id
 }

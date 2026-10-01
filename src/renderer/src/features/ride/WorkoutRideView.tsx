@@ -56,13 +56,13 @@ export function WorkoutRideView() {
       <RescueBanner />
       <FinishedBanner />
 
-      <div className="grid gap-3 md:grid-cols-3">
+      <div className="grid gap-3 md:grid-cols-3" data-snap>
         <IntervalTile />
         <TargetOrEffortTile />
         <PowerTile />
       </div>
 
-      <div className="rounded-2xl border border-line bg-panel p-4">
+      <div className="rounded-2xl border border-line bg-panel p-4" data-snap>
         <ChartWithControls />
       </div>
 
@@ -215,7 +215,7 @@ function ChartWithControls() {
   return (
     <div>
       <WorkoutChart blocks={blocks} durationS={workout.plan.timeline.durationS} ftpW={ftpW} actual={actual ?? undefined} cursorS={cursor} height={170} title="Workout profile with your power" />
-      <div className="mt-2 flex flex-wrap items-center gap-2">
+      <div className="mt-2 flex flex-wrap items-center gap-2" data-snap-hide>
         <Button size="sm" variant="ghost" onClick={() => command({ type: 'back' })} title="Back: restart this interval, or go to the previous one (B)">
           <RotateCcw className="size-3.5" /> Back
         </Button>

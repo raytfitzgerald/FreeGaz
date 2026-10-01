@@ -2,7 +2,7 @@ import { mkdtempSync, readFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { isAllowedExternal, sanitizeFileName, writeInto } from './files'
+import { isAllowedExternal, isInside, isJpeg, sanitizeFileName, writeInto } from './files'
 
 describe('file helpers', () => {
   it('sanitizes ride names into safe file names', () => {
@@ -17,6 +17,17 @@ describe('file helpers', () => {
     const p = writeInto(dir, 'ride.fit', Uint8Array.from([1, 2, 3]))
     expect(readFileSync(p)).toEqual(Buffer.from([1, 2, 3]))
     expect(() => writeInto(dir, '../escape.fit', Uint8Array.from([1]))).toThrow()
+  })
+
+  it('knows inside the folder from next to it', () => {
+    expect(isInside('/Users/r/Rides', '/Users/r/Rides/a.jpg')).toBe(true)
+    expect(isInside('/Users/r/Rides', '/Users/r/Rides-old/a.jpg')).toBe(false)
+    expect(isInside('/Users/r/Rides', '/Users/r/Rides/../secrets.jpg')).toBe(false)
+  })
+
+  it('recognises JPEG bytes', () => {
+    expect(isJpeg(Uint8Array.from([0xff, 0xd8, 0xff, 0xe0, 0]))).toBe(true)
+    expect(isJpeg(Uint8Array.from([0x89, 0x50, 0x4e, 0x47]))).toBe(false)
   })
 
   it('allows only https links to known hosts', () => {

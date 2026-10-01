@@ -49,7 +49,7 @@ export function RideAlong() {
   const setMode = (rideAlong: 'open' | 'minimized') => void patchSettings({ coach: { ...settingsStore.getState().coach, rideAlong } })
 
   const controls = (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-1" data-snap-hide>
       {coachOn && riding && (
         <Button size="sm" variant="ghost" onClick={toggleMute} aria-pressed={muted} title={muted ? 'Muted for this ride. Press again, or C, to unmute.' : 'Mute the coach for this ride (C)'} data-testid="ride-along-mute">
           {muted ? <VolumeX className="size-3.5" /> : <Volume2 className="size-3.5" />}
@@ -70,7 +70,7 @@ export function RideAlong() {
   )
 
   return (
-    <section className="rounded-2xl border border-line bg-panel" aria-label="Ride-along" data-testid="ride-along" data-mode={mode}>
+    <section className="rounded-2xl border border-line bg-panel" aria-label="Ride-along" data-testid="ride-along" data-mode={mode} data-snap>
       <div className="flex items-center justify-between gap-3 px-4 pt-2">
         <div className="flex min-w-0 items-center gap-2">
           <span className="eyebrow text-ink-faint">Ride-along</span>

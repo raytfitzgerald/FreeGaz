@@ -1,9 +1,10 @@
-import { app, BrowserWindow, dialog, powerMonitor, powerSaveBlocker, shell } from 'electron'
+import { app, BrowserWindow, clipboard, ClipboardItem, dialog, nativeImage, powerMonitor, powerSaveBlocker, shell } from 'electron'
 import { join } from 'node:path'
 import { parseJournal } from '@core/ride/journal'
-import { isAllowedExternal, sanitizeFileName, writeInto } from '../files/files'
+import { isAllowedExternal, isInside, isJpeg, sanitizeFileName, writeInto } from '../files/files'
 import type { JournalStore } from '../ride/journal-store'
 import type { SettingsStore } from '../store/settings-store'
+import { env } from '../env'
 import { emit, handle } from './register'
 
 export function defaultExportDir(): string {
@@ -61,6 +62,27 @@ export function registerRideHandlers(deps: { journal: JournalStore; settings: Se
     const safe = sanitizeFileName(fileName.replace(/\.fit$/i, ''), '.fit')
     const path = writeInto(exportDir(), safe, bytes)
     return { path, fileName: safe }
+  })
+  handle('files.saveImage', ({ fileName, bytes }) => {
+    if (!isJpeg(bytes)) throw new Error('Not a JPEG image')
+    const safe = sanitizeFileName(fileName.replace(/\.jpe?g$/i, ''), '.jpg')
+    return { path: writeInto(exportDir(), safe, bytes), fileName: safe }
+  })
+  handle('files.copyImage', async ({ path }) => {
+    if (!isInside(exportDir(), path) || !/\.jpe?g$/i.test(path)) return { ok: false }
+    const image = nativeImage.createFromPath(path)
+    if (image.isEmpty()) return { ok: false }
+    await clipboard.write([new ClipboardItem({ 'image/png': new Blob([image.toPNG().slice()], { type: 'image/png' }) })])
+    return { ok: true }
+  })
+  handle('ride.capture', async (_req, event) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    // E2E windows stay hidden but still paint; a rider's hidden or minimized window has nothing worth a picture
+    if (!win || (!env.isTest && (!win.isVisible() || win.isMinimized()))) return { image: null, width: 0, height: 0 }
+    const shot = await event.sender.capturePage()
+    if (shot.isEmpty()) return { image: null, width: 0, height: 0 }
+    const { width, height } = shot.getSize()
+    return { image: new Uint8Array(shot.toJPEG(92)), width, height }
   })
   handle('files.saveAs', async ({ defaultName, bytes, filters }, event) => {
     const win = BrowserWindow.fromWebContents(event.sender) ?? undefined

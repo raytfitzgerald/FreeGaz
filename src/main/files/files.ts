@@ -34,6 +34,18 @@ export function sanitizeFileName(name: string, ext: string): string {
   return `${base || 'ride'}${ext.startsWith('.') ? ext : `.${ext}`}`
 }
 
+/** True when `path` is `dir` itself or inside it (not merely sharing a prefix, like Rides-old). */
+export function isInside(dir: string, path: string): boolean {
+  const root = normalize(dir + sep)
+  const target = normalize(path)
+  return target.startsWith(root)
+}
+
+/** A JPEG starts with the SOI marker and a segment marker: FF D8 FF. */
+export function isJpeg(bytes: Uint8Array): boolean {
+  return bytes.length > 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff
+}
+
 /** Writes `bytes` to `dir/fileName`, refusing anything that escapes `dir`. */
 export function writeInto(dir: string, fileName: string, bytes: Uint8Array): string {
   const root = normalize(dir + sep)

@@ -141,7 +141,7 @@ export function FreeRidePage() {
         <RecordingBar />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
+      <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]" data-snap>
         <PowerHero />
         <div className="flex flex-col rounded-2xl border border-line bg-panel p-5" data-testid="target-panel">
           <div className="eyebrow text-ink-faint">
@@ -170,7 +170,7 @@ export function FreeRidePage() {
             </Button>
           </div>
           <SentToTrainer mode={mode} />
-          <div className="mt-3 text-center text-[11px] text-ink-faint">
+          <div className="mt-3 text-center text-[11px] text-ink-faint" data-snap-hide>
             ↑/↓ ±{st.small}
             {st.unit} · Shift ±{st.big}
             {st.unit} · M switches mode

@@ -7,6 +7,7 @@ import { FreeRidePage } from './FreeRidePage'
 import { RideLauncher } from './RideLauncher'
 import { RouteRideView } from './RouteRideView'
 import { WorkoutRideView } from './WorkoutRideView'
+import { useRideMoments } from '../../moments/useRideMoments'
 import { chooseRide, isRideChoice, useRideChoice, type RideChoice } from './setup'
 
 /**
@@ -22,6 +23,7 @@ export function RidePage() {
   const choice = useRideChoice()
   const { choose } = useSearch({ from: '/ride' })
   const navigate = useNavigate()
+  useRideMoments()
 
   // a link can pick the kind (Home's "Just ride" goes straight to a free ride)
   useEffect(() => {

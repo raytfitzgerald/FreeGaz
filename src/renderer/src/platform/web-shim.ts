@@ -172,6 +172,10 @@ export function createWebShim(): FreegazBridge {
     'files.exportDir': () => ({ dir: 'Downloads' }),
     'files.chooseExportDir': () => ({ dir: null }),
     'files.reveal': () => ({ ok: false }),
+    // ride moments need the Mac app's window capture
+    'ride.capture': () => ({ image: null, width: 0, height: 0 }),
+    'files.saveImage': ({ fileName }) => ({ path: '', fileName }),
+    'files.copyImage': () => ({ ok: false }),
     'music.status': () => ({ player: null, state: null, track: null, artist: null, volume: null }),
     'music.command': () => ({ player: null, state: null, track: null, artist: null, volume: null }),
     'files.listFits': () => ({ dir: 'browser', files: [] }),
