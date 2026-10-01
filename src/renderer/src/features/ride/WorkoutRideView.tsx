@@ -60,11 +60,13 @@ export function WorkoutRideView() {
       <RescueBanner />
       <FinishedBanner />
 
-      <div className="grid gap-3 md:grid-cols-3" data-snap>
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" data-snap>
         <IntervalTile />
-        <TargetOrEffortTile />
         <PowerTile />
+        <CadenceTile />
+        <HeartRateTile />
       </div>
+      <EffortRow />
 
       <div className="rounded-2xl border border-line bg-panel p-4" data-snap>
         <ChartWithControls />
@@ -129,7 +131,7 @@ function IntervalTile() {
     <MetricTile
       label={label}
       value={remaining === null ? null : formatDuration(remaining)}
-      size="xl"
+      size="lg"
       testId="interval-remaining"
       className={cn(soon && 'border-accent/60')}
       sub={next ? <span data-testid="next-interval">Next: {next}</span> : undefined}
@@ -137,24 +139,53 @@ function IntervalTile() {
   )
 }
 
-function TargetOrEffortTile() {
-  const effort = useRide((s) => s.plan?.effort ?? null)
+/** The live power, big, with the target it should match underneath. */
+function PowerTile() {
+  const p3 = useLive((f) => f.power3s)
   const target = useRide((s) => s.plan?.targetW ?? null)
   const range = useRide((s) => s.plan?.targetRangeW ?? null)
   const ftpW = useRide((s) => s.workout?.plan.ftpW ?? 0)
-  if (effort) return <EffortTile />
+  const effort = useRide((s) => !!s.plan?.effort)
   const pct = target !== null && ftpW > 0 ? `${Math.round((target / ftpW) * 100)} % FTP` : null
   return (
     <MetricTile
-      label="Target"
-      value={target}
-      unit={target === null ? undefined : 'W'}
-      size="xl"
+      label="Power · 3 s"
+      value={p3}
+      unit="W"
+      size="lg"
       accent="var(--color-power)"
-      testId="target"
-      sub={range ? `${pct} · range ${range[0]}–${range[1]} W` : target === null ? 'ERG off: your call' : pct}
+      testId="power"
+      status={target !== null && !effort ? <Compliance power={p3} target={target} /> : undefined}
+      sub={
+        target === null ? (
+          'ERG off: your call'
+        ) : (
+          <span className="tabular" data-testid="target">
+            Target <b className="text-ink" data-testid="target-value">{target}</b> W{pct && ` · ${pct}`}
+            {range && ` · ${range[0]}–${range[1]} W`}
+          </span>
+        )
+      }
     />
   )
+}
+
+function CadenceTile() {
+  const cadence = useLive((f) => f.cadence)
+  const want = useRide((s) => s.plan?.cadence ?? null)
+  const sub = want ? (want.low !== undefined && want.high !== undefined ? `Target ${want.low}–${want.high} rpm` : want.rpm !== undefined ? `Target ${want.rpm} rpm` : undefined) : undefined
+  return <MetricTile label="Cadence" value={cadence === null ? null : Math.round(cadence)} unit="rpm" size="lg" accent="var(--color-cadence)" testId="cadence" sub={sub} />
+}
+
+function HeartRateTile() {
+  const hr = useLive((f) => f.hr)
+  return <MetricTile label="Heart rate" value={hr === null ? null : Math.round(hr)} unit="bpm" size="lg" accent="var(--color-hr)" testId="heart-rate" />
+}
+
+/** FTP tests: the effort's average and projection, in its own row during the effort. */
+function EffortRow() {
+  const effort = useRide((s) => !!s.plan?.effort)
+  return effort ? <EffortTile /> : null
 }
 
 function EffortTile() {
@@ -191,12 +222,6 @@ function EffortTile() {
   )
 }
 
-function PowerTile() {
-  const p3 = useLive((f) => f.power3s)
-  const target = useRide((s) => s.plan?.targetW ?? null)
-  const effort = useRide((s) => !!s.plan?.effort)
-  return <MetricTile label="Power · 3 s" value={p3} unit="W" size="xl" accent="var(--color-power)" testId="power" status={target !== null && !effort ? <Compliance power={p3} target={target} /> : undefined} />
-}
 
 /** On target / under / over, as an icon + label (never colour alone). */
 function Compliance({ power, target }: { power: number | null; target: number }) {
