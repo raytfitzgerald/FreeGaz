@@ -163,7 +163,12 @@ It's a data-obsessed indoor cycling trainer for macOS, and [for your phone](#on-
 
 Requirements: a Mac with Apple Silicon and Bluetooth.
 
-**From a release:** download `FreeGaz-<version>-arm64.dmg` from [Releases](https://github.com/raytfitzgerald/FreeGaz/releases) and drag FreeGaz to Applications. The builds are ad-hoc signed, not notarized, so macOS blocks the first launch with "Apple could not verify FreeGaz is free of malware". Click **Done** (not Move to Trash), then either:
+**From a release:** download `FreeGaz-<version>-arm64.dmg` from [Releases](https://github.com/raytfitzgerald/FreeGaz/releases) and drag FreeGaz to Applications. From 0.4.0, releases are signed with a Developer ID and notarized by Apple, so the first launch only asks the usual "downloaded from the Internet" question. Click **Open**.
+
+<details>
+<summary>Releases up to 0.3.0 aren't notarized</summary>
+
+macOS blocks their first launch with "Apple could not verify FreeGaz is free of malware". Click **Done** (not Move to Trash), then either:
 
 - open **System Settings → Privacy & Security**, scroll down to the message about FreeGaz, click **Open Anyway** and confirm. You only need to do this once; or
 - run this in Terminal:
@@ -173,6 +178,7 @@ Requirements: a Mac with Apple Silicon and Bluetooth.
   ```
 
 The right-click **Open** shortcut no longer works on macOS 15 (Sequoia) and later.
+</details>
 
 **From source** (Node 24+):
 
