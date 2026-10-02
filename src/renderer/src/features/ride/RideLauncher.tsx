@@ -22,6 +22,8 @@ import { startWorkout } from '../workouts/start'
 import { WhereTo } from '../journeys/WhereTo'
 import { FtpResultCard } from './FtpResultCard'
 import { SavedRideCard } from './SavedRideCard'
+import { setDemoMode } from '../../platform/demo'
+import { getRuntime } from '../../runtime/composition'
 import { chooseRide, type RideChoice } from './setup'
 
 const CHOICES: { id: RideChoice; title: string; text: string; icon: LucideIcon }[] = [
@@ -106,9 +108,16 @@ function Readiness() {
       {item('Trainer', trainer?.name, true)}
       {item('Heart rate', hr?.name, false)}
       {!trainer && (
-        <Button asChild size="sm" className="ml-auto">
-          <Link to="/devices">Connect devices</Link>
-        </Button>
+        <div className="ml-auto flex flex-wrap items-center gap-2">
+          {__FREEGAZ_WEB__ && !getRuntime().sim && (
+            <Button size="sm" variant="ghost" onClick={() => setDemoMode(true)} data-testid="readiness-demo">
+              Try demo mode
+            </Button>
+          )}
+          <Button asChild size="sm">
+            <Link to="/devices">Connect devices</Link>
+          </Button>
+        </div>
       )}
     </div>
   )

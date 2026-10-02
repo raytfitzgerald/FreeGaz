@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Battery, Bluetooth, BluetoothOff, Cpu, Fan, Gauge, HeartPulse, Link2Off, RefreshCw, Thermometer, Trash2, Waves, Zap } from 'lucide-react'
+import { Battery, Bluetooth, BluetoothOff, Cpu, Fan, FlaskConical, Gauge, HeartPulse, Link2Off, RefreshCw, Thermometer, Trash2, Waves, Zap } from 'lucide-react'
 import type { ManagedDevice } from '@core/devices/manager'
 import { ROLE_LABEL, type DeviceRole } from '@core/devices/types'
 import { getRuntime } from '../../runtime/composition'
@@ -11,6 +11,7 @@ import { PageHeader } from '../../ui/PageHeader'
 import { STATE_LABEL } from '../../ui/connection-state'
 import { StatusDot } from '../../ui/StatusDot'
 import { isNative } from '../../platform/native'
+import { setDemoMode } from '../../platform/demo'
 import { CaptureConsole } from './CaptureConsole'
 
 const PRIMARY: DeviceRole[] = ['trainer', 'hr']
@@ -45,9 +46,35 @@ function NoBluetoothNotice() {
         <p className="font-semibold">This browser can't talk to Bluetooth trainers or heart-rate straps.</p>
         <p className="text-ink-dim">
           iPhone and iPad browsers don't offer Web Bluetooth. To ride with your trainer, use Chrome on Android, Chrome or Edge on a computer, or the Mac app. Workouts, history
-          and the rest still work here, or <a href="?sim=1" className="text-accent underline underline-offset-2">look around with simulated devices</a>.
+          and the rest still work here, or{' '}
+          <button type="button" onClick={() => setDemoMode(true)} className="text-accent underline underline-offset-2">
+            try demo mode
+          </button>{' '}
+          with a simulated trainer.
         </p>
       </div>
+    </div>
+  )
+}
+
+/** Web and iPhone apps: try FreeGaz with a simulated trainer and strap, or leave that again. */
+function DemoModeCard({ on }: { on: boolean }) {
+  return (
+    <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-panel px-5 py-4 text-sm" data-testid="demo-mode">
+      <div className="flex min-w-0 items-start gap-3">
+        <FlaskConical className="mt-0.5 size-4 shrink-0 text-accent" aria-hidden />
+        <div>
+          <p className="font-semibold">{on ? 'Demo mode is on' : 'No trainer nearby?'}</p>
+          <p className="text-ink-dim">
+            {on
+              ? 'A simulated trainer and heart-rate strap stand in for real ones. Rides you record are marked simulated: they never upload or count in your fitness.'
+              : 'Try FreeGaz with a simulated trainer and heart-rate strap. Workouts, journeys and the coach all work, and the rides are marked simulated.'}
+          </p>
+        </div>
+      </div>
+      <Button size="sm" variant={on ? 'secondary' : 'primary'} onClick={() => setDemoMode(!on)} data-testid="demo-mode-toggle">
+        {on ? 'Leave demo mode' : 'Try demo mode'}
+      </Button>
     </div>
   )
 }
@@ -71,6 +98,7 @@ export function DevicesPage() {
       />
 
       {__FREEGAZ_WEB__ && !rt.sim && !isNative() && !('bluetooth' in navigator) && <NoBluetoothNotice />}
+      {__FREEGAZ_WEB__ && <DemoModeCard on={rt.sim !== null} />}
 
       <div className="grid gap-4 md:grid-cols-2">
         {PRIMARY.map((role) => (
