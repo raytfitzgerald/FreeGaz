@@ -22,6 +22,8 @@ export default defineConfig(
     ignores: [
       'out/**', 'release/**', 'node_modules/**', 'coverage/**', 'test-results/**',
       'playwright-report/**', 'resources/**', '**/*.d.ts', '.claude/**',
+      // the iPhone app's native project (its public/ holds a copy of the web build)
+      'ios/**',
     ],
   },
   js.configs.recommended,

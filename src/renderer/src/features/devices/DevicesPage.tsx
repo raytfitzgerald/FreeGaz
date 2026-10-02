@@ -10,6 +10,7 @@ import { Card, CardBody, CardHeader } from '../../ui/Card'
 import { PageHeader } from '../../ui/PageHeader'
 import { STATE_LABEL } from '../../ui/connection-state'
 import { StatusDot } from '../../ui/StatusDot'
+import { isNative } from '../../platform/native'
 import { CaptureConsole } from './CaptureConsole'
 
 const PRIMARY: DeviceRole[] = ['trainer', 'hr']
@@ -69,7 +70,7 @@ export function DevicesPage() {
         }
       />
 
-      {__FREEGAZ_WEB__ && !rt.sim && !('bluetooth' in navigator) && <NoBluetoothNotice />}
+      {__FREEGAZ_WEB__ && !rt.sim && !isNative() && !('bluetooth' in navigator) && <NoBluetoothNotice />}
 
       <div className="grid gap-4 md:grid-cols-2">
         {PRIMARY.map((role) => (

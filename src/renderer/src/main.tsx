@@ -9,6 +9,7 @@ import { startFanControl } from './runtime/fan'
 import { loadSettings } from './stores/settings'
 import { startUpdateStatus } from './stores/updates'
 import './brand/fonts'
+import { isNative } from './platform/native'
 import './styles.css'
 
 const bridge = ensureBridge()
@@ -31,6 +32,7 @@ createRoot(root).render(
 void startAutoConnect(runtime)
 
 // The installed web app works offline (the desktop app has no need).
-if (__FREEGAZ_WEB__ && import.meta.env.PROD && 'serviceWorker' in navigator) {
+// the iPhone app serves its files from the app bundle: no service worker there
+if (__FREEGAZ_WEB__ && import.meta.env.PROD && 'serviceWorker' in navigator && !isNative()) {
   void navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(() => undefined)
 }

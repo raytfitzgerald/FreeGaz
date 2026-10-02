@@ -13,7 +13,9 @@ import { applyDefaultPriorities } from '@core/sensors/priorities'
 import { SimWorld } from '@core/sim/world'
 import { SystemClock, WarpClock, type Clock } from '@core/time/clock'
 import type { InvokeRes } from '@shared/ipc/contract'
+import { NativeBleTransport } from '../ble/native-bluetooth'
 import { WebBluetoothTransport } from '../ble/web-bluetooth'
+import { isNative } from '../platform/native'
 import { createCoachRuntime, type CoachRuntime } from '../coach/runtime'
 import { bridge } from '../platform/bridge'
 import { devicesStore, pushCapture, pushNotice } from '../stores/devices'
@@ -59,7 +61,8 @@ export function initRuntime(info: AppInfo): Runtime {
   applyDefaultPriorities(hub)
 
   const sim = simulated ? new SimWorld({ clock }) : null
-  const transport: BleTransport = sim ? sim.transport : new WebBluetoothTransport(bridge())
+  // the iPhone app has CoreBluetooth; everything else (Electron, Chrome) has Web Bluetooth
+  const transport: BleTransport = sim ? sim.transport : isNative() ? new NativeBleTransport() : new WebBluetoothTransport(bridge())
 
   const devices = new DeviceManager({
     transport,
