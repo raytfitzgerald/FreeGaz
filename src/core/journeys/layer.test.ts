@@ -52,31 +52,35 @@ describe('JourneyLayer', () => {
     expect(real.journey!.speedMps).toBeLessThan(flat.journey!.speedMps * 0.6)
   })
 
-  it('goes nowhere without power: missing is not progress', () => {
-    const last = ride(plan(), 0, 120, null).at(-1)!
-    expect(last.journey!.rideM).toBe(0)
-    expect(last.speed).toBe(0)
-  })
-
-  it('does not roll downhill without a power reading, but a trainer reading 0 W freewheels', () => {
-    // past the end the dot rides back down the 5 % climb
-    const noPower = ride(plan({ startM: 20_500 }), 0, 60, null).at(-1)!
-    expect(noPower.journey!.gradePct).toBeLessThan(-3)
-    expect(noPower.journey!.rideM).toBe(0)
-    expect(noPower.speed).toBe(0)
-    const coasting = ride(plan({ startM: 20_500 }), 0, 60, 0).at(-1)!
-    expect(coasting.journey!.speedMps).toBeGreaterThan(5)
-  })
-
-  it('shows a stopped dot while the ride is paused', () => {
+  it('freewheels without power: rolls to a stop on the flat', () => {
     const p = plan()
+    ride(p, 0, 120, 250)
+    const coasted = ride(p, 120, 600, null).at(-1)!
+    expect(coasted.journey!.speedMps).toBeLessThan(0.5)
+    expect(coasted.journey!.rideM).toBeGreaterThan(0)
+  })
+
+  it('starting from a stop with no power, the flat goes nowhere and a descent rolls, like the road', () => {
+    expect(ride(plan(), 0, 120, null).at(-1)!.journey!.rideM).toBe(0)
+    // past the end the dot rides back down the 5 % climb
+    const downhill = ride(plan({ startM: 20_500 }), 0, 60, null).at(-1)!
+    expect(downhill.journey!.gradePct).toBeLessThan(-3)
+    expect(downhill.journey!.speedMps).toBeGreaterThan(5)
+    expect(downhill.speed).toBeCloseTo(downhill.journey!.speedMps, 5)
+  })
+
+  it('stands still and shows 0 while the ride is paused, even on a descent', () => {
+    const p = plan({ startM: 20_500 })
     ride(p, 0, 60, 200)
     // moving time stops at 60 s while the wall clock runs on
     let t = p.tick({ now: 61_000, movingS: 60, dtS: 0.25, power: 200, cadence: 90, hr: 140 }, IDLE_TICK)
     expect(t.speed).toBeGreaterThan(5)
-    t = p.tick({ now: 63_000, movingS: 60, dtS: 0.25, power: 0, cadence: 0, hr: 140 }, IDLE_TICK)
+    const before = t.journey!.rideM
+    p.tick({ now: 63_000, movingS: 60, dtS: 0.25, power: 0, cadence: 0, hr: 140 }, IDLE_TICK)
+    t = p.tick({ now: 70_000, movingS: 60, dtS: 0.25, power: null, cadence: null, hr: 140 }, IDLE_TICK)
     expect(t.speed).toBe(0)
     expect(t.journey!.speedMps).toBe(0)
+    expect(t.journey!.rideM).toBe(before)
   })
 
   it('leaves out GPS when the rider turned the track off', () => {
