@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Check, Volume2 } from 'lucide-react'
 import { previewLine } from '@core/coach'
-import { PACKS, PROFESSIONAL, packById, type CoachLine, type CoachTrigger } from '@core/persona'
+import { PROFESSIONAL, packById, type CoachLine, type CoachTrigger } from '@core/persona'
 import type { CoachPrefs, FuelingPrefs } from '@shared/settings'
 import { listVoices, onVoicesChanged, resolveVoice, speak } from '../../audio/tts'
 import { PersonaAvatar } from '../../coach/PersonaAvatar'
@@ -13,6 +13,7 @@ import { patchSettings, useSettings } from '../../stores/settings'
 import { Button } from '../../ui/Button'
 import { cn } from '../../ui/cn'
 import { Field, Section, Select, Slider, Switch } from '../../ui/form'
+import { availablePacks } from '../../coach/available'
 import { Segmented, type SegmentedOption } from '../../ui/Segmented'
 
 const SPICE: readonly { label: string; hint: string }[] = [
@@ -112,7 +113,7 @@ export function CoachSection() {
         <Field label="Persona">
           {/* columns follow the space the field has, not the window */}
           <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-2" role="group" aria-label="Persona">
-            {PACKS.map((p) => {
+            {availablePacks().map((p) => {
               const selected = p.meta.id === meta.id
               return (
                 <button

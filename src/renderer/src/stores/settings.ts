@@ -1,5 +1,6 @@
 import { createStore, useStore } from 'zustand'
 import { DEFAULT_SETTINGS, type AppSettings, type AppSettingsPatch } from '@shared/settings'
+import { withAvailableCoach } from '../coach/available'
 import { bridge } from '../platform/bridge'
 
 /** Mirror of the main-process settings file. */
@@ -10,9 +11,12 @@ export function useSettings<T>(selector: (s: AppSettings) => T): T {
 }
 
 export async function loadSettings(): Promise<AppSettings> {
-  const s = await bridge().invoke('settings.get', {})
+  const stored = await bridge().invoke('settings.get', {})
+  // a coach this build doesn't offer (the iPhone app hides the parodies) is swapped, and saved
+  const s = withAvailableCoach(stored)
   settingsStore.setState(s, true)
-  bridge().on('settings.changed', (next) => settingsStore.setState(next, true))
+  if (s !== stored) void bridge().invoke('settings.patch', { coach: { personaId: s.coach.personaId } }).catch(() => undefined)
+  bridge().on('settings.changed', (next) => settingsStore.setState(withAvailableCoach(next), true))
   return s
 }
 
