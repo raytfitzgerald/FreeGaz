@@ -3,10 +3,14 @@
 // the black measurement line, the sprinters' red, the stayers' blue), a rider
 // on the far bend, on a Stayer Blue tile. Writes build/icon.svg (the source),
 // build/icon.png (1024 px, used by electron-builder) and the mark and icon
-// under docs/brand/. Colours: src/shared/brand.ts; guidelines: docs/BRAND.md.
+// under docs/brand/, and the iPhone app's icon (full bleed and opaque, since
+// iOS rounds the corners itself) into ios/. Colours: src/shared/brand.ts;
+// guidelines: docs/BRAND.md.
 // Run: npx electron scripts/make-icon.mjs
 import { app, BrowserWindow } from 'electron'
+import { execFileSync } from 'node:child_process'
 import { writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 const C = { stayer: '#1e59cd', sprinter: '#e0383b', azure: '#77c3ff', night: '#111d36', boards: '#f4f8fc', infield: '#1846ab' }
@@ -48,6 +52,14 @@ const icon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${S} ${S}" wi
   ${body().join('\n  ')}
 </svg>
 `
+// iOS: the same tile edge to edge, the track scaled to sit on it as it does on the Mac icon's tile
+const iosIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${S} ${S}" width="${S}" height="${S}" role="img" aria-label="FreeGaz">
+  <rect width="${S}" height="${S}" fill="${C.stayer}"/>
+  <g transform="translate(${cx} ${cy}) scale(${f(S / 824)}) translate(${-cx} ${-cy})">
+  ${body().join('\n  ')}
+  </g>
+</svg>
+`
 const pad = 24
 const mark = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${cx - W / 2 - pad} ${cy - H / 2 - pad} ${W + 2 * pad} ${H + 2 * pad}" role="img" aria-label="FreeGaz">
   ${body().join('\n  ')}
@@ -59,13 +71,27 @@ writeFileSync(join(root, 'build', 'icon.svg'), icon)
 writeFileSync(join(root, 'docs', 'brand', 'freegaz-icon.svg'), icon)
 writeFileSync(join(root, 'docs', 'brand', 'freegaz-mark.svg'), mark)
 
-app.whenReady().then(async () => {
+async function render(svg) {
   const win = new BrowserWindow({ width: S, height: S, show: false, frame: false, transparent: true, backgroundColor: '#00000000', useContentSize: true, webPreferences: { offscreen: true } })
-  const html = `<!doctype html><html style="background:transparent"><body style="margin:0;overflow:hidden;background:transparent"><img style="display:block" src="data:image/svg+xml;base64,${Buffer.from(icon).toString('base64')}" width="${S}" height="${S}"></body></html>`
+  const html = `<!doctype html><html style="background:transparent"><body style="margin:0;overflow:hidden;background:transparent"><img style="display:block" src="data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}" width="${S}" height="${S}"></body></html>`
   await win.loadURL(`data:text/html;base64,${Buffer.from(html).toString('base64')}`)
   await new Promise((res) => setTimeout(res, 300))
   const img = await win.webContents.capturePage({ x: 0, y: 0, width: S, height: S })
-  writeFileSync(join(root, 'build', 'icon.png'), img.resize({ width: S, height: S }).toPNG())
-  console.log('wrote build/icon.svg, build/icon.png, docs/brand/freegaz-icon.svg and docs/brand/freegaz-mark.svg', img.getSize())
+  win.destroy()
+  return img.resize({ width: S, height: S })
+}
+
+// one window per render: closing one must not end the script before the next
+app.on('window-all-closed', () => undefined)
+
+app.whenReady().then(async () => {
+  const img = await render(icon)
+  writeFileSync(join(root, 'build', 'icon.png'), img.toPNG())
+  // App Store icons may not have an alpha channel: a JPEG round trip drops it (the tile is opaque anyway)
+  const ios = join(root, 'ios', 'App', 'App', 'Assets.xcassets', 'AppIcon.appiconset', 'AppIcon-512@2x.png')
+  const tmp = join(tmpdir(), 'freegaz-ios-icon.jpg')
+  writeFileSync(tmp, (await render(iosIcon)).toJPEG(100))
+  execFileSync('sips', ['-s', 'format', 'png', tmp, '--out', ios], { stdio: 'ignore' })
+  console.log('wrote build/icon.svg, build/icon.png, docs/brand/freegaz-icon.svg, docs/brand/freegaz-mark.svg and the iOS app icon', img.getSize())
   app.quit()
 })

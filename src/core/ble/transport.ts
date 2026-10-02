@@ -1,5 +1,6 @@
 // Transport abstraction over Bluetooth LE. Implementations:
 //   * WebBluetoothTransport (renderer, Chrome/Electron)  src/renderer/src/ble/web-bluetooth.ts
+//   * NativeBleTransport (the iPhone app, CoreBluetooth)  src/renderer/src/ble/native-bluetooth.ts
 //   * SimTransport (virtual peripherals, tests/demo)     src/core/sim/transport.ts
 //   * NobleTransport (future fallback, utilityProcess)
 // Drivers only ever see these interfaces.
@@ -20,7 +21,7 @@ export interface AcquireRequest {
 }
 
 export interface BleTransport {
-  readonly kind: 'web-bluetooth' | 'sim' | 'noble'
+  readonly kind: 'web-bluetooth' | 'native' | 'sim' | 'noble'
   isAvailable(): Promise<boolean>
   /** Opens the chooser (or auto-picks) and resolves with the chosen peripheral. Rejects on cancel. */
   acquire(req: AcquireRequest): Promise<BlePeripheral>

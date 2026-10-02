@@ -48,7 +48,8 @@ export default defineConfig({
   plugins: [react(), tailwindcss(), installable()],
   server: { port: 5198, strictPort: true },
   build: {
-    outDir: resolve(__dirname, 'out/web'),
+    // the iPhone app's copy builds to out/ios-web (FREEGAZ_WEB_OUT), next to the Pages one
+    outDir: resolve(__dirname, process.env.FREEGAZ_WEB_OUT ?? 'out/web'),
     emptyOutDir: true,
     // the phone app is one page; the mini-HUD is desktop-only
     rollupOptions: { input: { index: resolve(__dirname, 'src/renderer/index.html') } },

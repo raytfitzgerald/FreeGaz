@@ -7,6 +7,7 @@
 import type { EventChannel, EventMap, FreegazBridge, InvokeChannel, InvokeReq, InvokeRes } from '@shared/ipc/contract'
 import { AppSettingsSchema, DEFAULT_SETTINGS, mergeSettings, migrateStoredSettings, type AppSettings } from '@shared/settings'
 import { bugIssueUrl } from '@core/support/bug-report'
+import * as native from './native'
 
 const SETTINGS_KEY = 'freegaz.web.settings'
 const query = () => new URLSearchParams(location.search)
@@ -75,9 +76,9 @@ export function createWebShim(): FreegazBridge {
   let wakeLock: { release(): Promise<void> } | null = null
 
   const handlers: Handlers = {
-    'app.ping': ({ msg }) => ({ pong: msg, version: `${__FREEGAZ_VERSION__}-web`, platform: 'web' }),
+    'app.ping': ({ msg }) => ({ pong: msg, version: `${__FREEGAZ_VERSION__}-${native.isNative() ? 'ios' : 'web'}`, platform: 'web' }),
     'app.info': () => ({
-      version: `${__FREEGAZ_VERSION__}-web`,
+      version: `${__FREEGAZ_VERSION__}-${native.isNative() ? 'ios' : 'web'}`,
       electron: 'n/a',
       chrome: navigator.userAgent.match(/Chrome\/([\d.]+)/)?.[1] ?? 'unknown',
       node: 'n/a',
@@ -91,9 +92,10 @@ export function createWebShim(): FreegazBridge {
       arch: 'browser',
     }),
     // the browser build opens the issue itself
-    'support.reportBug': ({ title, body }) => {
+    'support.reportBug': async ({ title, body }) => {
       const { url, trimmed } = bugIssueUrl(title, body)
-      window.open(url, '_blank', 'noopener')
+      if (native.isNative()) await native.openUrl(url)
+      else window.open(url, '_blank', 'noopener')
       return { ok: true, trimmed }
     },
     // the web app updates itself through its service worker
@@ -155,8 +157,9 @@ export function createWebShim(): FreegazBridge {
     'journal.read': ({ rideId }) => ({ text: ls.get(JOURNAL_PREFIX + rideId) ?? '' }),
 
     // Files download instead of landing in ~/Documents.
-    'files.saveFit': ({ fileName, bytes }) => {
+    'files.saveFit': async ({ fileName, bytes }) => {
       const name = fileName.endsWith('.fit') ? fileName : `${fileName}.fit`
+      if (native.isNative()) return { path: await native.saveFile('Rides', name, bytes), fileName: name }
       const url = URL.createObjectURL(new Blob([bytes.slice()], { type: 'application/vnd.ant.fit' }))
       const a = document.createElement('a')
       a.href = url
@@ -165,7 +168,8 @@ export function createWebShim(): FreegazBridge {
       setTimeout(() => URL.revokeObjectURL(url), 10_000)
       return { path: `Downloads/${name}`, fileName: name }
     },
-    'files.saveAs': ({ defaultName, bytes }) => {
+    'files.saveAs': async ({ defaultName, bytes }) => {
+      if (native.isNative()) return { path: await native.saveFile('', defaultName, bytes, true) }
       const url = URL.createObjectURL(new Blob([bytes.slice()]))
       const a = document.createElement('a')
       a.href = url
@@ -174,7 +178,7 @@ export function createWebShim(): FreegazBridge {
       setTimeout(() => URL.revokeObjectURL(url), 10_000)
       return { path: `Downloads/${defaultName}` }
     },
-    'files.exportDir': () => ({ dir: 'Downloads' }),
+    'files.exportDir': () => ({ dir: native.isNative() ? 'On My iPhone → FreeGaz → Rides' : 'Downloads' }),
     'files.chooseExportDir': () => ({ dir: null }),
     'files.reveal': () => ({ ok: false }),
     // ride moments need the Mac app's window capture
@@ -187,7 +191,11 @@ export function createWebShim(): FreegazBridge {
     'files.readFit': () => {
       throw new Error('Reading the FIT folder needs the desktop app')
     },
-    'files.exportZwift': ({ fileName, text }) => {
+    'files.exportZwift': async ({ fileName, text }) => {
+      if (native.isNative()) {
+        await native.saveFile('Workouts', fileName, new TextEncoder().encode(text), true)
+        return { paths: [], error: null }
+      }
       const url = URL.createObjectURL(new Blob([text], { type: 'application/xml' }))
       const a = document.createElement('a')
       a.href = url
@@ -196,7 +204,11 @@ export function createWebShim(): FreegazBridge {
       setTimeout(() => URL.revokeObjectURL(url), 10_000)
       return { paths: [], error: null }
     },
-    'files.openUrl': ({ url }) => {
+    'files.openUrl': async ({ url }) => {
+      if (native.isNative()) {
+        await native.openUrl(url)
+        return { ok: true }
+      }
       window.open(url, '_blank', 'noopener')
       return { ok: true }
     },
@@ -233,6 +245,10 @@ export function createWebShim(): FreegazBridge {
     'remote.status': () => ({ running: false, url: null, qrDataUrl: null, allowControl: false, clients: [] }),
     'remote.kick': () => ({ ok: true }),
     'power.keepAwake': async ({ on }) => {
+      if (native.isNative()) {
+        await native.keepAwake(on).catch(() => undefined)
+        return { ok: true }
+      }
       try {
         if (on && !wakeLock) wakeLock = await (navigator as unknown as { wakeLock: { request(t: 'screen'): Promise<{ release(): Promise<void> }> } }).wakeLock.request('screen')
         if (!on && wakeLock) {
