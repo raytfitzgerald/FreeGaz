@@ -13,6 +13,7 @@ an iPhone can drive a KICKR and read a heart-rate strap. No iPhone browser can.
 | FIT files | `~/Documents/FreeGaz/Rides` | Files → On My iPhone → FreeGaz → Rides | downloads |
 | Strava, intervals.icu, AI | yes | not yet (keys need a safe store) | no |
 | Ride moments (pictures) | yes | no (no window capture) | no |
+| The Donald and Bibi | yes | hidden for now | yes |
 
 ## How it fits together
 
@@ -94,7 +95,7 @@ npm run ios:release
 
 ### Review risks to decide before submitting
 
-- **The parody personas.** The Donald and Bibi are caricatures of real politicians, built from real photos. Guideline 1.1.1 allows political satire, but reviewers can still reject it. Guideline 5.2 also covers using real people's likenesses. The safe choices are to hide those two personas in the iPhone build, or to submit as is and remove them if review objects.
+- **The parody personas:** hidden in the iPhone build for now (`src/renderer/src/coach/available.ts`). The Donald and Bibi are caricatures of real politicians, built from real photos, and guidelines 1.1.1 and 5.2 make that a review risk. A rider whose saved coach is one of them, from an old setting or a restored Mac backup, gets the Drill Sergeant. The Mac and web apps keep both.
 - **Profanity** is fine at 17+.
 - **Minimum functionality (4.2):** native Bluetooth trainer control and local FIT files make this more than a wrapped website, which is the usual reason web-shell apps get rejected.
 - **Bluetooth usage text** is set in Info.plist (`NSBluetoothAlwaysUsageDescription`). Review checks that it explains why.
