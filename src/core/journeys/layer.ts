@@ -4,7 +4,7 @@
 // a dot along the journey's road at the speed the rider's power would give them there (the
 // same physics as route rides). The dot's position goes into the FIT file as
 // GPS, and its speed into the ride's speed and distance, so the activity's
-// numbers match its map. No power is coasting: missing is not progress.
+// numbers match its map. No power is freewheeling, and a pause stands still.
 import { DEFAULT_BIKE, stepSpeed, type BikeParams } from '../physics/bike'
 import type { PlanInput, PlanTick } from '../ride/plan'
 import { sampleAt } from '../routes/lookup'
@@ -98,15 +98,12 @@ export class JourneyLayer implements PlanLayer {
       const before = foldPosition(this.opts.startM + this.rideM, course.lengthM)
       const grade = terrain === 'flat' ? 0 : sampleAt(course.route.profile, before.positionM).gradePct * (before.reversed ? -1 : 1)
       this.lastAdvanceAt = input.now
-      if (input.power === null || !Number.isFinite(input.power)) {
-        // no power reading (no trainer, a dropout): you go nowhere, not even downhill
-        this.speedMps = 0
-      } else {
-        // a trainer reading 0 W freewheels, like a real descent
-        // stepSpeed is stable for any dt, but long gaps (a stall) shouldn't fling the rider forward
-        this.speedMps = stepSpeed(this.speedMps, Math.max(0, input.power), grade, Math.min(dt, 2), this.bike)
-        this.rideM += this.speedMps * dt
-      }
+      // no power (or no reading) is freewheeling: on the flat you roll to a stop, downhill you
+      // pick up speed, uphill you stop, just as on the road. stepSpeed is stable for any dt,
+      // but a long gap (a stall) shouldn't fling the rider forward
+      const power = input.power !== null && Number.isFinite(input.power) ? Math.max(0, input.power) : 0
+      this.speedMps = stepSpeed(this.speedMps, power, grade, Math.min(dt, 2), this.bike)
+      this.rideM += this.speedMps * dt
     } else if (input.now - this.lastAdvanceAt > STOPPED_AFTER_MS) {
       // moving time has stopped (paused): the dot is standing still
       this.speedMps = 0
