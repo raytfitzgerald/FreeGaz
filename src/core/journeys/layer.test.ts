@@ -76,7 +76,7 @@ describe('JourneyLayer', () => {
     let t = p.tick({ now: 61_000, movingS: 60, dtS: 0.25, power: 200, cadence: 90, hr: 140 }, IDLE_TICK)
     expect(t.speed).toBeGreaterThan(5)
     const before = t.journey!.rideM
-    t = p.tick({ now: 63_000, movingS: 60, dtS: 0.25, power: 0, cadence: 0, hr: 140 }, IDLE_TICK)
+    p.tick({ now: 63_000, movingS: 60, dtS: 0.25, power: 0, cadence: 0, hr: 140 }, IDLE_TICK)
     t = p.tick({ now: 70_000, movingS: 60, dtS: 0.25, power: null, cadence: null, hr: 140 }, IDLE_TICK)
     expect(t.speed).toBe(0)
     expect(t.journey!.speedMps).toBe(0)
