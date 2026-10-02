@@ -14,6 +14,8 @@ an iPhone can drive a KICKR and read a heart-rate strap. No iPhone browser can.
 | Strava, intervals.icu, AI | yes | not yet (keys need a safe store) | no |
 | Ride moments (pictures) | yes | no (no window capture) | no |
 | The Donald and Bibi | yes | hidden for now | yes |
+| Demo mode (simulated trainer) | `FREEGAZ_SIM=1` | Devices → Try demo mode | Devices → Try demo mode |
+| Devices | Mac | iPhone only (no iPad build yet) | any |
 
 ## How it fits together
 
@@ -47,6 +49,8 @@ In Xcode, plug in the iPhone (or pick it over Wi-Fi), choose it as the run desti
 
 The iOS Simulator runs the app but has no Bluetooth. Use the trainer on a real phone.
 
+No trainer nearby? Go to **Devices → Try demo mode**, or tap **Try demo mode** on the ride screen. A simulated trainer and heart-rate strap stand in, and those rides are marked simulated, so they never upload or count. Leave it from the same card.
+
 ## Ship a build to the App Store
 
 1. In [App Store Connect](https://appstoreconnect.apple.com), go to **Apps → +** and create the app:
@@ -65,6 +69,16 @@ npm run ios:release
    - in the Organizer, click **Distribute App → App Store Connect → Upload**.
 3. **TestFlight:** the build appears after processing (about 15 minutes). Install it on your phone with TestFlight and do a real ride before submitting.
 4. Fill in the listing (below), choose the build, then **Submit for Review**.
+
+### Screenshots
+
+`docs/app-store/` holds five 1320 × 2868 PNGs, the 6.9" iPhone size Apple asks for: Home, the ride picker, Workouts, a workout on the Stelvio journey, and the big tiles. They were captured from the production web build in demo mode, at 440 × 956 points × 3. Drag them in under **iPhone 6.9" Display**. The app is iPhone-only, so no iPad screenshots are needed.
+
+### Notes for the reviewer
+
+Paste this into **App Review Information → Notes**:
+
+> FreeGaz controls Bluetooth smart bike trainers (FTMS, e.g. Wahoo KICKR) and reads heart-rate straps. To try it without a trainer, open the Devices tab (More → Devices) and tap **Try demo mode**: a simulated trainer and heart-rate strap connect. Then tap **Ride → Workout**, pick any workout and tap **Ride it**. The workout plays, the coach rides alongside, and the journey map moves (turn on journeys in Settings → Journeys first). No account or sign-in is needed. Nothing leaves the device.
 
 ### Listing
 

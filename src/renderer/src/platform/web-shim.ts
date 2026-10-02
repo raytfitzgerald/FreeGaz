@@ -7,12 +7,12 @@
 import type { EventChannel, EventMap, FreegazBridge, InvokeChannel, InvokeReq, InvokeRes } from '@shared/ipc/contract'
 import { AppSettingsSchema, DEFAULT_SETTINGS, mergeSettings, migrateStoredSettings, type AppSettings } from '@shared/settings'
 import { bugIssueUrl } from '@core/support/bug-report'
+import { demoMode } from './demo'
 import * as native from './native'
 
 const SETTINGS_KEY = 'freegaz.web.settings'
 const query = () => new URLSearchParams(location.search)
 /** Simulated devices: the default while developing, opt-in (?sim=1) in the built web app. */
-const webSim = () => (import.meta.env.DEV ? query().get('sim') !== '0' : query().get('sim') === '1')
 
 function webOs(): string {
   const ua = navigator.userAgent
@@ -86,7 +86,7 @@ export function createWebShim(): FreegazBridge {
       documents: 'Downloads (browser)',
       isPackaged: false,
       isTest: false,
-      sim: webSim(),
+      sim: demoMode(),
       warp: Number(query().get('warp') ?? '1') || 1,
       os: webOs(),
       arch: 'browser',
